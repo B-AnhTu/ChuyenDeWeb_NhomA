@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Models\Blog;
+use App\Models\Category;
 use Illuminate\Http\Request;
 
 class BlogController extends Controller
@@ -11,10 +12,11 @@ class BlogController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index($page = 'index')
     {
         $data_blog = Blog::getAllBlog();
-        return view('blog.index', compact('data_blog'));
+        $data_cate = Category::getAllCate();
+        return view($page, ['data_blog' => $data_blog, 'data_cate'=> $data_cate]);
     }
 
     /**

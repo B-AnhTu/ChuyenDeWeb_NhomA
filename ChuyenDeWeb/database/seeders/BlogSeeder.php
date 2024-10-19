@@ -14,7 +14,7 @@ class BlogSeeder extends Seeder
     public function run(): void
     {
         DB::table('blog')->insert([
-            'image' => '',
+            'image' => 'blog-01.jpg',
             'title' => '10 Mẹo Bảo Quản Laptop Để Sử Dụng Lâu Dài',
             'short_description' => 'Bảo quản laptop đúng cách không chỉ giúp thiết bị hoạt động hiệu quả mà còn kéo dài tuổi thọ sử dụng. Hãy cùng khám phá 10 mẹo đơn giản để bảo trì laptop của bạn.',
             'content' => 'Laptop là một trong những thiết bị điện tử quan trọng nhất trong cuộc sống hàng ngày. Để đảm bảo rằng laptop của bạn luôn hoạt động tốt và bền bỉ, dưới đây là 10 mẹo bảo quản hiệu quả:
