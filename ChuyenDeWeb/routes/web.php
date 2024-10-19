@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\BlogController;
+use App\Http\Controllers\CategoryController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\LoadController;
 use App\Http\Controllers\RegisterController;
@@ -10,7 +12,20 @@ use App\Http\Controllers\ProfileUserController;
 // route đăng xuất
 Route::get('/logout', [LoginController::class, 'logout'])->name('logout');
 
+<<<<<<< HEAD
+
+
+//route blog
+Route::get('/{blog?}', [BlogController::class, 'index'])->name('blog.index');
+// //route cate
+// Route::get('/blog/{type?}', [CategoryController::class, 'index'])->name('cate.index');
+
+
+
+// route hiển thị trang index khi chạy lên đầu tiên 
+=======
 // route hiển thị trang index khi chạy lên đầu tiên
+>>>>>>> update_profile-user
 Route::get('/{page?}', [LoadController::class, 'page'])->name('index');
 
 Route::group(['middleware' => 'guest'], function () {
