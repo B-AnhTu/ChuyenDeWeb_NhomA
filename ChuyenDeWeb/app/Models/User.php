@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -13,15 +12,21 @@ class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
 
+    protected $primaryKey = 'user_id';
+    
     /**
      * The attributes that are mass assignable.
      *
      * @var array<int, string>
      */
     protected $fillable = [
-        'name',
+        'fullname',
         'email',
         'password',
+        'phone',
+        'is_online',
+        'address', 
+        'image',
     ];
 
     /**
@@ -45,11 +50,21 @@ class User extends Authenticatable
 
     protected $table = 'users';
 
+<<<<<<< HEAD
     public function blog() : HasOne {
         return $this->hasOne(Blog::class);
     }
 
     public function blogcomment() : HasOne {
         return $this->hasOne(BlogComment::class);
+=======
+    // Các mối quan hệ
+    public function blog() {
+        return $this->hasOne(Blog::class);
+    }
+
+    public function blogcomment() {
+        return $this->hasMany(BlogComment::class);
+>>>>>>> NguyenTanBin
     }
 }
