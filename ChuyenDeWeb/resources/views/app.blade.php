@@ -11,6 +11,7 @@
 
     <!-- Google Font -->
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@200;300;400;600;900&display=swap" rel="stylesheet">
+
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <!-- Css Styles -->
@@ -65,6 +66,8 @@
                             {{ auth()->user()->fullname }}
                         </button>
                         <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="{{ url('Profile-user') }}"><i
+                                        class="fa-solid fa-user"></i>Thông tin cá nhân</a></li>
                             <li><a class="dropdown-item" href="{{ url('change-password') }}"><i class="fa fa-lock"></i> Đổi
                                     mật khẩu</a></li>
                             <li><a class="dropdown-item" href="{{ route('logout') }}"><i
@@ -76,7 +79,7 @@
         </div>
         <nav class="humberger__menu__nav mobile-menu">
             <ul>
-                <li class="active"><a href="{{'/'}}">Home</a></li>
+                <li class="active"><a href="{{ '/' }}">Home</a></li>
                 <li><a href="./shop-grid.html">Shop</a></li>
                 <li><a href="#">Pages</a>
                     <ul class="header__menu__dropdown">
@@ -148,6 +151,8 @@
                                             {{ auth()->user()->fullname }}
                                         </button>
                                         <ul class="dropdown-menu">
+                                            <li><a class="dropdown-item" href="{{ url('Profile-user') }}"><i
+                                                        class="fa-solid fa-user"></i>Thông tin cá nhân</a></li>
                                             <li><a class="dropdown-item" href="{{ url('change-password') }}"><i
                                                         class="fa fa-lock"></i> Đổi mật khẩu</a></li>
                                             <li><a class="dropdown-item" href="{{ route('logout') }}"><i
@@ -165,13 +170,13 @@
             <div class="row">
                 <div class="col-lg-3">
                     <div class="header__logo">
-                        <a href="{{url('/')}}"><img src="img/logo.png" alt=""></a>
+                        <a href="{{ url('/') }}"><img src="img/logo.png" alt=""></a>
                     </div>
                 </div>
                 <div class="col-lg-6">
                     <nav class="header__menu">
                         <ul>
-                            <li class="active"><a href="{{url('/')}}">Home</a></li>
+                            <li class="active"><a href="{{ url('/') }}">Home</a></li>
                             <li><a href="./shop-grid.html">Shop</a></li>
                             <li><a href="#">Pages</a>
                                 <ul class="header__menu__dropdown">
@@ -211,7 +216,7 @@
                 <div class="col-lg-3 col-md-6 col-sm-6">
                     <div class="footer__about">
                         <div class="footer__about__logo">
-                            <a href="{{url('/')}}"><img src="img/logo.png" alt=""></a>
+                            <a href="{{ url('/') }}"><img src="img/logo.png" alt=""></a>
                         </div>
                         <ul>
                             <li>Address: 60-49 Road 11378 New York</li>
@@ -293,6 +298,7 @@
         integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous">
     </script>
     <script src="https://kit.fontawesome.com/f6dce9b617.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </body>
 
 </html>
