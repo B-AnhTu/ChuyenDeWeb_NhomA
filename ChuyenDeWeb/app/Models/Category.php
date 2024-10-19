@@ -10,10 +10,14 @@ class Category extends Model
     use HasFactory;
 
     protected $fillable = [
-        'category_name'
+        'category_name',
     ];
 
     protected $table = 'category';
 
     protected $primaryKey = 'category_id';
+    //hàm func lấy tất cả category
+    public static function getAllCate(){
+        return self::all();
+    }
 }
