@@ -4,14 +4,15 @@ use App\Http\Controllers\BlogController;
 use App\Http\Controllers\CategoryController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\LoadController;
-use PHPUnit\Event\TestSuite\Loaded;
 use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\ChangePasswordController;
+use App\Http\Controllers\ProfileUserController;
 
 // route đăng xuất
 Route::get('/logout', [LoginController::class, 'logout'])->name('logout');
 
+<<<<<<< HEAD
 
 
 //route blog
@@ -22,8 +23,10 @@ Route::get('/{blog?}', [BlogController::class, 'index'])->name('blog.index');
 
 
 // route hiển thị trang index khi chạy lên đầu tiên 
+=======
+// route hiển thị trang index khi chạy lên đầu tiên
+>>>>>>> update_profile-user
 Route::get('/{page?}', [LoadController::class, 'page'])->name('index');
-
 
 Route::group(['middleware' => 'guest'], function () {
     // route đăng nhập
@@ -38,4 +41,13 @@ Route::group(['middleware' => 'guest'], function () {
 Route::middleware(['auth'])->group(function () {
     // route đổi mật khẩu
     Route::post('/change-password', [ChangePasswordController::class, 'changePassword'])->name('change-password');
+
+    // route cập nhật thông tin cá nhân
+    Route::put('/Profile-user/update', [ProfileUserController::class, 'updateProfile'])->name('user.update');
+
+    // route thay đổi ảnh user
+    Route::post('/Profile-user/upload-profile-image', [ProfileUserController::class, 'updateProfileImage']);
+
+    // Thêm route mới cho trang Profile-User
+    Route::get('/Profile-user', [ProfileUserController::class, 'show'])->name('profile.show');
 });

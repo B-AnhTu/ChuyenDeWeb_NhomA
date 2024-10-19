@@ -56,6 +56,6 @@ class User extends Authenticatable
     }
 
     public function blogcomment() {
-        return $this->hasOne(BlogComment::class);
+        return $this->hasMany(BlogComment::class);
     }
 }
