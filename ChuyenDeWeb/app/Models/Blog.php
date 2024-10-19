@@ -33,6 +33,7 @@ class Blog extends Model
     //     return $this->hasOne(BlogComment::class);
     // }
 
+    //Hàm func lấy tất cả blog
     public static function getAllBlog(){
         return self::all();
     }
