@@ -13,34 +13,31 @@ class CategorySeeder extends Seeder
     public function run(): void
     {
         DB::table('category')->insert([
-            'category_name' => 'Điện thoại',
-            'image' => null,
-            'created_at' => now(),
-            'updated_at' => now()
-        ]);
-        DB::table('category')->insert([
-            'category_name' => 'Máy tính',
-            'image' => null,
-            'created_at' => now(),
-            'updated_at' => now()
-        ]);
-        DB::table('category')->insert([
-            'category_name' => 'Máy tính bàn',
-            'image' => null,
-            'created_at' => now(),
-            'updated_at' => now()
-        ]);
-        DB::table('category')->insert([
-            'category_name' => 'Tai nghe',
-            'image' => null,
-            'created_at' => now(),
-            'updated_at' => now()
-        ]);
-        DB::table('category')->insert([
-            'category_name' => 'Dây sạc',
-            'image' => null,
-            'created_at' => now(),
-            'updated_at' => now()
+            [
+                'category_name' => 'Cellphone',
+                'image' => 'cellphone.jpg',
+                'created_at' => now(),
+                ],
+                [
+                'category_name' => 'Tablet',
+                'image' => 'tablet.png',
+                'created_at' => now(),
+                ],
+                [
+                'category_name' => 'Tivi',
+                'image' => 'tv.jpg',
+                'created_at' => now(),
+                ],
+                [
+                'category_name' => 'Headphones',
+                'image' => 'headphones.png',
+                'created_at' => now(),
+                ],
+                [
+                'category_name' => 'Speaker',
+                'image' => 'speaker.png',
+                'created_at' => now(),
+                ],
         ]);
     }
 }
