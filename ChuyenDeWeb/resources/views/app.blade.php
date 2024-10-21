@@ -140,6 +140,7 @@
                                 </ul>
                             </div>
                             <div class="header__top__right__auth">
+                                <a href="{{ route('admin.index') }}"><i class="fa fa-user"></i> Admin</a>
                                 @guest
                                     <!-- Hiển thị nút Đăng nhập nếu chưa đăng nhập -->
                                     <a href="{{ url('/login') }}"><i class="fa fa-user"></i> Đăng nhập</a>

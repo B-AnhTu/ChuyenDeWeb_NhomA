@@ -16,25 +16,25 @@ class ManufacturerSeeder extends Seeder
     {
         DB::table('manufacturer')->insert([
             'manufacturer_name' => 'Huawei',
-            'image' => null,
+            'image' => 'logohuawei.png',
             'created_at' => now(),
             'updated_at' => now()
         ]);
         DB::table('manufacturer')->insert([
             'manufacturer_name' => 'Samsung',
-            'image' => null,
+            'image' => 'logosamsung.png',
             'created_at' => now(),
             'updated_at' => now()
         ]);
         DB::table('manufacturer')->insert([
             'manufacturer_name' => 'Apple',
-            'image' => null,
+            'image' => 'logoapples.png',
             'created_at' => now(),
             'updated_at' => now()
         ]);
         DB::table('manufacturer')->insert([
-            'manufacturer_name' => 'Oppo',
-            'image' => null,
+            'manufacturer_name' => 'Xiaomi',
+            'image' => 'logoxiaomi.png',
             'created_at' => now(),
             'updated_at' => now()
         ]);
