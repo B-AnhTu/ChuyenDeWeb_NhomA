@@ -13,6 +13,7 @@ use App\Http\Controllers\ProductController;
 // route đăng xuất
 Route::get('/logout', [LoginController::class, 'logout'])->name('logout');
 
+
 // route hiển thị sản phẩm trang index
 Route::get('/', [ProductController::class, 'index'])->name('products.index');
 
@@ -21,7 +22,12 @@ Route::get('/filter', [ProductController::class, 'filter'])->name('products.filt
 
 
 //route blog
-Route::get('/{blog?}', [BlogController::class, 'index'])->name('blog.index');
+Route::get('/blog/{id?}', [BlogController::class, 'index'])->name('blog.index');
+
+// route hiển thị trang index khi chạy lên đầu tiên
+Route::get('/{page?}', [LoadController::class, 'page'])->name('index');
+
+
 // //route cate
 // Route::get('/blog/{type?}', [CategoryController::class, 'index'])->name('cate.index');
 
@@ -29,6 +35,7 @@ Route::get('/{blog?}', [BlogController::class, 'index'])->name('blog.index');
 
 // route hiển thị trang index khi chạy lên đầu tiên 
 Route::get('/{page?}', [LoadController::class, 'page'])->name('index');
+
 
 
 Route::group(['middleware' => 'guest'], function () {
