@@ -67,10 +67,10 @@
                 <div class="row">
                     @if(isset($data_blog))
                     @foreach($data_blog as $blog)
-                    <div class="col-lg-6 col-md-6 col-sm-6">
+                    <div class="col-lg-4 col-md-4 col-sm-4">
                         <div class="blog__item">
                             <div class="blog__item__pic">
-                                <img src="{{ asset('/img/blog/' .$blog->image) }}" alt="">
+                                <img src="{{ asset('/img/blog/' .$blog->image) }}" alt="" class="big-img">
                             </div>
                             <div class="blog__item__text">
                                 <ul>
@@ -78,8 +78,8 @@
                                     <li><i class="fa fa-comment-o"></i> 5</li>
                                 </ul>
                                 <h5><a href="#">{{$blog->title}}</a></h5>
-                                <p>{{$blog->short_description}} </p>
-                                <a href="#" class="blog__btn">READ MORE <span class="arrow_right"></span></a>
+                                <p>{{substr($blog->short_description, 0, 100)}} </p>
+                                <a href="{{ route('blog.index', ['id' => $blog->blog_id])}}" class="blog__btn">READ MORE <span class="arrow_right"></span></a>
                             </div>
                         </div>
                     </div>

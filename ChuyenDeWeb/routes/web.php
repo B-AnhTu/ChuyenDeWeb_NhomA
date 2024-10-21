@@ -12,21 +12,16 @@ use App\Http\Controllers\ProfileUserController;
 // route đăng xuất
 Route::get('/logout', [LoginController::class, 'logout'])->name('logout');
 
-<<<<<<< HEAD
-
-
 //route blog
-Route::get('/{blog?}', [BlogController::class, 'index'])->name('blog.index');
+Route::get('/blog/{id?}', [BlogController::class, 'index'])->name('blog.index');
+
+// route hiển thị trang index khi chạy lên đầu tiên
+Route::get('/{page?}', [LoadController::class, 'page'])->name('index');
+
+
 // //route cate
 // Route::get('/blog/{type?}', [CategoryController::class, 'index'])->name('cate.index');
 
-
-
-// route hiển thị trang index khi chạy lên đầu tiên 
-=======
-// route hiển thị trang index khi chạy lên đầu tiên
->>>>>>> update_profile-user
-Route::get('/{page?}', [LoadController::class, 'page'])->name('index');
 
 Route::group(['middleware' => 'guest'], function () {
     // route đăng nhập

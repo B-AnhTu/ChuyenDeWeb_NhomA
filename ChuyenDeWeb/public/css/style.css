@@ -212,7 +212,16 @@ ol {
 	height: 70px;
 	object-fit: cover;
 }
-
+.big-img{
+	width: 230px;
+	height: 150px;
+	object-fit: cover;
+}
+.img-fluid{
+	width: 690px;
+	height: 390px;
+	object-fit: cover;
+}
 @keyframes loader {
 	0% {
 		-webkit-transform: rotate(0deg);
