@@ -27,9 +27,6 @@ Route::get('/search', [ProductController::class, 'search'])->name('products.sear
 //route blog
 Route::get('/blog/{id?}', [BlogController::class, 'index'])->name('blog.index');
 
-// route hiển thị trang index khi chạy lên đầu tiên
-Route::get('/{page?}', [LoadController::class, 'page'])->name('index');
-
 
 // //route cate
 // Route::get('/blog/{type?}', [CategoryController::class, 'index'])->name('cate.index');
