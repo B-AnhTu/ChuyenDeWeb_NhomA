@@ -15,28 +15,31 @@ class ManufacturerSeeder extends Seeder
     public function run(): void
     {
         DB::table('manufacturer')->insert([
-            'manufacturer_name' => 'Huawei',
-            'image' => null,
-            'created_at' => now(),
-            'updated_at' => now()
-        ]);
-        DB::table('manufacturer')->insert([
-            'manufacturer_name' => 'Samsung',
-            'image' => null,
-            'created_at' => now(),
-            'updated_at' => now()
-        ]);
-        DB::table('manufacturer')->insert([
-            'manufacturer_name' => 'Apple',
-            'image' => null,
-            'created_at' => now(),
-            'updated_at' => now()
-        ]);
-        DB::table('manufacturer')->insert([
-            'manufacturer_name' => 'Oppo',
-            'image' => null,
-            'created_at' => now(),
-            'updated_at' => now()
+            [
+                'manufacturer_name' => 'Apple',
+                'image' => 'logoapples.png',
+                'created_at' => now(),
+            ],
+            [
+                'manufacturer_name' => 'Samsung',
+                'image' => 'logosamsung.png',
+                'created_at' => now(),
+            ],
+            [
+                'manufacturer_name' => 'Xiaomi',
+                'image' => 'logoxiaomi.png',
+                'created_at' => now(),
+            ],
+            [
+                'manufacturer_name' => 'Huawei',
+                'image' => 'logohuawei.png',
+                'created_at' => now(),
+            ],
+            [
+                'manufacturer_name' => 'Google',
+                'image' => 'logogoogel.png',
+                'created_at' => now(),
+            ]
         ]);
     }
 }

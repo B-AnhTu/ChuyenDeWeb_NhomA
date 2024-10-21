@@ -8,11 +8,16 @@ use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\ChangePasswordController;
 use App\Http\Controllers\ProfileUserController;
+use App\Http\Controllers\ProductController;
 
 // route đăng xuất
 Route::get('/logout', [LoginController::class, 'logout'])->name('logout');
 
-<<<<<<< HEAD
+// route hiển thị sản phẩm trang index
+Route::get('/', [ProductController::class, 'index'])->name('products.index');
+
+// route hiển thị sản phẩm khi chọn nhà sản xuất
+Route::get('/filter', [ProductController::class, 'filter'])->name('products.filter');
 
 
 //route blog
@@ -23,10 +28,8 @@ Route::get('/{blog?}', [BlogController::class, 'index'])->name('blog.index');
 
 
 // route hiển thị trang index khi chạy lên đầu tiên 
-=======
-// route hiển thị trang index khi chạy lên đầu tiên
->>>>>>> update_profile-user
 Route::get('/{page?}', [LoadController::class, 'page'])->name('index');
+
 
 Route::group(['middleware' => 'guest'], function () {
     // route đăng nhập
