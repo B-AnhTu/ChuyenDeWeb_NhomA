@@ -9,15 +9,18 @@ class Category extends Model
 {
     use HasFactory;
 
+    protected $table = 'category';
+    protected $primaryKey = 'category_id'; 
+
+    // Các cột được phép gán dữ liệu hàng loạt
     protected $fillable = [
         'category_name',
+        'image', 
     ];
 
-    protected $table = 'category';
-
-    protected $primaryKey = 'category_id';
-    //hàm func lấy tất cả category
+    // Phương thức lấy tất cả category
     public static function getAllCate(){
         return self::all();
     }
 }
+

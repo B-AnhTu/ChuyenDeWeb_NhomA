@@ -9,11 +9,13 @@ class Manufacturer extends Model
 {
     use HasFactory;
 
+    protected $table = 'manufacturer'; 
+    protected $primaryKey = 'manufacturer_id'; 
+
+
     protected $fillable = [
-        'manufacturer_name'
+        'manufacturer_name',
+        'image', 
     ];
-
-    protected $table = 'manufacturer';
-
-    protected $primaryKey = 'manufacturer_id';
 }
+
