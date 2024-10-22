@@ -21,29 +21,21 @@
                     </div>
                 </div>
                 <div class="col-lg-9">
-                    <div class="hero__search">
-                        <div class="hero__search__form">
-                            <form action="#">
-                                <div class="hero__search__categories">
-                                    All Categories
-                                    <span class="arrow_carrot-down"></span>
-                                </div>
-                                <input type="text" placeholder="What do yo u need?">
-                                <button type="submit" class="site-btn">SEARCH</button>
-                            </form>
+                    <form id="search-form" class="d-flex align-items-center pb-5" action="#">
+                        <div class="hero__search__categories me-2">
+                            <select id="manufacturer-select" class="form-select" style="max-width: 150px;">
+                                <option value="">Tất cả danh mục</option>
+                                @foreach ($manufacturers->sortByDesc('created_at') as $manufacturer)
+                                    <option value="{{ $manufacturer->manufacturer_id }}">
+                                        {{ $manufacturer->manufacturer_name }}
+                                    </option>
+                                @endforeach
+                            </select>
                         </div>
-                        <div class="hero__search__phone">
-                            <div class="hero__search__phone__icon">
-                                <i class="fa fa-phone"></i>
-                            </div>
-                            <div class="hero__search__phone__text">
-                                <h5>+65 11.188.888</h5>
-                                <span>support 24/7 time</span>
-                            </div>
-                        </div>
-                    </div>
+                        <input type="text" placeholder="Bạn cần gì?" id="search-input" class="form-control me-2 w-50">
+                        <button type="submit" class="btn btn-primary" id="search-btn" disabled>Tìm kiếm</button>
+                    </form>
                     <div class="hero__item set-bg" data-setbg="img/banners/banner0.gif">
-                    </div>
                 </div>
             </div>
         </div>
@@ -298,8 +290,41 @@
         var productImageBasePath = "{{ asset('img/products') }}/";
         var isFilterActive = false;
         var currentManufacturerId = null;
-
+    
         $(document).ready(function() {
+            // Hàm cập nhật danh sách sản phẩm
+            function updateProductList(response) {
+                $('#product-list').html('');
+                if (response.data.length === 0) {
+                    $('#product-list').append('<p>Không tìm thấy sản phẩm nào.</p>');
+                    return;
+                }
+    
+                response.data.forEach(function(product) {
+                    $('#product-list').append(`
+                        <div class="col-lg-4 col-md-4 col-sm-6 mix fastfood vegetables">
+                            <div class="featured__item">
+                                <div class="featured__item__pic set-bg" style="background-image: url('${productImageBasePath}${product.image}');">
+                                    <ul class="featured__item__pic__hover">
+                                        <li><a href="#"><i class="fa fa-heart"></i></a></li>
+                                        <li><a href="#"><i class="fa fa-shopping-cart"></i></a></li>
+                                    </ul>
+                                </div>
+                                <div class="featured__item__text">
+                                    <h6><a href="#">${product.product_name}</a></h6>
+                                    <p><i class="fa-solid fa-eye px-1"></i>${product.product_view}</p>
+                                    <h5>${numberFormat(product.price)} VNĐ</h5>
+                                </div>
+                            </div>
+                        </div>
+                    `);
+                });
+                updatePagination(response.current_page, response.last_page);
+                if (typeof setBackgrounds === 'function') {
+                    setBackgrounds();
+                }
+            }
+    
             // Pagination for products (newest or filtered)
             $(document).on('click', '#pagination .page-link', function(e) {
                 e.preventDefault();
@@ -310,7 +335,7 @@
                     fetchNewestProducts(page);
                 }
             });
-
+    
             // Filter products by manufacturer
             $('.manufacturer-filter').on('click', function(e) {
                 e.preventDefault();
@@ -318,16 +343,16 @@
                 $(this).addClass('active');
                 $(this).css('color', 'green');
                 $('.manufacturer-filter').not(this).css('color', '');
-
+    
                 isFilterActive = true;
                 currentManufacturerId = $(this).data('id');
                 fetchProductsByManufacturer(currentManufacturerId, 1);
-
+    
                 $('html, body').animate({
                     scrollTop: $("#product-list").offset().top
                 }, 500);
             });
-
+    
             function fetchNewestProducts(page) {
                 $.ajax({
                     url: '{{ route('products.index') }}',
@@ -343,7 +368,7 @@
                     }
                 });
             }
-
+    
             function fetchProductsByManufacturer(manufacturerId, page) {
                 $.ajax({
                     url: '/filter',
@@ -360,58 +385,68 @@
                     }
                 });
             }
-
-            function updateProductList(response) {
-                $('#product-list').html('');
-                response.data.forEach(function(product) {
-                    $('#product-list').append(`
-                <div class="col-lg-4 col-md-4 col-sm-6 mix fastfood vegetables">
-                    <div class="featured__item">
-                        <div class="featured__item__pic set-bg" style="background-image: url('${productImageBasePath}${product.image}');">
-                            <ul class="featured__item__pic__hover">
-                                <li><a href="#"><i class="fa fa-heart"></i></a></li>
-                                <li><a href="#"><i class="fa fa-shopping-cart"></i></a></li>
-                            </ul>
-                        </div>
-                        <div class="featured__item__text">
-                            <h6><a href="#">${product.product_name}</a></h6>
-                            <p><i class="fa-solid fa-eye px-1"></i>${product.product_view}</p>
-                            <h5>${numberFormat(product.price)} vnđ</h5>
-                        </div>
-                    </div>
-                </div>
-            `);
-                });
-                updatePagination(response.current_page, response.last_page);
-
-                if (typeof setBackgrounds === 'function') {
-                    setBackgrounds();
-                }
-            }
-
+    
             function updatePagination(currentPage, lastPage) {
                 var pagination = '';
                 pagination += `<li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
-                <a class="page-link" href="#" data-page="${currentPage - 1}">Previous</a>
-           </li>`;
-
+                    <a class="page-link" href="#" data-page="${currentPage - 1}">Previous</a>
+                </li>`;
+    
                 for (var i = 1; i <= lastPage; i++) {
                     pagination += `<li class="page-item ${i === currentPage ? 'active' : ''}">
-                   <a class="page-link" href="#" data-page="${i}">${i}</a>
-               </li>`;
+                        <a class="page-link" href="#" data-page="${i}">${i}</a>
+                    </li>`;
                 }
-
+    
                 pagination += `<li class="page-item ${currentPage === lastPage ? 'disabled' : ''}">
-               <a class="page-link" href="#" data-page="${currentPage + 1}">Next</a>
-           </li>`;
-
+                    <a class="page-link" href="#" data-page="${currentPage + 1}">Next</a>
+                </li>`;
+    
                 $('#pagination .pagination').html(pagination);
             }
-
+    
             function numberFormat(number) {
                 return new Intl.NumberFormat('vi-VN').format(number);
             }
+    
+            // Tìm kiếm theo danh mục
+            $('#manufacturer-select, #search-input').on('input change', function() {
+                const selectedManufacturer = $('#manufacturer-select').val();
+                const searchInput = $('#search-input').val().trim();
+                $('#search-btn').prop('disabled', !(selectedManufacturer || searchInput));
+            });
+    
+            $('#search-form').on('submit', function(e) {
+                e.preventDefault();
+                const manufacturerId = $('#manufacturer-select').val();
+                const keyword = $('#search-input').val().trim();
+    
+                if (manufacturerId || keyword) {
+                    searchProducts(manufacturerId, keyword);
+                }
+            });
+    
+            function searchProducts(manufacturerId, keyword) {
+                $.ajax({
+                    url: '/search', // Đường dẫn tới route tìm kiếm
+                    type: 'GET',
+                    data: {
+                        manufacturer_id: manufacturerId,
+                        keyword: keyword
+                    },
+                    success: function(response) {
+                        updateProductList(response);
+                        $('html, body').animate({
+                            scrollTop: $("#product-list").offset().top
+                        }, 500);
+                    },
+                    error: function(xhr) {
+                        console.error(xhr);
+                    }
+                });
+            }
         });
     </script>
+    
 
 @endsection

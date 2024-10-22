@@ -20,12 +20,12 @@ Route::get('/', [ProductController::class, 'index'])->name('products.index');
 // route hiển thị sản phẩm khi chọn nhà sản xuất
 Route::get('/filter', [ProductController::class, 'filter'])->name('products.filter');
 
+// Route cho tìm kiếm sản phẩm
+Route::get('/search', [ProductController::class, 'search'])->name('products.search');
+
 
 //route blog
 Route::get('/blog/{id?}', [BlogController::class, 'index'])->name('blog.index');
-
-// route hiển thị trang index khi chạy lên đầu tiên
-Route::get('/{page?}', [LoadController::class, 'page'])->name('index');
 
 
 // //route cate

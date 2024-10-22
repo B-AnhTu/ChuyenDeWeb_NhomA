@@ -48,4 +48,31 @@ class ProductController extends Controller
             'data' => []  // Trả về mảng rỗng nếu không có sản phẩm
         ]);
     }
+
+    // tìm kiếm sản phẩm theo nhà sản xuất
+    public function search(Request $request)
+    {
+        $query = Product::query();
+
+        if ($request->has('manufacturer_id') && $request->manufacturer_id) {
+            $query->where('manufacturer_id', $request->manufacturer_id);
+        }
+
+        if ($request->has('keyword') && $request->keyword) {
+            $query->where('product_name', 'like', '%' . $request->keyword . '%');
+        }
+
+        $products = $query->paginate(6);
+
+        if ($request->ajax()) {
+            return response()->json([
+                'data' => $products->items(),
+                'current_page' => $products->currentPage(),
+                'last_page' => $products->lastPage(),
+                'message' => $products->isEmpty() ? 'Không tìm thấy sản phẩm nào.' : null
+            ]);
+        }
+
+        return view('index', compact('products', 'manufacturers'));
+    }
 }
