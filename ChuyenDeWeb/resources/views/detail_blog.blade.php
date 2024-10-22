@@ -1,5 +1,6 @@
 @extends('app')
 @section('content')
+
 <!-- Page Content -->
 <div class="container">
     <div class="row" style="margin-top: 4%">
@@ -21,7 +22,7 @@
                     <hr />
                     <img class="img-fluid rounded" src="{{ asset('/img/blog/' .$blog->image) }}" alt="">
                     <p class="card-text">
-                        {{nl2br(e($blog->content))}}
+                        {{($blog->content)}}
                     </p>
                 </div>
                 <div class="card-footer text-muted">
@@ -62,4 +63,5 @@
         </div>
     </div>
 </div>
+
 @endsection
