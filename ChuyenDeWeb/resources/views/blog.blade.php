@@ -31,7 +31,7 @@
                             <button type="submit"><span class="icon_search"></span></button>
                         </form>
                     </div>
-                    <div class="blog__sidebar__item">
+                    <!-- <div class="blog__sidebar__item">
                         <h4>Categories</h4>
                         <ul>
                             @if(isset($data_cate) && $data_cate->count() > 0)
@@ -42,9 +42,9 @@
                             <li>No categories available.</li>
                             @endif
                         </ul>
-                    </div>
+                    </div> -->
                     <div class="blog__sidebar__item">
-                        <h4>Recent News</h4>
+                        <h4>Bài viết mới</h4>
                         <div class="blog__sidebar__recent">
                             @if(isset($data_blog))
                             @foreach($data_blog as $blog)
@@ -77,8 +77,8 @@
                                     <li><i class="fa fa-calendar-o"></i> {{ $blog->created_at }}</li>
                                     <li><i class="fa fa-comment-o"></i> 5</li>
                                 </ul>
-                                <h5><a href="#">{{$blog->title}}</a></h5>
-                                <p>{{substr($blog->short_description, 0, 100)}} </p>
+                                <h5><a href="{{ route('blog.index', ['id' => $blog->blog_id])}}">{{$blog->title}}</a></h5>
+                                <p>{{substr($blog->short_description, 0, 90)}} </p>
                                 <a href="{{ route('blog.index', ['id' => $blog->blog_id])}}" class="blog__btn">READ MORE <span class="arrow_right"></span></a>
                             </div>
                         </div>

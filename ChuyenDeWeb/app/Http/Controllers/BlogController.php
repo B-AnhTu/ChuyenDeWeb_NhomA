@@ -21,7 +21,7 @@ class BlogController extends Controller
 
             // Nếu không tìm thấy blog với ID đã cho, trả về lỗi 404
             if (!$blog) {
-                abort(404);
+                return view('404');
             }
 
             return view('detail_blog', ['blog' => $blog]);

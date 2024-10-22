@@ -72,7 +72,6 @@ class ProductController extends Controller
                 'message' => $products->isEmpty() ? 'Không tìm thấy sản phẩm nào.' : null
             ]);
         }
-
         return view('index', compact('products', 'manufacturers'));
     }
 }
