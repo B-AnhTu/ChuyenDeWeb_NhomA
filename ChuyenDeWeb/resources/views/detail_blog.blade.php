@@ -21,7 +21,7 @@
                     <hr />
                     <img class="img-fluid rounded" src="{{ asset('/img/blog/' .$blog->image) }}" alt="">
                     <p class="card-text">
-                        {{$blog->content}}
+                        {{nl2br(e($blog->content))}}
                     </p>
                 </div>
                 <div class="card-footer text-muted">
