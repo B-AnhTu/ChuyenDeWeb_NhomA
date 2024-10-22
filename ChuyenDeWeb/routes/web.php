@@ -15,20 +15,6 @@ use App\Http\Controllers\AdminDashboardController;
 // route đăng xuất
 Route::get('/logout', [LoginController::class, 'logout'])->name('logout');
 
-// Route for admin dashboard
-Route::get('/{admin?}', [AdminDashboardController::class, 'index'])->name('admin.index');
-
-//route manufacturer
-Route::get('/manufacturerAdmin', [ManufacturerController::class, 'index'])->name('manufacturer.index');
-
-Route::get('/manufacturerCreate', [ManufacturerController::class, 'create'])->name('manufacturer.create');
-Route::post('/manufacturerCreate', [ManufacturerController::class, 'store'])->name('manufacturer.store');
-
-Route::get('/manufacturerUpdate', [ManufacturerController::class, 'edit'])->name('manufacturer.edit');
-Route::put('/manufacturerUpdate', [ManufacturerController::class, 'update'])->name('manufacturer.update');
-
-Route::delete('/manufacturerDelete', [ManufacturerController::class, 'destroy'])->name('manufacturer.destroy');
-
 //route category
 Route::get('/categoryAdmin', [CategoryController::class, 'index'])->name('category.index');
 
@@ -71,6 +57,20 @@ Route::middleware(['auth'])->group(function () {
     // Thêm route mới cho trang Profile-User
     Route::get('/Profile-user', [ProfileUserController::class, 'show'])->name('profile.show');
 });
+
+// Route for admin dashboard
+Route::get('/admin', [AdminDashboardController::class, 'index'])->name('admin.index');
+
+//route manufacturer
+Route::get('/manufacturerAdmin', [ManufacturerController::class, 'index'])->name('manufacturer.index');
+
+Route::get('/manufacturerCreate', [ManufacturerController::class, 'create'])->name('manufacturer.create');
+Route::post('/manufacturerCreate', [ManufacturerController::class, 'store'])->name('manufacturer.store');
+
+Route::get('/manufacturerUpdate/{manufacturer_id}', [ManufacturerController::class, 'edit'])->name('manufacturer.edit');
+Route::put('/manufacturerUpdate/{manufacturer_id}', [ManufacturerController::class, 'update'])->name('manufacturer.update');
+
+Route::delete('/manufacturerDelete/{manufacturer_id}', [ManufacturerController::class, 'destroy'])->name('manufacturer.delete');
 
 
 
