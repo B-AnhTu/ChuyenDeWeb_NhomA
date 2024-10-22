@@ -859,10 +859,11 @@ ol {
 }
 
 .featured__item__pic {
-	height: 270px;
+	height: 320px;
 	position: relative;
 	overflow: hidden;
 	background-position: center center;
+	object-fit: cover;
 }
 
 .featured__item__pic__hover {
