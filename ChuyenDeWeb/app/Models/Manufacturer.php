@@ -12,11 +12,13 @@ class Manufacturer extends Model
 
     protected $fillable = [
         'manufacturer_name',
+        'image',
     ];
 
     protected $table = 'manufacturer';
+    protected $primaryKey = 'manufacturer_id'; // Specify the correct primary key
 
-    protected $primaryKey = 'manufacturer_id';
+    // protected $primaryKey = 'manufacturer_id';
 
 
     // public function products()

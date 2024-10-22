@@ -16,9 +16,8 @@ class ManufacturerController extends Controller
      */
     public function index()
     {
-        $manufacturers = Manufacturer::all();
-        //return view('manufacturerAdmin', compact('manufacturers')); 
-        return view('manufacturerAdmin', ['manufacturers' => $manufacturers]); 
+        $manufacturers = Manufacturer::orderBy('created_at', 'desc')->paginate(3);
+        return view('manufacturerAdmin', ['manufacturers' => $manufacturers]);
     }
 
     /**
@@ -35,13 +34,13 @@ class ManufacturerController extends Controller
      */
     public function store(Request $request)
     {
-        $validatedData = $request->validate([
+        $validator = $request->validate([
             'manufacturer_name' => 'required|string|max:50',
             'image' => 'required|mimes:jpeg,jpg,png,gif|max:5120', 
         ], [
             'manufacturer_name.required' => 'Vui lòng nhập tên nhà sản xuất',
             'manufacturer_name.max' => 'Tên nhà sản xuất không được quá 50 ký tự',
-            'image.required' => 'Vui lòng chọn ảnh',
+            'image.required' => 'Vui lòng chọn hình ảnh để tải lên',
             'image.mimes' => 'Vui lòng chọn hình ảnh có đuôi hợp lệ như .png, .jpeg. .jpg',
             'image.max' => 'Kích thước tối đa của hình là 5MB',
         ]);
@@ -80,11 +79,11 @@ class ManufacturerController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Request $request)
+    public function edit(Request $request, string $manufacturer_id)
     {
-        //Tìm id của phone cần sửa
-        $manufacturer_id = $request->get('manufacturer_id');
-        $manufacturer = Manufacturer::find($manufacturer_id);
+        //Tìm id của nhà sản xuất cần sửa
+        // $manufacturer_id = $request->get('manufacturer_id');
+        $manufacturer = Manufacturer::findOrFail($manufacturer_id);
 
         //Chuyển đến trang cập nhật
         return view('manufacturerUpdate', ['manufacturer' => $manufacturer]);
@@ -95,12 +94,14 @@ class ManufacturerController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        $validatedData = $request->validate([
+        $validator = $request->validate([
             'manufacturer_name' => 'required|string|max:50',
             'image' => 'nullable|mimes:jpeg,jpg,png,gif|max:5120', 
         ], [
             'manufacturer_name.required' => 'Vui lòng nhập tên nhà sản xuất',
             'manufacturer_name.max' => 'Tên nhà sản xuất không được quá 50 ký tự',
+            'image.mimes' => 'Vui lòng chọn hình ảnh có đuôi hợp lệ như .png, .jpeg. .jpg',
+            'image.max' => 'Kích thước tối đa của hình là 5MB',
         ]);
 
         $manufacturer = Manufacturer::find($id);
@@ -130,12 +131,12 @@ class ManufacturerController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Request $request)
+    public function destroy(Request $request, string $manufacturer_id)
     {
-        $manufacturer_id = $request->get('manufacturer_id');
+        // $manufacturer_id = $request->get('manufacturer_id');
 
         // Kiểm tra xem nhà sản xuất có tồn tại không
-        $manufacturer = Manufacturer::find($manufacturer_id);
+        $manufacturer = Manufacturer::findOrFail($manufacturer_id);
         if (!$manufacturer) {
             return redirect()->route('manufacturer.index')->with('error', 'Nhà sản xuất không tồn tại.');
         }
