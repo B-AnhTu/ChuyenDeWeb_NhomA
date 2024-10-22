@@ -12,11 +12,26 @@ class BlogController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index($page = 'index')
+    public function index($id = null)
     {
+        // Trường hợp có ID (chi tiết blog)
+        if ($id) {
+            $blog = Blog::where('blog_id', $id)->first();
+
+
+            // Nếu không tìm thấy blog với ID đã cho, trả về lỗi 404
+            if (!$blog) {
+                return view('404');
+            }
+
+            return view('detail_blog', ['blog' => $blog]);
+        }
+
+        // Trường hợp không có ID (danh sách blog)
         $data_blog = Blog::getAllBlog();
         $data_cate = Category::getAllCate();
-        return view($page, ['data_blog' => $data_blog, 'data_cate'=> $data_cate]);
+
+        return view('blog', ['data_blog' => $data_blog, 'data_cate' => $data_cate]);
     }
 
     /**
