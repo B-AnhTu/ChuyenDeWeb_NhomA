@@ -23,7 +23,7 @@
                 <div class="col-lg-9">
                     <form id="search-form" class="d-flex align-items-center pb-5" action="#">
                         <div class="hero__search__categories me-2">
-                            <select id="manufacturer-select" class="form-select" style="max-width: 150px;">
+                            <select id="manufacturer-select" style="max-width: 150px;">
                                 <option value="">Tất cả danh mục</option>
                                 @foreach ($manufacturers->sortByDesc('created_at') as $manufacturer)
                                     <option value="{{ $manufacturer->manufacturer_id }}">
