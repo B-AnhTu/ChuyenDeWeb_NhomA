@@ -33,7 +33,7 @@
                             </select>
                         </div>
                         <input type="text" placeholder="Bạn cần gì?" id="search-input" class="form-control me-2 w-50">
-                        <button type="submit" class="btn btn-primary" id="search-btn" disabled>Tìm kiếm</button>
+                        <button type="submit" class="btn btn-primary" id="search-btn" disabled><i class="fa-solid fa-magnifying-glass"></i></button>
                     </form>
                     <div class="hero__item set-bg" data-setbg="img/banners/banner0.gif">
                 </div>
