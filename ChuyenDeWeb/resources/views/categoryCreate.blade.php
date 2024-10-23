@@ -34,7 +34,9 @@
                         <label for="image">Image</label>
                         <input type="file" name="image" id="image" class="form-control">
                     </div>
-                    <button type="submit" class="btn btn-primary mx-auto">Create</button>
+                    <div class="col-md-12 d-flex justify-content-center">
+                        <button type="submit" class="btn btn-primary my-3 mx-auto">Create</button>
+                    </div>
                 </form>
             </div>
         </div>
