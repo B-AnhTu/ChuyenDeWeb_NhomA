@@ -131,7 +131,7 @@ class ManufacturerController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Request $request, string $manufacturer_id)
+    public function destroy(string $manufacturer_id)
     {
         // $manufacturer_id = $request->get('manufacturer_id');
 
