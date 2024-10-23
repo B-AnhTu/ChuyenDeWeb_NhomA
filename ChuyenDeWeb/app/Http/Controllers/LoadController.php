@@ -24,7 +24,7 @@ class LoadController extends Controller
         // Nếu view không tồn tại, bạn có thể trả về một view mặc định hoặc báo lỗi
         return view('404');
 
-        return view($index);
+        //return view($index);
     }
 
     private function getStatistics()
