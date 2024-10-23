@@ -55,11 +55,13 @@ Route::delete('/productDelete/{product_id}', [ProductController::class, 'destroy
 Route::get('/', [ProductController::class, 'index'])->name('products.index');
 
 // route hiển thị sản phẩm khi chọn nhà sản xuất
-Route::get('/filter', [ProductController::class, 'filter'])->name('products.filter');
+Route::get('/filterByManufacturer', [ProductController::class, 'filter'])->name('products.filter');
+
+// route để lọc sản phẩm theo loại sản phẩm
+Route::get('/filterByCategory', [ProductController::class, 'filterByCategory'])->name('products.filterByCategory');
 
 // Route cho tìm kiếm sản phẩm
 Route::get('/search', [ProductController::class, 'search'])->name('products.search');
-
 
 //route blog
 Route::get('/blog/{id?}', [BlogController::class, 'index'])->name('blog.index');
