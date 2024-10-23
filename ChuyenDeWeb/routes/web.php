@@ -40,6 +40,17 @@ Route::put('/categoryUpdate/{category_id}', [CategoryController::class, 'update'
 
 Route::delete('/categoryDelete/{category_id}', [CategoryController::class, 'destroy'])->name('category.delete');
 
+//route product
+Route::get('/productAdmin', [ProductController::class, 'list'])->name('product.index');
+
+Route::get('/productCreate', [ProductController::class, 'create'])->name('product.create');
+Route::post('/productCreate', [ProductController::class, 'store'])->name('product.store');
+
+Route::get('/productUpdate/{product_id}', [ProductController::class, 'edit'])->name('product.edit');
+Route::put('/productUpdate/{product_id}', [ProductController::class, 'update'])->name('product.update');
+
+Route::delete('/productDelete/{product_id}', [ProductController::class, 'destroy'])->name('product.delete');
+
 // route hiển thị sản phẩm trang index
 Route::get('/', [ProductController::class, 'index'])->name('products.index');
 
