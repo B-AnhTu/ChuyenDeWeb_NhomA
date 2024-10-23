@@ -19,6 +19,8 @@ return new class extends Migration
             $table->string('address')->nullable();
             $table->string('phone');
             $table->string('image')->nullable();
+            $table->string('role')->default('user');
+            $table->string('permission')->default('viewer');
             $table->boolean('is_online')->default(false);
             $table->rememberToken();
             $table->timestamps();

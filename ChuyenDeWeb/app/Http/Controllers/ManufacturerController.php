@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Manufacturer;
+use App\Rules\SingleSpaceOnly;
 
 class ManufacturerController extends Controller
 {
@@ -16,7 +17,7 @@ class ManufacturerController extends Controller
      */
     public function index()
     {
-        $manufacturers = Manufacturer::orderBy('created_at', 'desc')->paginate(3);
+        $manufacturers = Manufacturer::orderBy('manufacturer_id', 'asc')->paginate(3);
         return view('manufacturerAdmin', ['manufacturers' => $manufacturers]);
     }
 
@@ -35,7 +36,7 @@ class ManufacturerController extends Controller
     public function store(Request $request)
     {
         $validator = $request->validate([
-            'manufacturer_name' => 'required|string|max:50',
+            'manufacturer_name' => ['required', 'string', 'max:50', new SingleSpaceOnly],
             'image' => 'required|mimes:jpeg,jpg,png,gif|max:5120', 
         ], [
             'manufacturer_name.required' => 'Vui lòng nhập tên nhà sản xuất',
@@ -95,7 +96,7 @@ class ManufacturerController extends Controller
     public function update(Request $request, string $id)
     {
         $validator = $request->validate([
-            'manufacturer_name' => 'required|string|max:50',
+            'manufacturer_name' => ['required', 'string', 'max:50', new SingleSpaceOnly],
             'image' => 'nullable|mimes:jpeg,jpg,png,gif|max:5120', 
         ], [
             'manufacturer_name.required' => 'Vui lòng nhập tên nhà sản xuất',
@@ -105,6 +106,10 @@ class ManufacturerController extends Controller
         ]);
 
         $manufacturer = Manufacturer::find($id);
+
+        if(!$manufacturer){
+            return redirect()->route('manufacturer.index')->with('error', 'Nhà sản xuất không tồn tại.');
+        }
 
         // Check if a new image is uploaded
         if ($request->hasFile('image')) {
@@ -131,7 +136,7 @@ class ManufacturerController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Request $request, string $manufacturer_id)
+    public function destroy(string $manufacturer_id)
     {
         // $manufacturer_id = $request->get('manufacturer_id');
 

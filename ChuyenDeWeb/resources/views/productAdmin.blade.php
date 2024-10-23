@@ -14,7 +14,7 @@
 <div class="container">
     <div class="row justify-content-center">
         <div class="col-md-12">
-            <h2 class="text-center">Category</h2>
+            <h2 class="text-center">Product</h2>
             @if (session('success'))
                 <div class="alert alert-success">
                     {{ session('success') }}
@@ -26,34 +26,44 @@
                 </div>
             @endif
             <div class="col-md-12 d-flex justify-content-end">
-                <a href="{{ route('category.create') }}" class="btn btn-primary my-3">Add Category</a>
+                <a href="{{ route('product.create') }}" class="btn btn-primary my-3">Add Product</a>
             </div>
-            <div class="col-md-10 justify-content-center mx-auto">
+            <div class="col-md-12 justify-content-center mx-auto">
                 <table class="table table-bordered table-striped">
                     <thead>
                         <tr>
                             <th>ID</th>
-                            <th>Category name</th>
+                            <th>Product name</th>
+                            <th>Price</th>
+                            <th>Stock quantity</th>
+                            <th>Product view</th>
+                            <th>Description</th>
+                            <th>Sold quantity</th>
                             <th>Image</th>
                             <th>Action</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach ($categories as $category)
+                        @foreach ($products as $product)
                             <tr>
-                                <td>{{ $category->category_id }}</td>
-                                <td>{{ $category->category_name }}</td>
-                                <td><img src="{{ asset('img/category/'. $category->image) }}"
-                                        alt="{{ $category->category_name }}" width="50"></td>
+                                <td>{{ $product->product_id }}</td>
+                                <td>{{ $product->product_name }}</td>
+                                <td>{{ $product->price }}</td>
+                                <td>{{ $product->stock_quantity }}</td>
+                                <td>{{ $product->product_view }}</td>
+                                <td>{{ Str::limit($product->description, 10) }}</td>
+                                <td>{{ $product->sold_quantity }}</td>
+                                <td><img src="{{ asset('img/products/' . $product->image) }}"
+                                        alt="{{ $product->product_name }}" width="50"></td>
                                 <td>
                                     <!-- Add action buttons here -->
-                                    <a href="{{ route('category.edit', $category->category_id) }}"
+                                    <a href="{{ route('product.edit', $product->product_id) }}"
                                         class="btn btn-primary">Edit</a>
-                                    <form action="{{ route('category.delete', $category->category_id) }}"
+                                    <form action="{{ route('product.delete', $product->product_id) }}"
                                         method="POST" style="display:inline;">
                                         @csrf
                                         @method('DELETE')
-                                        <button onclick="return confirm('Are you sure you want to delete this category?')" type="submit" class="btn btn-danger">Delete</button>
+                                        <button onclick="return confirm('Are you sure you want to delete this product?')" type="submit" class="btn btn-danger">Delete</button>
                                     </form>
                                 </td>
                             </tr>
@@ -61,7 +71,7 @@
                     </tbody>
                 </table>
                 <div class="col-md-12 d-flex justify-content-center">
-                    {{ $categories->links('pagination::bootstrap-4') }}
+                    {{ $products->links('pagination::bootstrap-4') }}
                 </div>
             </div>
 
