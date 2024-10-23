@@ -15,7 +15,19 @@
     <div class="row justify-content-center">
         <div class="col-md-12">
             <h2 class="text-center">Manufacturer</h2>
-            <a href="{{ route('manufacturer.create') }}" class="btn btn-primary my-3 mx-auto">Add Manufacturer</a>
+            @if (session('success'))
+                <div class="alert alert-success">
+                    {{ session('success') }}
+                </div>
+            @endif
+            @if (session('error'))
+                <div class="alert alert-danger">
+                    {{ session('error') }}
+                </div>
+            @endif
+            <div class="col-md-12 d-flex justify-content-end">
+                <a href="{{ route('manufacturer.create') }}" class="btn btn-primary my-3">Add Manufacturer</a>
+            </div>
             <div class="col-md-10 justify-content-center mx-auto">
                 <table class="table table-bordered table-striped">
                     <thead>
@@ -41,7 +53,7 @@
                                         method="POST" style="display:inline;">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" class="btn btn-danger">Delete</button>
+                                        <button onclick="return confirm('Are you sure you want to delete this manufacturer?')" type="submit" class="btn btn-danger">Delete</button>
                                     </form>
                                 </td>
                             </tr>
