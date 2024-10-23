@@ -64,10 +64,10 @@
                     <div class="featured__controls">
                         <ul>
                             <li>Sắp xếp</li>
-                            <li>Tên A - Z</li>
-                            <li>Tên Z - A</li>
-                            <li>Giá cao đến thấp</li>
-                            <li>Giá thấp đến cao</li>
+                            <li><a href="#" class="sort text-black" data-sort="name_asc">Tên A - Z</a></li>
+                            <li><a href="#" class="sort text-black" data-sort="name_desc">Tên Z - A</a></li>
+                            <li><a href="#" class="sort text-black" data-sort="price_desc">Giá cao đến thấp</a></li>
+                            <li><a href="#" class="sort text-black" data-sort="price_asc">Giá thấp đến cao</a></li>
                         </ul>
                     </div>
                 </div>
@@ -297,13 +297,30 @@
     {{-- jquery --}}
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
-    {{-- js hiển thị sản phẩm mới nhất và sản phẩm thuộc nhà sản xuất và phân trang mà không tải lại trang --}}
     <script>
         var productImageBasePath = "{{ asset('img/products') }}/";
         var isFilterActive = false;
         var currentManufacturerId = null;
 
         $(document).ready(function() {
+            // Hàm so sánh để sắp xếp sản phẩm
+            function compareProducts(a, b, sortBy) {
+                switch (sortBy) {
+                    case 'name_asc':
+                        return $(a).find('h6 a').text().localeCompare($(b).find('h6 a').text());
+                    case 'name_desc':
+                        return $(b).find('h6 a').text().localeCompare($(a).find('h6 a').text());
+                    case 'price_asc':
+                        return parseFloat($(a).find('h5').text().replace(/[^\d]/g, '')) -
+                            parseFloat($(b).find('h5').text().replace(/[^\d]/g, ''));
+                    case 'price_desc':
+                        return parseFloat($(b).find('h5').text().replace(/[^\d]/g, '')) -
+                            parseFloat($(a).find('h5').text().replace(/[^\d]/g, ''));
+                    default:
+                        return 0;
+                }
+            }
+
             // Hàm cập nhật danh sách sản phẩm
             function updateProductList(response) {
                 $('#product-list').html('');
@@ -331,6 +348,20 @@
                         </div>
                     `);
                 });
+
+                // Sau khi cập nhật danh sách, áp dụng lại sắp xếp nếu có
+                const activeSort = $('.sort[style*="color: green"]');
+                if (activeSort.length) {
+                    const sortBy = activeSort.data('sort');
+                    const products = $('#product-list').children('.mix').get();
+                    products.sort(function(a, b) {
+                        return compareProducts(a, b, sortBy);
+                    });
+                    $.each(products, function(index, item) {
+                        $('#product-list').append(item);
+                    });
+                }
+
                 updatePagination(response.current_page, response.last_page);
                 if (typeof setBackgrounds === 'function') {
                     setBackgrounds();
@@ -360,6 +391,35 @@
                 currentManufacturerId = $(this).data('id');
                 fetchProductsByManufacturer(currentManufacturerId, 1);
 
+                $('html, body').animate({
+                    scrollTop: $("#product-list").offset().top
+                }, 500);
+            });
+
+            // Sắp xếp sản phẩm trên trang hiện tại
+            $('.sort').on('click', function(e) {
+                e.preventDefault();
+                const sortBy = $(this).data('sort');
+
+                // Highlight nút sắp xếp được chọn
+                $('.sort').css('color', '');
+                $(this).css('color', 'green');
+
+                // Lấy tất cả các sản phẩm trên trang hiện tại
+                const productContainer = $('#product-list');
+                const products = productContainer.children('.mix').get();
+
+                // Sắp xếp mảng sản phẩm
+                products.sort(function(a, b) {
+                    return compareProducts(a, b, sortBy);
+                });
+
+                // Thêm lại các sản phẩm đã sắp xếp vào container
+                $.each(products, function(index, item) {
+                    productContainer.append(item);
+                });
+
+                // Scroll đến vị trí danh sách sản phẩm
                 $('html, body').animate({
                     scrollTop: $("#product-list").offset().top
                 }, 500);
@@ -440,7 +500,7 @@
 
             function searchProducts(manufacturerId, keyword) {
                 $.ajax({
-                    url: '/search', // Đường dẫn tới route tìm kiếm
+                    url: '/search',
                     type: 'GET',
                     data: {
                         manufacturer_id: manufacturerId,
@@ -475,7 +535,6 @@
                 }, 500);
             });
 
-            // Function to fetch products by category
             function fetchProductsByCategory(categoryId, page) {
                 $.ajax({
                     url: '/filterByCategory',
@@ -492,7 +551,6 @@
                     }
                 });
             }
-
         });
     </script>
 @endsection

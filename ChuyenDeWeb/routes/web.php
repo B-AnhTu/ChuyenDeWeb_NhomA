@@ -60,8 +60,11 @@ Route::get('/filterByManufacturer', [ProductController::class, 'filter'])->name(
 // route để lọc sản phẩm theo loại sản phẩm
 Route::get('/filterByCategory', [ProductController::class, 'filterByCategory'])->name('products.filterByCategory');
 
-// Route cho tìm kiếm sản phẩm
+// route cho tìm kiếm sản phẩm
 Route::get('/search', [ProductController::class, 'search'])->name('products.search');
+
+// route sắp xếp
+Route::get('/sort', [ProductController::class, 'sort'])->name('products.sort');
 
 //route blog
 Route::get('/blog/{id?}', [BlogController::class, 'index'])->name('blog.index');

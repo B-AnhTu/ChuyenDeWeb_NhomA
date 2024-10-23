@@ -104,6 +104,62 @@ class ProductController extends Controller
     }
 
 
+    // sắp xếp
+    public function sort(Request $request)
+    {
+        // Khởi tạo truy vấn sản phẩm
+        $query = Product::query();
+
+        // Lọc theo nhà sản xuất nếu có
+        if ($request->has('manufacturer_id') && $request->manufacturer_id) {
+            $query->where('manufacturer_id', $request->manufacturer_id);
+        }
+
+        // Lọc theo từ khóa nếu có
+        if ($request->has('keyword') && $request->keyword) {
+            $query->where('product_name', 'like', '%' . $request->keyword . '%');
+        }
+
+        // Sắp xếp sản phẩm dựa trên yêu cầu
+        if ($request->has('sort_by')) {
+            switch ($request->sort_by) {
+                case 'name_asc':
+                    $query->orderBy('product_name', 'asc');
+                    break;
+                case 'name_desc':
+                    $query->orderBy('product_name', 'desc');
+                    break;
+                case 'price_desc':
+                    $query->orderBy('price', 'desc');
+                    break;
+                case 'price_asc':
+                    $query->orderBy('price', 'asc');
+                    break;
+                default:
+                    // Mặc định không sắp xếp
+                    break;
+            }
+        } else {
+            // Nếu không có yêu cầu sắp xếp, sắp xếp theo ngày tạo
+            $query->orderBy('created_at', 'desc');
+        }
+
+        // Phân trang kết quả
+        $products = $query->paginate(8);
+
+        if ($request->ajax()) {
+            return response()->json([
+                'data' => $products->items(),
+                'current_page' => $products->currentPage(),
+                'last_page' => $products->lastPage(),
+                'message' => $products->isEmpty() ? 'Không tìm thấy sản phẩm nào.' : null
+            ]);
+        }
+
+        return view('index', compact('products', 'manufacturers', 'categories'));
+    }
+
+
 
 
 
