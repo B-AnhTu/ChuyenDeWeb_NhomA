@@ -16,8 +16,9 @@ class ProductController extends Controller
 {
     public function index(Request $request)
     {
-        $products = Product::orderBy('created_at', 'desc')->paginate(6);
+        $products = Product::orderBy('created_at', 'desc')->paginate(8);
         $manufacturers = Manufacturer::all();
+        $categories = Category::all();
 
         if ($request->ajax()) {
             return response()->json([
@@ -27,7 +28,7 @@ class ProductController extends Controller
             ]);
         }
 
-        return view('index', compact('products', 'manufacturers'));
+        return view('index', compact('products', 'manufacturers', 'categories'));
     }
 
 
@@ -38,7 +39,7 @@ class ProductController extends Controller
         if ($request->has('manufacturer_id')) {
             $products = Product::where('manufacturer_id', $request->manufacturer_id)
                 ->orderBy('created_at', 'desc')
-                ->paginate(6); // Phân trang với 6 sản phẩm một lần
+                ->paginate(8); // Phân trang với 8 sản phẩm một lần
 
             // Trả về JSON chứa sản phẩm và thông tin phân trang
             return response()->json([
@@ -53,6 +54,29 @@ class ProductController extends Controller
         ]);
     }
 
+    // lọc sản phẩm theo loại sản phẩm
+    public function filterByCategory(Request $request)
+    {
+        // Kiểm tra xem category_id có được gửi từ request hay không
+        if ($request->has('category_id')) {
+            $products = Product::where('category_id', $request->category_id)
+                ->orderBy('created_at', 'desc')
+                ->paginate(8); // Phân trang với 8 sản phẩm một lần
+
+            // Trả về JSON chứa sản phẩm và thông tin phân trang
+            return response()->json([
+                'data' => $products->items(),  // Trả về danh sách sản phẩm
+                'current_page' => $products->currentPage(),
+                'last_page' => $products->lastPage()
+            ]);
+        }
+
+        return response()->json([
+            'data' => []  // Trả về mảng rỗng nếu không có sản phẩm
+        ]);
+    }
+
+
     // tìm kiếm sản phẩm theo nhà sản xuất
     public function search(Request $request)
     {
@@ -66,7 +90,7 @@ class ProductController extends Controller
             $query->where('product_name', 'like', '%' . $request->keyword . '%');
         }
 
-        $products = $query->paginate(6);
+        $products = $query->paginate(8);
 
         if ($request->ajax()) {
             return response()->json([
@@ -78,6 +102,12 @@ class ProductController extends Controller
         }
         return view('index', compact('products', 'manufacturers'));
     }
+
+
+
+
+
+
     // Hiển thị danh sách sản phẩm trong admin
     public function list()
     {
@@ -102,7 +132,7 @@ class ProductController extends Controller
             'stock_quantity' => 'required|integer|min:0',
             'manufacturer_id' => 'required',
             'category_id' => 'required',
-        ],[
+        ], [
             'product_name.required' => 'Tên sản phẩm không được để trống',
             'product_name.max' => 'Tên sản phẩm không được quá 50 ký tự',
             'price.required' => 'Giá sản phẩm không được để trống',
@@ -164,7 +194,7 @@ class ProductController extends Controller
             'stock_quantity' => 'required|integer|min:0',
             'manufacturer_id' => 'required',
             'category_id' => 'required',
-        ],[
+        ], [
             'product_name.required' => 'Vui lòng nhập tên sản phẩm',
             'product_name.max' => 'Tên sản phẩm không được quá 50 ký tự',
             'price.required' => 'Vui lòng nhập giá sản phẩm',
@@ -182,7 +212,7 @@ class ProductController extends Controller
 
         $product = Product::find($product_id);
 
-        if(!$product){
+        if (!$product) {
             return redirect()->route('product.index')->with('error', 'Sản phẩm không tồn tại.');
         }
 
@@ -231,4 +261,3 @@ class ProductController extends Controller
         }
     }
 }
-

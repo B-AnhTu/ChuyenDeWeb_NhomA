@@ -33,12 +33,13 @@
                             </select>
                         </div>
                         <input type="text" placeholder="Bạn cần gì?" id="search-input" class="form-control me-2 w-50">
-                        <button type="submit" class="btn btn-primary" id="search-btn" disabled><i class="fa-solid fa-magnifying-glass"></i></button>
+                        <button type="submit" class="btn btn-primary" id="search-btn" disabled><i
+                                class="fa-solid fa-magnifying-glass"></i></button>
                     </form>
                     <div class="hero__item set-bg" data-setbg="img/banners/banner0.gif">
+                    </div>
                 </div>
             </div>
-        </div>
     </section>
     <!-- Hero Section End -->
 
@@ -50,13 +51,23 @@
                     <div class="section-title">
                         <h2>Sản phẩm mới nhất</h2>
                     </div>
+                    {{-- lọc sản phẩm theo loại sản phẩm --}}
                     <div class="featured__controls">
                         <ul>
-                            <li class="active" data-filter="*">All</li>
-                            <li data-filter=".oranges">Oranges</li>
-                            <li data-filter=".fresh-meat">Fresh Meat</li>
-                            <li data-filter=".vegetables">Vegetables</li>
-                            <li data-filter=".fastfood">Fastfood</li>
+                            @foreach ($categories as $category)
+                                <li><a href="#" class="category-filter text-black"
+                                        data-id="{{ $category->category_id }}">{{ $category->category_name }}</a></li>
+                            @endforeach
+                        </ul>
+                    </div>
+                    {{-- sắp xếp theo tên , giá --}}
+                    <div class="featured__controls">
+                        <ul>
+                            <li>Sắp xếp</li>
+                            <li>Tên A - Z</li>
+                            <li>Tên Z - A</li>
+                            <li>Giá cao đến thấp</li>
+                            <li>Giá thấp đến cao</li>
                         </ul>
                     </div>
                 </div>
@@ -64,7 +75,7 @@
             @if ($products->isNotEmpty())
                 <div class="row featured__filter" id="product-list">
                     @foreach ($products as $product)
-                        <div class="col-lg-4 col-md-4 col-sm-6 mix fastfood vegetables">
+                        <div class="col-lg-3 col-md-4 col-sm-6 mix fastfood vegetables">
                             <div class="featured__item">
                                 <div class="featured__item__pic set-bg"
                                     data-setbg="{{ asset('img/products/' . $product->image) }}">
@@ -91,7 +102,8 @@
                         </li>
                         @for ($i = 1; $i <= $products->lastPage(); $i++)
                             <li class="page-item {{ $i == $products->currentPage() ? 'active' : '' }}">
-                                <a class="page-link" href="#" data-page="{{ $i }}">{{ $i }}</a>
+                                <a class="page-link" href="#"
+                                    data-page="{{ $i }}">{{ $i }}</a>
                             </li>
                         @endfor
                         <li class="page-item {{ $products->hasMorePages() ? '' : 'disabled' }}">
@@ -290,7 +302,7 @@
         var productImageBasePath = "{{ asset('img/products') }}/";
         var isFilterActive = false;
         var currentManufacturerId = null;
-    
+
         $(document).ready(function() {
             // Hàm cập nhật danh sách sản phẩm
             function updateProductList(response) {
@@ -299,10 +311,10 @@
                     $('#product-list').append('<p>Không tìm thấy sản phẩm nào.</p>');
                     return;
                 }
-    
+
                 response.data.forEach(function(product) {
                     $('#product-list').append(`
-                        <div class="col-lg-4 col-md-4 col-sm-6 mix fastfood vegetables">
+                        <div class="col-lg-3 col-md-4 col-sm-6 mix fastfood vegetables">
                             <div class="featured__item">
                                 <div class="featured__item__pic set-bg" style="background-image: url('${productImageBasePath}${product.image}');">
                                     <ul class="featured__item__pic__hover">
@@ -324,7 +336,7 @@
                     setBackgrounds();
                 }
             }
-    
+
             // Pagination for products (newest or filtered)
             $(document).on('click', '#pagination .page-link', function(e) {
                 e.preventDefault();
@@ -335,7 +347,7 @@
                     fetchNewestProducts(page);
                 }
             });
-    
+
             // Filter products by manufacturer
             $('.manufacturer-filter').on('click', function(e) {
                 e.preventDefault();
@@ -343,16 +355,16 @@
                 $(this).addClass('active');
                 $(this).css('color', 'green');
                 $('.manufacturer-filter').not(this).css('color', '');
-    
+
                 isFilterActive = true;
                 currentManufacturerId = $(this).data('id');
                 fetchProductsByManufacturer(currentManufacturerId, 1);
-    
+
                 $('html, body').animate({
                     scrollTop: $("#product-list").offset().top
                 }, 500);
             });
-    
+
             function fetchNewestProducts(page) {
                 $.ajax({
                     url: '{{ route('products.index') }}',
@@ -368,10 +380,10 @@
                     }
                 });
             }
-    
+
             function fetchProductsByManufacturer(manufacturerId, page) {
                 $.ajax({
-                    url: '/filter',
+                    url: '/filterByManufacturer',
                     type: 'GET',
                     data: {
                         manufacturer_id: manufacturerId,
@@ -385,47 +397,47 @@
                     }
                 });
             }
-    
+
             function updatePagination(currentPage, lastPage) {
                 var pagination = '';
                 pagination += `<li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
                     <a class="page-link" href="#" data-page="${currentPage - 1}">Previous</a>
                 </li>`;
-    
+
                 for (var i = 1; i <= lastPage; i++) {
                     pagination += `<li class="page-item ${i === currentPage ? 'active' : ''}">
                         <a class="page-link" href="#" data-page="${i}">${i}</a>
                     </li>`;
                 }
-    
+
                 pagination += `<li class="page-item ${currentPage === lastPage ? 'disabled' : ''}">
                     <a class="page-link" href="#" data-page="${currentPage + 1}">Next</a>
                 </li>`;
-    
+
                 $('#pagination .pagination').html(pagination);
             }
-    
+
             function numberFormat(number) {
                 return new Intl.NumberFormat('vi-VN').format(number);
             }
-    
+
             // Tìm kiếm theo danh mục
             $('#manufacturer-select, #search-input').on('input change', function() {
                 const selectedManufacturer = $('#manufacturer-select').val();
                 const searchInput = $('#search-input').val().trim();
                 $('#search-btn').prop('disabled', !(selectedManufacturer || searchInput));
             });
-    
+
             $('#search-form').on('submit', function(e) {
                 e.preventDefault();
                 const manufacturerId = $('#manufacturer-select').val();
                 const keyword = $('#search-input').val().trim();
-    
+
                 if (manufacturerId || keyword) {
                     searchProducts(manufacturerId, keyword);
                 }
             });
-    
+
             function searchProducts(manufacturerId, keyword) {
                 $.ajax({
                     url: '/search', // Đường dẫn tới route tìm kiếm
@@ -445,8 +457,42 @@
                     }
                 });
             }
+
+            // Filter products by category
+            $('.category-filter').on('click', function(e) {
+                e.preventDefault();
+                $('.category-filter').removeClass('active');
+                $(this).addClass('active');
+                $(this).css('color', 'green');
+                $('.category-filter').not(this).css('color', '');
+
+                isFilterActive = true;
+                currentCategoryId = $(this).data('id');
+                fetchProductsByCategory(currentCategoryId, 1);
+
+                $('html, body').animate({
+                    scrollTop: $("#product-list").offset().top
+                }, 500);
+            });
+
+            // Function to fetch products by category
+            function fetchProductsByCategory(categoryId, page) {
+                $.ajax({
+                    url: '/filterByCategory',
+                    type: 'GET',
+                    data: {
+                        category_id: categoryId,
+                        page: page
+                    },
+                    success: function(response) {
+                        updateProductList(response);
+                    },
+                    error: function(error) {
+                        console.log(error);
+                    }
+                });
+            }
+
         });
     </script>
-    
-
 @endsection
