@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Models\Category;
-use App\Rules\TextOnly;
 use App\Rules\SingleSpaceOnly;
 use Illuminate\Http\Request;
 
@@ -37,7 +36,7 @@ class CategoryController extends Controller
     public function store(Request $request)
     {
         $validator = $request->validate([
-            'category_name' => ['required', 'string', 'max:50', new TextOnly, new SingleSpaceOnly],
+            'category_name' => ['required', 'string', 'max:50', new SingleSpaceOnly],
             'image' => 'required|mimes:jpeg,jpg,png,gif|max:5120', 
         ], [
             'category_name.required' => 'Vui lòng nhập tên danh mục',
@@ -97,7 +96,7 @@ class CategoryController extends Controller
     public function update(Request $request, string $id)
     {
         $validator = $request->validate([
-            'category_name' => ['required', 'string', 'max:50', new TextOnly, new SingleSpaceOnly], 
+            'category_name' => ['required', 'string', 'max:50', new SingleSpaceOnly], 
             'image' => 'nullable|mimes:jpeg,jpg,png,gif|max:5120', 
         ], [
             'category_name.required' => 'Vui lòng nhập tên danh mục',

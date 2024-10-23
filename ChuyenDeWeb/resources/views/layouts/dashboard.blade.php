@@ -21,6 +21,10 @@
 
         <!-- Main Content -->
         <div class="main-panel">
+            <!-- Header -->
+            @include('partials.header')
+
+            <!-- Main Content -->
             @yield('content')
         </div>
     </div>
