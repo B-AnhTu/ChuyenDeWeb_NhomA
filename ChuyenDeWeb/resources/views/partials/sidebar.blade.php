@@ -51,7 +51,7 @@
                                 </a>
                             </li>
                             <li>
-                                <a href="{{ route('product.index') }}">
+                                <a href="#">
                                     <span class="sub-item">Product Management</span>
                                 </a>
                             </li>
@@ -61,7 +61,7 @@
                                 </a>
                             </li>
                             <li>
-                                <a href="{{ route('blog.index') }}">
+                                <a href="#">
                                     <span class="sub-item">Blog Management</span>
                                 </a>
                             </li>

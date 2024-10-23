@@ -10,7 +10,7 @@ class AdminDashboardController extends Controller
     /**
      * Display the admin dashboard.
      */
-    public function index($page = 'admin')
+    public function index($page = 'adminPage')
     {
         return view($page); // Ensure this matches the directory structure and file name
     }
