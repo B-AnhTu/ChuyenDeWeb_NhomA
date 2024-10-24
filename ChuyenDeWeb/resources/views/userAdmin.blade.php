@@ -42,14 +42,14 @@
                                 <td>
                                     <!-- Add action buttons here -->
                                     <a href="{{ route('userAdmin.show', $user->user_id) }}"
-                                        class="btn btn-primary"><i class="fas fa-2x fa-eye"></i></a>
+                                        class="btn btn-primary"><i class="fas fa-eye"></i></a>
                                     <a href="{{ route('userAdmin.edit', $user->user_id) }}"
-                                        class="btn btn-primary"><i class="fas fa-2x fa-pencil-alt"></i></a>
+                                        class="btn btn-primary"><i class="fas fa-pencil-alt"></i></a>
                                     <form action="{{ route('userAdmin.delete', $user->user_id) }}"
                                         method="POST" style="display:inline;">
                                         @csrf
                                         @method('DELETE')
-                                        <button onclick="return confirm('Are you sure you want to delete this user?')" type="submit" class="btn btn-danger"><i class="fas fa-2x fa-trash"></i></button>
+                                        <button onclick="return confirm('Are you sure you want to delete this user?')" type="submit" class="btn btn-danger"><i class="fas fa-trash"></i></button>
                                     </form>
                                 </td>
                             </tr>

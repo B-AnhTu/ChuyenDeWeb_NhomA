@@ -38,14 +38,14 @@
                                 <td>
                                     <!-- Add action buttons here -->
                                     <a href="{{ route('manufacturer.show', $manufacturer->manufacturer_id) }}"
-                                        class="btn btn-primary"><i class="fas fa-2x fa-eye"></i></a>
+                                        class="btn btn-primary"><i class="fas fa-eye"></i></a>
                                     <a href="{{ route('manufacturer.edit', $manufacturer->manufacturer_id) }}"
-                                        class="btn btn-primary"><i class="fas fa-2x fa-pencil-alt"></i></a>
+                                        class="btn btn-primary"><i class="fas fa-pencil-alt"></i></a>
                                     <form action="{{ route('manufacturer.delete', $manufacturer->manufacturer_id) }}"
                                         method="POST" style="display:inline;">
                                         @csrf
                                         @method('DELETE')
-                                        <button onclick="return confirm('Are you sure you want to delete this manufacturer?')" type="submit" class="btn btn-danger"><i class="fas fa-2x fa-trash"></i></button>
+                                        <button onclick="return confirm('Are you sure you want to delete this manufacturer?')" type="submit" class="btn btn-danger"><i class="fas fa-trash"></i></button>
                                     </form>
                                 </td>
                             </tr>
