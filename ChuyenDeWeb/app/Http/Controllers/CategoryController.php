@@ -69,11 +69,13 @@ class CategoryController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Request $request)
+    public function show(Request $request, string $category_id)
     {
         //Tìm id của danh mục cần xem
-        $category_id = $request->get('category_id');
-        $category = Category::find($category_id);
+        $category = Category::findOrFail($category_id);
+        if (!$category) {
+            return redirect()->route('category.index')->with('error', 'Danh mục không tồn tại');
+        }
         return view('categoryShow', compact('category'));
     }
 
@@ -143,7 +145,10 @@ class CategoryController extends Controller
         if (!$category) {
             return redirect()->route('category.index')->with('error', 'Danh mục không tồn tại.');
         }
-
+        // Delete image if exists
+        if ($category->image && file_exists(public_path('img/category/' . $category->image))) {
+            unlink(public_path('img/category/' . $category->image));
+        }
         // Thực hiện xóa nhà sản xuất
         try {
             $category->delete();

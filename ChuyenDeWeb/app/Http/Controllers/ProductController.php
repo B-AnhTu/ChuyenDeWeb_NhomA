@@ -231,6 +231,15 @@ class ProductController extends Controller
 
         return redirect()->route('product.index')->with('success', 'Sản phẩm đã được tạo thành công');
     }
+    // Hiển thị chi tiết sản phẩm
+    public function show(Request $request, string $product_id)
+    {
+        $product = Product::findOrFail($product_id);
+        if (!$product) {
+            return redirect()->route('productAdmin.index')->with('error', 'Sản phẩm không tồn tại');
+        }
+        return view('productShow', compact('product'));
+    }
     // Hiển thị form cập nhật sản phẩm trong admin
     public function edit($product_id)
     {
@@ -306,7 +315,10 @@ class ProductController extends Controller
         if (!$product) {
             return redirect()->route('product.index')->with('error', 'Sản phẩm không tồn tại.');
         }
-
+        // Delete image if exists
+        if ($product->image && file_exists(public_path('img/products/' . $product->image))) {
+            unlink(public_path('img/products/' . $product->image));
+        }
         // Thực hiện xóa sản phẩm
         try {
             $product->delete();
