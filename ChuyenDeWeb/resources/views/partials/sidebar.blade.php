@@ -42,7 +42,7 @@
                         <ul class="nav nav-collapse">
                             <li>
                                 <a href="{{ route('admin.index') }}">
-                                    <span class="sub-item">Dashboard Management</span>
+                                    <span class="sub-item">Role Management</span>
                                 </a>
                             </li>
                             <li>
@@ -58,6 +58,11 @@
                             <li>
                                 <a href="{{ route('category.index') }}">
                                     <span class="sub-item">Category Management</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{{ route('userAdmin.index') }}">
+                                    <span class="sub-item">User Management</span>
                                 </a>
                             </li>
                             <li>
