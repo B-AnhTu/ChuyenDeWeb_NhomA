@@ -1,15 +1,5 @@
 @extends('layouts.dashboard')
-<style>
-    .action-buttons {
-        display: flex;
-        gap: 5px;
-        /* Adjust the gap between buttons as needed */
-    }
 
-    .action-buttons form {
-        display: inline;
-    }
-</style>
 @section('content')
 <div class="container">
     <div class="row justify-content-center">
@@ -47,13 +37,15 @@
                                         alt="{{ $category->category_name }}" width="50"></td>
                                 <td>
                                     <!-- Add action buttons here -->
+                                    <a href="{{ route('category.show', $category->category_id) }}"
+                                        class="btn btn-primary"><i class="fas fa-2x fa-eye"></i></a>
                                     <a href="{{ route('category.edit', $category->category_id) }}"
-                                        class="btn btn-primary">Edit</a>
+                                        class="btn btn-primary"><i class="fas fa-2x fa-pencil-alt"></i></a>
                                     <form action="{{ route('category.delete', $category->category_id) }}"
                                         method="POST" style="display:inline;">
                                         @csrf
                                         @method('DELETE')
-                                        <button onclick="return confirm('Are you sure you want to delete this category?')" type="submit" class="btn btn-danger">Delete</button>
+                                        <button onclick="return confirm('Are you sure you want to delete this category?')" type="submit" class="btn btn-danger"><i class="fas fa-2x fa-trash"></i></button>
                                     </form>
                                 </td>
                             </tr>

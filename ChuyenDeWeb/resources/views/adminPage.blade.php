@@ -12,7 +12,7 @@
                 <div class="col-md-10 justify-content-center mx-auto">
                     <table class="table table-bordered table-striped">
                         <thead>
-                            <tr>
+                            <tr class="text-center">
                                 <th>ID</th>
                                 <th>Fullname</th>
                                 <th>Image</th>
@@ -32,9 +32,10 @@
                                         <option>Editor</option>
                                     </select>
                                 </td>
-                                <td>
-                                    <button class="btn btn-primary">Edit</button>
-                                    <button class="btn btn-danger">Delete</button>
+                                <td class="text-center">
+                                    <a href=""><i class="fas fa-2x fa-eye"></i></a>
+                                    <a href=""><i class="fas fa-2x fa-pencil-alt"></i></a>
+                                    <a href=""><i class="fas fa-2x fa-trash"></i></a>
                                 </td>
                             </tr>
                             <!-- More rows as needed -->
