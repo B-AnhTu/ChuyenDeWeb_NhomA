@@ -26,7 +26,6 @@ return new class extends Migration
             //Khóa ngoại 
             $table->foreign('category_id')->references('category_id')->on('category');
             $table->foreign('manufacturer_id')->references('manufacturer_id')->on('manufacturer');
-
             $table->timestamps();
         });
     }
