@@ -402,8 +402,7 @@
 
         function fetchNewestProducts(page) {
             $.ajax({
-                url: '{{ route('
-                products.index ') }}',
+                url: '{{ route("products.index") }}',
                 type: 'GET',
                 data: {
                     page: page
