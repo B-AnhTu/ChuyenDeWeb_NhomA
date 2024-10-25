@@ -90,7 +90,7 @@ Route::get('/sort', [ProductController::class, 'sort'])->name('products.sort');
 Route::get('/productDetail/{slug}', [ProductController::class, 'showProductDetail']);
 
 //route blog
-Route::get('/blog/{id?}', [BlogController::class, 'index'])->name('blog.index');
+Route::get('blog/{slug?}', [BlogController::class, 'index'])->name('blog.index');
 
 // route hiển thị trang index khi chạy lên đầu tiên
 Route::get('/{page?}', [LoadController::class, 'page'])->name('index');
