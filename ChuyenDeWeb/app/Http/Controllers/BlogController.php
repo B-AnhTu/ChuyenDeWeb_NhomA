@@ -12,26 +12,61 @@ class BlogController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index($id = null)
+    public function index(Request $request, $slug = null)
     {
-        // Trường hợp có ID (chi tiết blog)
-        if ($id) {
-            $blog = Blog::where('blog_id', $id)->first();
+        // Lấy bài viết mới nhất cho sidebar
+        $recent_posts = Blog::orderBy('created_at', 'desc')->take(5)->get();
 
+        // Trường hợp có slug (chi tiết blog)
+        if ($slug) {
+            try {
+                // Tìm bài viết theo slug
+                $blog = Blog::where('slug', $slug)->first();
 
-            // Nếu không tìm thấy blog với ID đã cho, trả về lỗi 404
-            if (!$blog) {
+                if (!$blog) {
+                    return view('404');
+                }
+
+                return view('detail_blog', [
+                    'blog' => $blog,
+                    'recent_posts' => $recent_posts
+                ]);
+            } catch (\Exception $e) {
+                // Nếu có lỗi, chuyển đến trang 404
                 return view('404');
             }
-
-            return view('detail_blog', ['blog' => $blog]);
         }
 
-        // Trường hợp không có ID (danh sách blog)
-        $data_blog = Blog::getAllBlog();
+        // Số bài viết trên mỗi trang
+        $perPage = 6;
+        // Lấy số trang hiện tại từ query parameter, mặc định là 1
+        $currentPage = $request->query('page', 1);
+
+        // Lấy tất cả bài viết và phân trang
+        $data_blog = Blog::orderBy('created_at', 'desc')
+            ->skip(($currentPage - 1) * $perPage)
+            ->take($perPage)
+            ->get();
+
+        // Lấy tổng số bài viết để tính số trang
+        $totalPosts = Blog::count();
+        $totalPages = ceil($totalPosts / $perPage);
+
+        // Kiểm tra nếu trang hiện tại vượt quá tổng số trang
+        if ($currentPage > $totalPages && $totalPages > 0) {
+            return redirect()->route('blog.index', ['page' => 1]);
+        }
+
         $data_cate = Category::getAllCate();
 
-        return view('blog', ['data_blog' => $data_blog, 'data_cate' => $data_cate]);
+        return view('blog', [
+            'data_blog' => $data_blog,
+            'data_cate' => $data_cate,
+            'recent_posts' => $recent_posts,
+            'currentPage' => $currentPage,
+            'totalPages' => $totalPages,
+            'totalPosts' => $totalPosts
+        ]);
     }
 
     /**
