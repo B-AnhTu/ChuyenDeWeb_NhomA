@@ -66,7 +66,7 @@
                                 </a>
                             </li>
                             <li>
-                                <a href="#">
+                                <a href="{{ route('blogAdmin.index') }}">
                                     <span class="sub-item">Blog Management</span>
                                 </a>
                             </li>

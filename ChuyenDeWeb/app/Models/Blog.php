@@ -18,6 +18,7 @@ class Blog extends Model
         'title',
         'short_description',
         'content',
+        'user_id',
         'created_at',
     ];
 
@@ -25,9 +26,10 @@ class Blog extends Model
 
     protected $primaryKey = 'blog_id';
 
-    // public function user(): BelongsTo{
-    //     return $this->belongsTo(User::class);
-    // }
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
 
     // public function blogcomment(): HasOne{
     //     return $this->hasOne(BlogComment::class);
