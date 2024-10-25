@@ -11,6 +11,7 @@ use App\Http\Controllers\LoginController;
 use App\Http\Controllers\ChangePasswordController;
 use App\Http\Controllers\ProfileUserController;
 use App\Http\Controllers\AdminDashboardController;
+use App\Http\Controllers\NewsletterController;
 use App\Http\Controllers\UserController;
 
 // route đăng xuất
@@ -91,6 +92,19 @@ Route::get('/productDetail/{slug}', [ProductController::class, 'showProductDetai
 
 //route blog
 Route::get('blog/{slug?}', [BlogController::class, 'index'])->name('blog.index');
+//route mail
+// routes/web.php
+
+Route::post('/newsletter/subscribe', [NewsletterController::class, 'subscribe'])->name('newsletter.subscribe');
+Route::get('/newsletter/verify/{token}', [NewsletterController::class, 'verify'])->name('newsletter.verify');
+Route::get('/newsletter/unsubscribe/{email}', [NewsletterController::class, 'unsubscribe'])->name('newsletter.unsubscribe');
+
+// Admin routes
+Route::middleware(['auth', 'admin'])->group(function () {
+    Route::get('/admin/newsletter', [NewsletterController::class, 'index'])->name('admin.newsletter.index');
+    Route::post('/admin/newsletter/send', [NewsletterController::class, 'sendNotification'])->name('admin.newsletter.send');
+});
+
 
 // route hiển thị trang index khi chạy lên đầu tiên
 Route::get('/{page?}', [LoadController::class, 'page'])->name('index');
@@ -118,5 +132,3 @@ Route::middleware(['auth'])->group(function () {
     // Thêm route mới cho trang Profile-User
     Route::get('/Profile-user', [ProfileUserController::class, 'show'])->name('profile.show');
 });
-
-

@@ -46,24 +46,24 @@
         <div class="humberger__menu__widget">
             <div class="header__top__right__auth">
                 @guest
-                    <!-- Hiển thị nút Đăng nhập nếu chưa đăng nhập -->
-                    <a href="{{ url('/login') }}"><i class="fa fa-user"></i> Đăng nhập</a>
+                <!-- Hiển thị nút Đăng nhập nếu chưa đăng nhập -->
+                <a href="{{ url('/login') }}"><i class="fa fa-user"></i> Đăng nhập</a>
                 @else
-                    <!-- Dropdown khi người dùng đã đăng nhập -->
-                    <div class="dropdown-center">
-                        <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown"
-                            aria-expanded="false">
-                            {{ auth()->user()->fullname }}
-                        </button>
-                        <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="{{ url('Profile-user') }}"><i
-                                        class="fa-solid fa-user"></i>Thông tin cá nhân</a></li>
-                            <li><a class="dropdown-item" href="{{ url('change-password') }}"><i class="fa fa-lock"></i> Đổi
-                                    mật khẩu</a></li>
-                            <li><a class="dropdown-item" href="{{ route('logout') }}"><i
-                                        class="fa-solid fa-right-from-bracket"></i> Đăng xuất</a></li>
-                        </ul>
-                    </div>
+                <!-- Dropdown khi người dùng đã đăng nhập -->
+                <div class="dropdown-center">
+                    <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown"
+                        aria-expanded="false">
+                        {{ auth()->user()->fullname }}
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="{{ url('Profile-user') }}"><i
+                                    class="fa-solid fa-user"></i>Thông tin cá nhân</a></li>
+                        <li><a class="dropdown-item" href="{{ url('change-password') }}"><i class="fa fa-lock"></i> Đổi
+                                mật khẩu</a></li>
+                        <li><a class="dropdown-item" href="{{ route('logout') }}"><i
+                                    class="fa-solid fa-right-from-bracket"></i> Đăng xuất</a></li>
+                    </ul>
+                </div>
                 @endguest
             </div>
         </div>
@@ -112,24 +112,24 @@
                             </div>
                             <div class="header__top__right__auth">
                                 @guest
-                                    <!-- Hiển thị nút Đăng nhập nếu chưa đăng nhập -->
-                                    <a href="{{ url('/login') }}"><i class="fa fa-user"></i> Đăng nhập</a>
+                                <!-- Hiển thị nút Đăng nhập nếu chưa đăng nhập -->
+                                <a href="{{ url('/login') }}"><i class="fa fa-user"></i> Đăng nhập</a>
                                 @else
-                                    <!-- Dropdown khi người dùng đã đăng nhập -->
-                                    <div class="dropdown-center">
-                                        <button class="btn btn-secondary dropdown-toggle" type="button"
-                                            data-bs-toggle="dropdown" aria-expanded="false">
-                                            {{ auth()->user()->fullname }}
-                                        </button>
-                                        <ul class="dropdown-menu">
-                                            <li><a class="dropdown-item" href="{{ url('Profile-user') }}"><i
-                                                        class="fa-solid fa-user"></i>Thông tin cá nhân</a></li>
-                                            <li><a class="dropdown-item" href="{{ url('change-password') }}"><i
-                                                        class="fa fa-lock"></i> Đổi mật khẩu</a></li>
-                                            <li><a class="dropdown-item" href="{{ route('logout') }}"><i
-                                                        class="fa-solid fa-right-from-bracket"></i> Đăng xuất</a></li>
-                                        </ul>
-                                    </div>
+                                <!-- Dropdown khi người dùng đã đăng nhập -->
+                                <div class="dropdown-center">
+                                    <button class="btn btn-secondary dropdown-toggle" type="button"
+                                        data-bs-toggle="dropdown" aria-expanded="false">
+                                        {{ auth()->user()->fullname }}
+                                    </button>
+                                    <ul class="dropdown-menu">
+                                        <li><a class="dropdown-item" href="{{ url('Profile-user') }}"><i
+                                                    class="fa-solid fa-user"></i>Thông tin cá nhân</a></li>
+                                        <li><a class="dropdown-item" href="{{ url('change-password') }}"><i
+                                                    class="fa fa-lock"></i> Đổi mật khẩu</a></li>
+                                        <li><a class="dropdown-item" href="{{ route('logout') }}"><i
+                                                    class="fa-solid fa-right-from-bracket"></i> Đăng xuất</a></li>
+                                    </ul>
+                                </div>
                                 @endguest
                             </div>
                         </div>
@@ -205,15 +205,28 @@
                     <div class="footer__widget">
                         <h6>Tham gia bản tin của chúng tôi ngay bây giờ</h6>
                         <p>Nhận thông tin cập nhật qua E-mail về cửa hàng mới nhất và các ưu đãi đặc biệt của chúng tôi.</p>
-                        <form action="#">
-                            <input type="text" placeholder="Nhập email của bạn">
-                            <button type="submit" class="site-btn">Đăng ký</button>
+
+                        <form id="newsletterForm" class="newsletter-form">
+                            @csrf
+                            <div class="form-group mb-3">
+                                <input type="text" name="name" class="form-control" placeholder="Tên của bạn (không bắt buộc)">
+                            </div>
+                            <div class="form-group mb-3">
+                                <input type="email" name="email" class="form-control" placeholder="Nhập email của bạn" required>
+                            </div>
                         </form>
-                        <div class="footer__widget__social">
-                            <a href="https://www.facebook.com/"><i class="fa fa-facebook"></i></a>
-                            <a href="https://x.com/"><i class="fa fa-twitter"></i></a>
-                            <a href="https://www.linkedin.com/"><i class="fa fa-linkedin"></i></a>
-                            <a href="https://www.pinterest.com/"><i class="fa fa-pinterest-p"></i></a>
+
+                        <button type="button" class="site-btn" id="subscribeBtn">
+                            <span class="btn-text">Đăng ký</span>
+                            <span class="spinner-border spinner-border-sm d-none" role="status"></span>
+                        </button>
+
+                        <div id="newsletterMessage" class="mt-3"></div>
+                        <div class="footer__widget__social mt-4">
+                            <a href="#"><i class="fa fa-facebook"></i></a>
+                            <a href="#"><i class="fa fa-twitter"></i></a>
+                            <a href="#"><i class="fa fa-linkedin"></i></a>
+                            <a href="#"><i class="fa fa-pinterest-p"></i></a>
                         </div>
                     </div>
                 </div>
@@ -241,6 +254,7 @@
     <!-- Footer Section End -->
 
     <!-- Js Plugins -->
+    <script src="{{ asset('js/send-email.js') }}"></script>
     <script src="{{ asset('js/jquery-3.3.1.min.js') }}"></script>
     <script src="{{ asset('js/bootstrap.min.js') }}"></script>
     <script src="{{ asset('js/jquery.nice-select.min.js') }}"></script>
