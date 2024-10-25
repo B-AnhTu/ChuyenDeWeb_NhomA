@@ -7,6 +7,7 @@
     <meta name="keywords" content="Ogani, unica, creative, html">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Web bán hàng</title>
 
     <!-- Google Font -->
@@ -23,6 +24,11 @@
     <link rel="stylesheet" href="{{ asset('css/owl.carousel.min.css') }}" type="text/css">
     <link rel="stylesheet" href="{{ asset('css/slicknav.min.css') }}" type="text/css">
     <link rel="stylesheet" href="{{ asset('css/style.css') }}" type="text/css">
+
+    {{-- jquery --}}
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    {{-- thêm thư viện SweetAlert2 --}}
+    <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 
 <body>
@@ -40,7 +46,7 @@
         <div class="humberger__menu__cart">
             <ul>
                 <li><a href="#"><i class="fa fa-heart"></i> <span>1</span></a></li>
-                <li><a href="#"><i class="fa fa-shopping-bag"></i> <span>3</span></a></li>
+                <li><a href="{{ url('cart') }}"><i class="fa fa-shopping-bag"></i> <span>3</span></a></li>
             </ul>
         </div>
         <div class="humberger__menu__widget">
@@ -158,7 +164,8 @@
                     <div class="header__cart">
                         <ul>
                             <li><a href="#"><i class="fa fa-heart"></i> <span>1</span></a></li>
-                            <li><a href="#"><i class="fa fa-shopping-bag"></i> <span>3</span></a></li>
+                            <li><a href="{{ url('cart') }}"><i class="fa fa-shopping-bag"></i> <span>3</span></a>
+                            </li>
                         </ul>
                     </div>
                 </div>
@@ -192,7 +199,7 @@
                         <h6>Liên kết</h6>
                         <ul>
                             <li><a href="{{ asset('/') }}">Web bán hàng</a></li>
-                            <li><a href="{{asset('/blog')}}">Tin tức</a></li>
+                            <li><a href="{{ asset('/blog') }}">Tin tức</a></li>
                             <li><a href="#">Về chúng tôi</a></li>
                         </ul>
                         <ul>
@@ -204,7 +211,8 @@
                 <div class="col-lg-4 col-md-12">
                     <div class="footer__widget">
                         <h6>Tham gia bản tin của chúng tôi ngay bây giờ</h6>
-                        <p>Nhận thông tin cập nhật qua E-mail về cửa hàng mới nhất và các ưu đãi đặc biệt của chúng tôi.</p>
+                        <p>Nhận thông tin cập nhật qua E-mail về cửa hàng mới nhất và các ưu đãi đặc biệt của chúng tôi.
+                        </p>
                         <form action="#">
                             <input type="text" placeholder="Nhập email của bạn">
                             <button type="submit" class="site-btn">Đăng ký</button>
