@@ -69,11 +69,12 @@ class ManufacturerController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Request $request)
+    public function show(Request $request, string $manufacturer_id)
     {
-        //Tìm id của nhà sản xuất cần xem
-        $manufacturer_id = $request->get('manufacturer_id');
-        $manufacturer = Manufacturer::find($manufacturer_id);
+        $manufacturer = Manufacturer::findOrFail($manufacturer_id);
+        if (!$manufacturer) {
+            return redirect()->route('manufacturer.index')->with('error', 'Nhà sản xuất không tồn tại');
+        }
         return view('manufacturerShow', compact('manufacturer'));
     }
 
@@ -145,7 +146,10 @@ class ManufacturerController extends Controller
         if (!$manufacturer) {
             return redirect()->route('manufacturer.index')->with('error', 'Nhà sản xuất không tồn tại.');
         }
-
+        // Delete image if exists
+        if ($manufacturer->image && file_exists(public_path('img/manufacturer/' . $manufacturer->image))) {
+            unlink(public_path('img/manufacturer/' . $manufacturer->image));
+        }
         // Thực hiện xóa nhà sản xuất
         try {
             $manufacturer->delete();
