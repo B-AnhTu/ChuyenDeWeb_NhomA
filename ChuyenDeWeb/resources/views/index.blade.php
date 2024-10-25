@@ -85,7 +85,7 @@
                                     </ul>
                                 </div>
                                 <div class="featured__item__text">
-                                    <h6><a href="#">{{ $product->product_name }}</a></h6>
+                                    <h6><a href="{{url('/productDetail/' .$product->slug)}}">{{ $product->product_name }}</a></h6>
                                     <p><i class="fa-solid fa-eye px-1"></i>{{ $product->product_view }}</p>
                                     <h5>{{ number_format($product->price) }} vnđ</h5>
                                 </div>
@@ -340,7 +340,8 @@
                                     </ul>
                                 </div>
                                 <div class="featured__item__text">
-                                    <h6><a href="#">${product.product_name}</a></h6>
+                                <h6><a href="/productDetail/${product.slug}">${product.product_name}</a></h6>
+                                    <h6><a href="#"></a></h6>
                                     <p><i class="fa-solid fa-eye px-1"></i>${product.product_view}</p>
                                     <h5>${numberFormat(product.price)} VNĐ</h5>
                                 </div>

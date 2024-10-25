@@ -86,6 +86,9 @@ Route::get('/search', [ProductController::class, 'search'])->name('products.sear
 // route sắp xếp
 Route::get('/sort', [ProductController::class, 'sort'])->name('products.sort');
 
+// route chi tiết sản phẩm 
+Route::get('/productDetail/{slug}', [ProductController::class, 'showProductDetail']);
+
 //route blog
 Route::get('/blog/{id?}', [BlogController::class, 'index'])->name('blog.index');
 
