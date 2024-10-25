@@ -26,6 +26,7 @@ return new class extends Migration
             //Khóa ngoại 
             $table->foreign('category_id')->references('category_id')->on('category');
             $table->foreign('manufacturer_id')->references('manufacturer_id')->on('manufacturer');
+            $table->string('slug')->unique();
             $table->timestamps();
         });
     }
@@ -35,6 +36,11 @@ return new class extends Migration
      */
     public function down(): void
     {
+        Schema::table('product', function (Blueprint $table) {
+            $table->dropForeign(['category_id']);
+            $table->dropForeign(['manufacturer_id']);
+            $table->dropColumn('slug');
+        });
         Schema::dropIfExists('product');
     }
 };
