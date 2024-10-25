@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 
 class Product extends Model
 {
@@ -21,8 +22,17 @@ class Product extends Model
         'manufacturer_id',
         'product_view',
         'image',
-        'sold_quantity'
+        'sold_quantity',
+        'slug',
     ];
+
+
+    public function setProductNameAttribute($value)
+    {
+        $this->attributes['product_name'] = $value;
+        $this->attributes['slug'] = Str::slug($value);
+    }
+    
 
     // Quan hệ với bảng Category
     public function category()
@@ -35,4 +45,17 @@ class Product extends Model
     {
         return $this->belongsTo(Manufacturer::class, 'manufacturer_id');
     }
+
+    // Quan hệ với bảng CartProduct
+    public function cartProducts()
+    {
+        return $this->hasMany(CartProduct::class, 'product_id');
+    }
+
+    // Quan hệ với bảng ProductLike
+    public function productLikes()
+    {
+        return $this->hasMany(ProductLike::class, 'product_id');
+    }
+
 }

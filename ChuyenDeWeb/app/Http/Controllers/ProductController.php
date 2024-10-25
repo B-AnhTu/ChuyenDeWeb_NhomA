@@ -160,6 +160,17 @@ class ProductController extends Controller
     }
 
 
+    // hiển thị chi tiết sản phẩm
+    public function showProductDetail($slug)
+    {
+        // Tìm sản phẩm theo slug
+        $product = Product::where('slug', $slug)->firstOrFail();
+
+        // tăng số lượt xem 
+        $product->increment('product_view');
+        // Trả về view chi tiết sản phẩm và truyền dữ liệu sản phẩm
+        return view('productDetail', compact('product'));
+    }
 
 
 
