@@ -15,6 +15,7 @@ use App\Http\Controllers\NewsletterController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\ProductLikeController;
+use App\Http\Controllers\CartProductController;
 
 // route đăng xuất
 Route::get('/logout', [LoginController::class, 'logout'])->name('logout');
@@ -73,6 +74,10 @@ Route::get('/userUpdate/{user_id}', [UserController::class, 'edit'])->name('user
 Route::put('/userUpdate/{user_id}', [UserController::class, 'update'])->name('userAdmin.update');
 
 Route::delete('/userDelete/{user_id}', [UserController::class, 'destroy'])->name('userAdmin.delete');
+
+//route cart
+Route::get('/cart/cartAdmin', [CartProductController::class, 'index'])->name('cart.index');
+Route::delete('/cart/{cart_id}/product/{product_id}', [CartProductController::class, 'destroy'])->name('cart.destroy');
 
 // route hiển thị sản phẩm trang index
 Route::get('/', [ProductController::class, 'index'])->name('products.index');
