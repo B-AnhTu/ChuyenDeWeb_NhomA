@@ -97,7 +97,7 @@ Route::post('/add-to-cart', [CartController::class, 'addToCart'])->name('cart.ad
 Route::get('/cart', [CartController::class, 'viewCart'])->name('cart.view');
 
 //route blog
-Route::get('/blog/{id?}', [BlogController::class, 'index'])->name('blog.index');
+Route::get('blog/{slug?}', [BlogController::class, 'index'])->name('blog.index');
 
 // route hiển thị trang index khi chạy lên đầu tiên
 Route::get('/{page?}', [LoadController::class, 'page'])->name('index');
