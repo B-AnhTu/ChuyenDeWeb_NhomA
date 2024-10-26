@@ -19,9 +19,10 @@ class Blog extends Model
 
     protected $primaryKey = 'blog_id';
 
-    // public function user(): BelongsTo{
-    //     return $this->belongsTo(User::class);
-    // }
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
 
     // public function blogcomment(): HasOne{
     //     return $this->hasOne(BlogComment::class);
