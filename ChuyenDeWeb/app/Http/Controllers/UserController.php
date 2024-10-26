@@ -10,6 +10,7 @@ use App\Rules\SingleSpaceOnly;
 use App\Rules\GmailOnly;
 use App\Rules\NoSpace;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rule;
 class UserController extends Controller
 {
     /**
@@ -113,16 +114,24 @@ class UserController extends Controller
      */
     public function update(Request $request, string $id)
     {
+        $user = User::findOrFail($id);
+
         $request->validate([
             'fullname' => ['required', 'string', 'max:50', new SingleSpaceOnly],
-            'image' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:5120',
-            'email' => ['required', 'email', 'max:50', 'unique:users,email', new GmailOnly, new NoSpace],
-            'password' => 'required|min:8|max:20',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:5120',
+            'email' => [
+                'required',
+                'email',
+                'max:50',
+                Rule::unique('users')->ignore($user->id), // Kiểm tra unique trừ email hiện tại
+                new GmailOnly,
+                new NoSpace
+            ],
+            'password' => ['required', 'min:8', 'max:20', new NoSpace],
             'phone' => ['required', 'digits:10', 'regex:/^0[0-9]{9}$/', new NoSpecialCharacters, new NoSpace],
             'address' => ['required', 'string', 'max:255', new NoSpecialCharacters],
         ],[
             'fullname.required' => 'Vui lòng nhập tên người dùng',
-            'image.required' => 'Vui lòng nhập ảnh',
             'email.required' => 'Vui lòng nhập email',
             'password.required' => 'Vui lòng nhập mật khẩu',
             'phone.required' => 'Vui lòng nhập số điện thoại',
@@ -137,12 +146,6 @@ class UserController extends Controller
             'phone.regex' => 'Số điện thoại không đúng định dạng',
             'address.max' => 'Địa chỉ không được quá 255 ký tự',
         ]);
-
-        $user = User::findOrFail($id);
-
-        if(!$user){
-            return redirect()->route('userAdmin.index')->with('error', 'Người dùng không tồn tại');
-        }
 
         if ($request->hasFile('image')) {
             $file = $request->file('image');

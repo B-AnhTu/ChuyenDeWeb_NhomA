@@ -4,7 +4,7 @@
     <div class="container">
         <div class="row justify-content-center">
             <div class="col-md-12">
-                <h2 class="text-center">Add new user</h2>
+                <h2 class="text-center">Update user</h2>
                 @if ($errors->any())
                     <div class="alert alert-danger">
                         <ul>
@@ -55,7 +55,7 @@
                         <input type="file" name="image" id="image" class="form-control">
                     </div>
                     <div class="col-md-12 d-flex justify-content-center">
-                        <button type="submit" class="btn btn-primary my-3 mx-auto">Create</button>
+                        <button type="submit" class="btn btn-primary my-3 mx-auto">Update</button>
                     </div>
                 </form>
             </div>
