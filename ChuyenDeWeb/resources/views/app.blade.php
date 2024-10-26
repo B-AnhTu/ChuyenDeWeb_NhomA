@@ -220,13 +220,7 @@
                             <div class="form-group mb-3">
                                 <input type="email" name="email" class="form-control" placeholder="Nhập email của bạn" required>
                             </div>
-                        <p>Nhận thông tin cập nhật qua E-mail về cửa hàng mới nhất và các ưu đãi đặc biệt của chúng tôi.
-                        </p>
-                        <form action="#">
-                            <input type="text" placeholder="Nhập email của bạn">
-                            <button type="submit" class="site-btn">Đăng ký</button>
                         </form>
-
                         <button type="button" class="site-btn" id="subscribeBtn">
                             <span class="btn-text">Đăng ký</span>
                             <span class="spinner-border spinner-border-sm d-none" role="status"></span>
