@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Models\Blog;
 use Illuminate\Http\Request;
 use App\Models\Product;
 use App\Models\Manufacturer;
@@ -28,7 +29,10 @@ class ProductController extends Controller
             ]);
         }
 
-        return view('index', compact('products', 'manufacturers', 'categories'));
+        $posts = Blog::orderBy('created_at', 'desc')
+            ->take(3)
+            ->get();
+        return view('index', compact('products', 'manufacturers', 'categories', 'posts'));
     }
 
 
