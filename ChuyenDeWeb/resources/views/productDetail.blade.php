@@ -8,7 +8,7 @@
                     <div class="breadcrumb__text">
                         <h2>Chi tiết sản phẩm</h2>
                         <div class="breadcrumb__option">
-                            <a href="{{asset('/')}}">Trang chủ</a>
+                            <a href="{{ asset('/') }}">Trang chủ</a>
                             <span>Chi tiết sản phẩm</span>
                         </div>
                     </div>
@@ -25,8 +25,9 @@
                 <div class="col-lg-6 col-md-6">
                     <div class="product__details__pic">
                         <div class="product__details__pic__item">
-                            <img class="product__details__pic__item--large" src="{{ asset('img/products/' . $product->image) }}"
-                                alt="{{ $product->product_name }}" title="{{ $product->product_name }}">
+                            <img class="product__details__pic__item--large"
+                                src="{{ asset('img/products/' . $product->image) }}" alt="{{ $product->product_name }}"
+                                title="{{ $product->product_name }}">
                         </div>
                     </div>
                 </div>
@@ -65,6 +66,34 @@
                                 </div>
                             </div>
                         </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {{-- review product --}}
+        <div class="container pt-5">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class=" rounded-2 px-3 py-2 bg-white">
+                        <h2>Đánh Giá Sản Phẩm</h2>
+                        <hr>
+                        <div id="reviews">
+                            <h5><i class="fa fa-user" aria-hidden="true"></i>
+                                tên người dùng
+                            </h5>
+                            <div class="d-flex">
+                                <p class="pe-5">nội dung</p>
+                                <p>ngày tháng năm</p>
+                            </div>
+                        </div>
+                        <form id="review-form">
+                            <div class="form-group mb-3">
+                                <label class="pb-2" for="review-text">Nội dung đánh giá:</label>
+                                <textarea class="form-control" id="review-text" rows="5" placeholder="Viết đánh giá của bạn..."></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary shadow-0" id="submit-review">Gửi đánh
+                                giá</button>
+                        </form>
                     </div>
                 </div>
             </div>

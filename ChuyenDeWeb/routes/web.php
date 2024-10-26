@@ -13,6 +13,7 @@ use App\Http\Controllers\ProfileUserController;
 use App\Http\Controllers\AdminDashboardController;
 use App\Http\Controllers\NewsletterController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\CartController;
 
 // route đăng xuất
 Route::get('/logout', [LoginController::class, 'logout'])->name('logout');
@@ -89,6 +90,12 @@ Route::get('/sort', [ProductController::class, 'sort'])->name('products.sort');
 
 // route chi tiết sản phẩm 
 Route::get('/productDetail/{slug}', [ProductController::class, 'showProductDetail']);
+
+// route thêm sản phẩm vào giỏ hàng
+Route::post('/add-to-cart', [CartController::class, 'addToCart'])->name('cart.add');
+
+// route hiển thị sản phẩm trong giỏ hàng
+Route::get('/cart', [CartController::class, 'viewCart'])->name('cart.view');
 
 //route blog
 Route::get('blog/{slug?}', [BlogController::class, 'index'])->name('blog.index');
