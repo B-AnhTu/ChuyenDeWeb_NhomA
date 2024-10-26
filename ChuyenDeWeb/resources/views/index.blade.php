@@ -349,120 +349,120 @@
                             </div>
                         </div>
                     `);
-                });
-
-                // Sau khi cập nhật danh sách, áp dụng lại sắp xếp nếu có
-                const activeSort = $('.sort[style*="color: green"]');
-                if (activeSort.length) {
-                    const sortBy = activeSort.data('sort');
-                    const products = $('#product-list').children('.mix').get();
-                    products.sort(function(a, b) {
-                        return compareProducts(a, b, sortBy);
-                    });
-                    $.each(products, function(index, item) {
-                        $('#product-list').append(item);
-                    });
-                }
-
-                updatePagination(response.current_page, response.last_page);
-                if (typeof setBackgrounds === 'function') {
-                    setBackgrounds();
-                }
-            }
-
-            // Pagination for products (newest or filtered)
-            $(document).on('click', '#pagination .page-link', function(e) {
-                e.preventDefault();
-                var page = $(this).data('page');
-                if (isFilterActive) {
-                    fetchProductsByManufacturer(currentManufacturerId, page);
-                } else {
-                    fetchNewestProducts(page);
-                }
             });
 
-            // Filter products by manufacturer
-            $('.manufacturer-filter').on('click', function(e) {
-                e.preventDefault();
-                $('.manufacturer-filter').removeClass('active');
-                $(this).addClass('active');
-                $(this).css('color', 'green');
-                $('.manufacturer-filter').not(this).css('color', '');
-
-                isFilterActive = true;
-                currentManufacturerId = $(this).data('id');
-                fetchProductsByManufacturer(currentManufacturerId, 1);
-
-                $('html, body').animate({
-                    scrollTop: $("#product-list").offset().top
-                }, 500);
-            });
-
-            // Sắp xếp sản phẩm trên trang hiện tại
-            $('.sort').on('click', function(e) {
-                e.preventDefault();
-                const sortBy = $(this).data('sort');
-
-                // Highlight nút sắp xếp được chọn
-                $('.sort').css('color', '');
-                $(this).css('color', 'green');
-
-                // Lấy tất cả các sản phẩm trên trang hiện tại
-                const productContainer = $('#product-list');
-                const products = productContainer.children('.mix').get();
-
-                // Sắp xếp mảng sản phẩm
+            // Sau khi cập nhật danh sách, áp dụng lại sắp xếp nếu có
+            const activeSort = $('.sort[style*="color: green"]');
+            if (activeSort.length) {
+                const sortBy = activeSort.data('sort');
+                const products = $('#product-list').children('.mix').get();
                 products.sort(function(a, b) {
                     return compareProducts(a, b, sortBy);
                 });
-
-                // Thêm lại các sản phẩm đã sắp xếp vào container
                 $.each(products, function(index, item) {
-                    productContainer.append(item);
+                    $('#product-list').append(item);
                 });
+            }
 
-                // Scroll đến vị trí danh sách sản phẩm
-                $('html, body').animate({
-                    scrollTop: $("#product-list").offset().top
-                }, 500);
+            updatePagination(response.current_page, response.last_page);
+            if (typeof setBackgrounds === 'function') {
+                setBackgrounds();
+            }
+        }
+
+        // Pagination for products (newest or filtered)
+        $(document).on('click', '#pagination .page-link', function(e) {
+            e.preventDefault();
+            var page = $(this).data('page');
+            if (isFilterActive) {
+                fetchProductsByManufacturer(currentManufacturerId, page);
+            } else {
+                fetchNewestProducts(page);
+            }
+        });
+
+        // Filter products by manufacturer
+        $('.manufacturer-filter').on('click', function(e) {
+            e.preventDefault();
+            $('.manufacturer-filter').removeClass('active');
+            $(this).addClass('active');
+            $(this).css('color', 'green');
+            $('.manufacturer-filter').not(this).css('color', '');
+
+            isFilterActive = true;
+            currentManufacturerId = $(this).data('id');
+            fetchProductsByManufacturer(currentManufacturerId, 1);
+
+            $('html, body').animate({
+                scrollTop: $("#product-list").offset().top
+            }, 500);
+        });
+
+        // Sắp xếp sản phẩm trên trang hiện tại
+        $('.sort').on('click', function(e) {
+            e.preventDefault();
+            const sortBy = $(this).data('sort');
+
+            // Highlight nút sắp xếp được chọn
+            $('.sort').css('color', '');
+            $(this).css('color', 'green');
+
+            // Lấy tất cả các sản phẩm trên trang hiện tại
+            const productContainer = $('#product-list');
+            const products = productContainer.children('.mix').get();
+
+            // Sắp xếp mảng sản phẩm
+            products.sort(function(a, b) {
+                return compareProducts(a, b, sortBy);
             });
 
-            function fetchNewestProducts(page) {
-                $.ajax({
-                    url: '{{ route('products.index') }}',
-                    type: 'GET',
-                    data: {
-                        page: page
-                    },
-                    success: function(response) {
-                        updateProductList(response);
-                    },
-                    error: function(xhr) {
-                        console.error(xhr);
-                    }
-                });
-            }
+            // Thêm lại các sản phẩm đã sắp xếp vào container
+            $.each(products, function(index, item) {
+                productContainer.append(item);
+            });
 
-            function fetchProductsByManufacturer(manufacturerId, page) {
-                $.ajax({
-                    url: '/filterByManufacturer',
-                    type: 'GET',
-                    data: {
-                        manufacturer_id: manufacturerId,
-                        page: page
-                    },
-                    success: function(response) {
-                        updateProductList(response);
-                    },
-                    error: function(error) {
-                        console.log(error);
-                    }
-                });
-            }
+            // Scroll đến vị trí danh sách sản phẩm
+            $('html, body').animate({
+                scrollTop: $("#product-list").offset().top
+            }, 500);
+        });
 
-            function updatePagination(currentPage, lastPage) {
-                var pagination = '';
-                pagination += `<li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
+        function fetchNewestProducts(page) {
+            $.ajax({
+                url: '{{ route("products.index") }}',
+                type: 'GET',
+                data: {
+                    page: page
+                },
+                success: function(response) {
+                    updateProductList(response);
+                },
+                error: function(xhr) {
+                    console.error(xhr);
+                }
+            });
+        }
+
+        function fetchProductsByManufacturer(manufacturerId, page) {
+            $.ajax({
+                url: '/filterByManufacturer',
+                type: 'GET',
+                data: {
+                    manufacturer_id: manufacturerId,
+                    page: page
+                },
+                success: function(response) {
+                    updateProductList(response);
+                },
+                error: function(error) {
+                    console.log(error);
+                }
+            });
+        }
+
+        function updatePagination(currentPage, lastPage) {
+            var pagination = '';
+            pagination += `<li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
                     <a class="page-link" href="#" data-page="${currentPage - 1}">Previous</a>
                 </li>`;
 
