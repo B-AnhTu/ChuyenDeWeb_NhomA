@@ -18,14 +18,6 @@ class CartProductController extends Controller
         $carts = Cart::with('user', 'cartProducts.product')->paginate(20); // Lấy tất cả giỏ hàng với thông tin người dùng và sản phẩm
         return view('cart.cartAdmin', compact('carts'));
     }
-
-
-    // public function showCart($id){
-    //     $cart_id = Cart::findOrFaile($id);
-    //     $user = User::find($cart_id->user_id);
-    //     return view('cartAdmin', compact('cart_id', 'user'));
-    // }
-
     /**
      * Show the form for creating a new resource.
      */
@@ -69,18 +61,23 @@ class CartProductController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy($cart_id)
+    public function destroy($cart_id, $product_id)
     {
         // Tìm giỏ hàng theo ID
         $cart = Cart::findOrFail($cart_id);
 
-        // Xóa các bản ghi liên quan trong bảng cart_product
-        $cart->cartProducts()->delete();
+        // Tìm sản phẩm trong giỏ hàng
+        $cartProduct = $cart->cartProducts()->where('product_id', $product_id)->first();
 
-        // Sau đó xóa giỏ hàng
-        $cart->delete();
+        // Nếu tìm thấy sản phẩm, xóa nó
+        if ($cartProduct) {
+            $cartProduct->delete();
 
-        // Redirect về trang trước với thông báo thành công
-        return redirect()->back()->with('success', 'Cart deleted successfully.');
+            // Thông báo thành công
+            return redirect()->back()->with('success', 'Xóa sản phẩm khỏi giỏ hàng thành công!');
+        }
+
+        // Nếu không tìm thấy sản phẩm, thông báo lỗi
+        return redirect()->back()->with('error', 'Sản phẩm không tồn tại trong giỏ hàng!');
     }
 }
