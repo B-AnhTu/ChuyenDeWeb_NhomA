@@ -80,7 +80,7 @@
                                 <div class="featured__item__pic set-bg"
                                     data-setbg="{{ asset('img/products/' . $product->image) }}">
                                     <ul class="featured__item__pic__hover">
-                                        <li><a href="#"><i class="fa fa-heart"></i></a></li>
+                                        <li><a href="#"><i class="fa fa-heart ffa-heart {{ in_array($product->product_id, $likedProductIds) ? 'liked' : '' }}" data-id="{{ $product->product_id }}"></i></a></li>
                                         <li> <a href="#"><i class="fa fa-shopping-cart add-to-cart"
                                                     data-id="{{ $product->product_id }}"></i></a>
                                         </li>
@@ -248,24 +248,26 @@
                 </div>
             </div>
             <div class="row">
-                @if(isset($posts))
-                @foreach($posts as $post)
-                <div class="col-lg-4 col-md-4 col-sm-6">
-                    <div class="blog__item">
-                        <div class="blog__item__pic">
-                            <img src="{{ asset('/img/blog/' .$post->image) }}" alt="" class="big-img">
+                @if (isset($posts))
+                    @foreach ($posts as $post)
+                        <div class="col-lg-4 col-md-4 col-sm-6">
+                            <div class="blog__item">
+                                <div class="blog__item__pic">
+                                    <img src="{{ asset('/img/blog/' . $post->image) }}" alt="" class="big-img">
+                                </div>
+                                <div class="blog__item__text">
+                                    <ul>
+                                        <li><i class="fa fa-calendar-o"></i>{{ $post->created_at }}</li>
+                                        <li><i class="fa fa-comment-o"></i> 0</li>
+                                    </ul>
+                                    <h5><a
+                                            href="{{ route('blog.index', ['slug' => $post->slug]) }}">{{ $post->title }}</a>
+                                    </h5>
+                                    <p>{{ $post->short_description }}</p>
+                                </div>
+                            </div>
                         </div>
-                        <div class="blog__item__text">
-                            <ul>
-                                <li><i class="fa fa-calendar-o"></i>{{ $post->created_at }}</li>
-                                <li><i class="fa fa-comment-o"></i> 0</li>
-                            </ul>
-                            <h5><a href="{{ route('blog.index', ['slug' => $post->slug])}}">{{$post->title}}</a></h5>
-                            <p>{{$post->short_description}}</p>
-                        </div>
-                    </div>
-                </div>
-                @endforeach
+                    @endforeach
                 @endif
             </div>
         </div>
@@ -276,6 +278,7 @@
         var productImageBasePath = "{{ asset('img/products') }}/";
         var isFilterActive = false;
         var currentManufacturerId = null;
+        let likedProductIds = @json($likedProductIds);
 
         $(document).ready(function() {
             // Hàm so sánh để sắp xếp sản phẩm
@@ -305,13 +308,14 @@
                 }
 
                 response.data.forEach(function(product) {
+                    let isLiked = likedProductIds.includes(product.product_id); 
                     $('#product-list').append(`
                         <div class="col-lg-3 col-md-4 col-sm-6 mix fastfood vegetables">
                             <div class="featured__item">
                                 <div class="featured__item__pic set-bg" style="background-image: url('${productImageBasePath}${product.image}');">
                                     <ul class="featured__item__pic__hover">
-                                        <li><a href="#"><i class="fa fa-heart"></i></a></li>
-                                        <li><a href="#"><i class="fa fa-shopping-cart"></i></a></li>
+                                        <li><a href="#"><i class="fa fa-heart ffa-heart ${isLiked ? 'liked' : ''}" data-id="${product.product_id}"></i></a></li>
+                                        <li><a href="#"><i class="fa fa-shopping-cart add-to-cart" data-id="${product.product_id}"></i></a></li>
                                     </ul>
                                 </div>
                                 <div class="featured__item__text">
@@ -323,120 +327,120 @@
                             </div>
                         </div>
                     `);
+                });
+
+                // Sau khi cập nhật danh sách, áp dụng lại sắp xếp nếu có
+                const activeSort = $('.sort[style*="color: green"]');
+                if (activeSort.length) {
+                    const sortBy = activeSort.data('sort');
+                    const products = $('#product-list').children('.mix').get();
+                    products.sort(function(a, b) {
+                        return compareProducts(a, b, sortBy);
+                    });
+                    $.each(products, function(index, item) {
+                        $('#product-list').append(item);
+                    });
+                }
+
+                updatePagination(response.current_page, response.last_page);
+                if (typeof setBackgrounds === 'function') {
+                    setBackgrounds();
+                }
+            }
+
+            // Pagination for products (newest or filtered)
+            $(document).on('click', '#pagination .page-link', function(e) {
+                e.preventDefault();
+                var page = $(this).data('page');
+                if (isFilterActive) {
+                    fetchProductsByManufacturer(currentManufacturerId, page);
+                } else {
+                    fetchNewestProducts(page);
+                }
             });
 
-            // Sau khi cập nhật danh sách, áp dụng lại sắp xếp nếu có
-            const activeSort = $('.sort[style*="color: green"]');
-            if (activeSort.length) {
-                const sortBy = activeSort.data('sort');
-                const products = $('#product-list').children('.mix').get();
+            // Filter products by manufacturer
+            $('.manufacturer-filter').on('click', function(e) {
+                e.preventDefault();
+                $('.manufacturer-filter').removeClass('active');
+                $(this).addClass('active');
+                $(this).css('color', 'green');
+                $('.manufacturer-filter').not(this).css('color', '');
+
+                isFilterActive = true;
+                currentManufacturerId = $(this).data('id');
+                fetchProductsByManufacturer(currentManufacturerId, 1);
+
+                $('html, body').animate({
+                    scrollTop: $("#product-list").offset().top
+                }, 500);
+            });
+
+            // Sắp xếp sản phẩm trên trang hiện tại
+            $('.sort').on('click', function(e) {
+                e.preventDefault();
+                const sortBy = $(this).data('sort');
+
+                // Highlight nút sắp xếp được chọn
+                $('.sort').css('color', '');
+                $(this).css('color', 'green');
+
+                // Lấy tất cả các sản phẩm trên trang hiện tại
+                const productContainer = $('#product-list');
+                const products = productContainer.children('.mix').get();
+
+                // Sắp xếp mảng sản phẩm
                 products.sort(function(a, b) {
                     return compareProducts(a, b, sortBy);
                 });
+
+                // Thêm lại các sản phẩm đã sắp xếp vào container
                 $.each(products, function(index, item) {
-                    $('#product-list').append(item);
+                    productContainer.append(item);
+                });
+
+                // Scroll đến vị trí danh sách sản phẩm
+                $('html, body').animate({
+                    scrollTop: $("#product-list").offset().top
+                }, 500);
+            });
+
+            function fetchNewestProducts(page) {
+                $.ajax({
+                    url: '{{ route('products.index') }}',
+                    type: 'GET',
+                    data: {
+                        page: page
+                    },
+                    success: function(response) {
+                        updateProductList(response);
+                    },
+                    error: function(xhr) {
+                        console.error(xhr);
+                    }
                 });
             }
 
-            updatePagination(response.current_page, response.last_page);
-            if (typeof setBackgrounds === 'function') {
-                setBackgrounds();
+            function fetchProductsByManufacturer(manufacturerId, page) {
+                $.ajax({
+                    url: '/filterByManufacturer',
+                    type: 'GET',
+                    data: {
+                        manufacturer_id: manufacturerId,
+                        page: page
+                    },
+                    success: function(response) {
+                        updateProductList(response);
+                    },
+                    error: function(error) {
+                        console.log(error);
+                    }
+                });
             }
-        }
 
-        // Pagination for products (newest or filtered)
-        $(document).on('click', '#pagination .page-link', function(e) {
-            e.preventDefault();
-            var page = $(this).data('page');
-            if (isFilterActive) {
-                fetchProductsByManufacturer(currentManufacturerId, page);
-            } else {
-                fetchNewestProducts(page);
-            }
-        });
-
-        // Filter products by manufacturer
-        $('.manufacturer-filter').on('click', function(e) {
-            e.preventDefault();
-            $('.manufacturer-filter').removeClass('active');
-            $(this).addClass('active');
-            $(this).css('color', 'green');
-            $('.manufacturer-filter').not(this).css('color', '');
-
-            isFilterActive = true;
-            currentManufacturerId = $(this).data('id');
-            fetchProductsByManufacturer(currentManufacturerId, 1);
-
-            $('html, body').animate({
-                scrollTop: $("#product-list").offset().top
-            }, 500);
-        });
-
-        // Sắp xếp sản phẩm trên trang hiện tại
-        $('.sort').on('click', function(e) {
-            e.preventDefault();
-            const sortBy = $(this).data('sort');
-
-            // Highlight nút sắp xếp được chọn
-            $('.sort').css('color', '');
-            $(this).css('color', 'green');
-
-            // Lấy tất cả các sản phẩm trên trang hiện tại
-            const productContainer = $('#product-list');
-            const products = productContainer.children('.mix').get();
-
-            // Sắp xếp mảng sản phẩm
-            products.sort(function(a, b) {
-                return compareProducts(a, b, sortBy);
-            });
-
-            // Thêm lại các sản phẩm đã sắp xếp vào container
-            $.each(products, function(index, item) {
-                productContainer.append(item);
-            });
-
-            // Scroll đến vị trí danh sách sản phẩm
-            $('html, body').animate({
-                scrollTop: $("#product-list").offset().top
-            }, 500);
-        });
-
-        function fetchNewestProducts(page) {
-            $.ajax({
-                url: '{{ route("products.index") }}',
-                type: 'GET',
-                data: {
-                    page: page
-                },
-                success: function(response) {
-                    updateProductList(response);
-                },
-                error: function(xhr) {
-                    console.error(xhr);
-                }
-            });
-        }
-
-        function fetchProductsByManufacturer(manufacturerId, page) {
-            $.ajax({
-                url: '/filterByManufacturer',
-                type: 'GET',
-                data: {
-                    manufacturer_id: manufacturerId,
-                    page: page
-                },
-                success: function(response) {
-                    updateProductList(response);
-                },
-                error: function(error) {
-                    console.log(error);
-                }
-            });
-        }
-
-        function updatePagination(currentPage, lastPage) {
-            var pagination = '';
-            pagination += `<li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
+            function updatePagination(currentPage, lastPage) {
+                var pagination = '';
+                pagination += `<li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
                     <a class="page-link" href="#" data-page="${currentPage - 1}">Previous</a>
                 </li>`;
 
@@ -527,52 +531,6 @@
                     }
                 });
             }
-        });
-    </script>
-
-    {{-- js thêm sản phẩm vào giỏ hàng --}}
-    <script>
-        // Xử lý sự kiện khi nhấn vào nút "Thêm vào giỏ hàng"
-        $(document).on('click', '.add-to-cart', function(e) {
-            e.preventDefault();
-            let productId = $(this).data('id');
-
-            $.ajax({
-                url: '{{ route("cart.add") }}',
-                method: 'POST',
-                data: {
-                    product_id: productId,
-                    _token: '{{ csrf_token() }}'
-                },
-                success: function(response) {
-                    if (response.status === 'success') {
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Thành công',
-                            text: response.message,
-                            showConfirmButton: false,
-                            timer: 1500
-                        });
-                    } else {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Lỗi',
-                            text: response.message,
-                            showConfirmButton: false,
-                            timer: 1500
-                        });
-                    }
-                },
-                error: function() {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Lỗi',
-                        text: 'Đã xảy ra lỗi. Vui lòng thử lại sau.',
-                        showConfirmButton: false,
-                        timer: 1500
-                    });
-                }
-            });
         });
     </script>
 @endsection
