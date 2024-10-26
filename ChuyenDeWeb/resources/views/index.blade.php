@@ -564,7 +564,7 @@
             let productId = $(this).data('id');
 
             $.ajax({
-                url: '{{ route('cart.add') }}',
+                url: '{{ route("cart.add") }}',
                 method: 'POST',
                 data: {
                     product_id: productId,
