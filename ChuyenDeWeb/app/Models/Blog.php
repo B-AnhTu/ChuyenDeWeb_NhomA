@@ -13,13 +13,7 @@ class Blog extends Model
 {
     use HasFactory;
 
-    protected $fillable = [
-        'image',
-        'title',
-        'short_description',
-        'content',
-        'created_at',
-    ];
+    protected $fillable = ['title', 'slug', 'short_description', 'image', 'content', 'created_at', 'updated_at'];
 
     protected $table = 'blog';
 

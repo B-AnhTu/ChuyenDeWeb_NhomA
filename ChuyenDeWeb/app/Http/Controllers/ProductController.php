@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Models\Blog;
 use Illuminate\Http\Request;
 use App\Models\Product;
 use App\Models\Manufacturer;
@@ -28,7 +29,10 @@ class ProductController extends Controller
             ]);
         }
 
-        return view('index', compact('products', 'manufacturers', 'categories'));
+        $posts = Blog::orderBy('created_at', 'desc')
+            ->take(3)
+            ->get();
+        return view('index', compact('products', 'manufacturers', 'categories', 'posts'));
     }
 
 
@@ -160,6 +164,17 @@ class ProductController extends Controller
     }
 
 
+    // hiển thị chi tiết sản phẩm
+    public function showProductDetail($slug)
+    {
+        // Tìm sản phẩm theo slug
+        $product = Product::where('slug', $slug)->firstOrFail();
+
+        // tăng số lượt xem 
+        $product->increment('product_view');
+        // Trả về view chi tiết sản phẩm và truyền dữ liệu sản phẩm
+        return view('productDetail', compact('product'));
+    }
 
 
 
@@ -230,6 +245,15 @@ class ProductController extends Controller
         $product->save();
 
         return redirect()->route('product.index')->with('success', 'Sản phẩm đã được tạo thành công');
+    }
+    // Hiển thị chi tiết sản phẩm
+    public function show(Request $request, string $product_id)
+    {
+        $product = Product::findOrFail($product_id);
+        if (!$product) {
+            return redirect()->route('productAdmin.index')->with('error', 'Sản phẩm không tồn tại');
+        }
+        return view('productShow', compact('product'));
     }
     // Hiển thị form cập nhật sản phẩm trong admin
     public function edit($product_id)
@@ -306,7 +330,10 @@ class ProductController extends Controller
         if (!$product) {
             return redirect()->route('product.index')->with('error', 'Sản phẩm không tồn tại.');
         }
-
+        // Delete image if exists
+        if ($product->image && file_exists(public_path('img/products/' . $product->image))) {
+            unlink(public_path('img/products/' . $product->image));
+        }
         // Thực hiện xóa sản phẩm
         try {
             $product->delete();
