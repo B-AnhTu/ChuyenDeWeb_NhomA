@@ -11,8 +11,11 @@ use App\Http\Controllers\LoginController;
 use App\Http\Controllers\ChangePasswordController;
 use App\Http\Controllers\ProfileUserController;
 use App\Http\Controllers\AdminDashboardController;
+use App\Http\Controllers\NewsletterController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\CartController;
+use App\Http\Controllers\ProductLikeController;
+use App\Http\Controllers\CartProductController;
 
 // route đăng xuất
 Route::get('/logout', [LoginController::class, 'logout'])->name('logout');
@@ -20,7 +23,7 @@ Route::get('/logout', [LoginController::class, 'logout'])->name('logout');
 // Route for admin dashboard
 Route::get('/adminPage', [AdminDashboardController::class, 'index'])->name('admin.index');
 
-//route manufacturer (admin)
+//route manufacturer
 Route::get('/manufacturerAdmin', [ManufacturerController::class, 'index'])->name('manufacturer.index');
 
 Route::get('/manufacturerAdmin/{manufacturer_id}', [ManufacturerController::class, 'show'])->name('manufacturer.show');
@@ -33,7 +36,7 @@ Route::put('/manufacturerUpdate/{manufacturer_id}', [ManufacturerController::cla
 
 Route::delete('/manufacturerDelete/{manufacturer_id}', [ManufacturerController::class, 'destroy'])->name('manufacturer.delete');
 
-//route category (admin)
+//route category
 Route::get('/categoryAdmin', [CategoryController::class, 'list'])->name('category.index');
 
 Route::get('/categoryAdmin/{category_id}', [CategoryController::class, 'show'])->name('category.show');
@@ -46,7 +49,7 @@ Route::put('/categoryUpdate/{category_id}', [CategoryController::class, 'update'
 
 Route::delete('/categoryDelete/{category_id}', [CategoryController::class, 'destroy'])->name('category.delete');
 
-//route product (admin)
+//route product
 Route::get('/productAdmin', [ProductController::class, 'list'])->name('product.index');
 
 Route::get('/productAdmin/{product_id}', [ProductController::class, 'show'])->name('product.show');
@@ -59,7 +62,7 @@ Route::put('/productUpdate/{product_id}', [ProductController::class, 'update'])-
 
 Route::delete('/productDelete/{product_id}', [ProductController::class, 'destroy'])->name('product.delete');
 
-//route user (admin)
+//route user
 Route::get('/userAdmin', [UserController::class, 'list'])->name('userAdmin.index');
 
 Route::get('/userAdmin/{user_id}', [UserController::class, 'show'])->name('userAdmin.show');
@@ -85,6 +88,9 @@ Route::put('/blogUpdate/{blog_id}', [BlogController::class, 'update'])->name('bl
 
 Route::delete('/blogDelete/{blog_id}', [BlogController::class, 'destroy'])->name('blogAdmin.delete');
 
+//route cart
+Route::get('/cart/cartAdmin', [CartProductController::class, 'index'])->name('cart.index');
+Route::delete('/cart/{cart_id}/product/{product_id}', [CartProductController::class, 'destroy'])->name('cart.destroy');
 
 // route hiển thị sản phẩm trang index
 Route::get('/', [ProductController::class, 'index'])->name('products.index');
@@ -110,8 +116,26 @@ Route::post('/add-to-cart', [CartController::class, 'addToCart'])->name('cart.ad
 // route hiển thị sản phẩm trong giỏ hàng
 Route::get('/cart', [CartController::class, 'viewCart'])->name('cart.view');
 
+// route thích và bỏ thích sản phẩm
+Route::post('/product-toggle-like', [ProductLikeController::class, 'toggleLike'])->middleware('auth');
+
+// route hiển thị sản phẩm thích 
+Route::get('/wishlist', [ProductLikeController::class, 'wishlist'])->name('wishlist');
 //route blog
 Route::get('blog/{slug?}', [BlogController::class, 'index'])->name('blog.index');
+//route mail
+// routes/web.php
+
+Route::post('/newsletter/subscribe', [NewsletterController::class, 'subscribe'])->name('newsletter.subscribe');
+Route::get('/newsletter/verify/{token}', [NewsletterController::class, 'verify'])->name('newsletter.verify');
+Route::get('/newsletter/unsubscribe/{email}', [NewsletterController::class, 'unsubscribe'])->name('newsletter.unsubscribe');
+
+// Admin routes
+Route::middleware(['auth', 'admin'])->group(function () {
+    Route::get('/admin/newsletter', [NewsletterController::class, 'index'])->name('admin.newsletter.index');
+    Route::post('/admin/newsletter/send', [NewsletterController::class, 'sendNotification'])->name('admin.newsletter.send');
+});
+
 
 // route hiển thị trang index khi chạy lên đầu tiên
 Route::get('/{page?}', [LoadController::class, 'page'])->name('index');
@@ -139,5 +163,3 @@ Route::middleware(['auth'])->group(function () {
     // Thêm route mới cho trang Profile-User
     Route::get('/Profile-user', [ProfileUserController::class, 'show'])->name('profile.show');
 });
-
-

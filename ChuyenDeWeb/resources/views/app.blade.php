@@ -9,7 +9,11 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Web bán hàng</title>
-
+    <style>
+        .fa-heart.liked {
+            color: red;
+        }
+    </style>
     <!-- Google Font -->
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@200;300;400;600;900&display=swap" rel="stylesheet">
 
@@ -45,8 +49,8 @@
         </div>
         <div class="humberger__menu__cart">
             <ul>
-                <li><a href="#"><i class="fa fa-heart"></i> <span>1</span></a></li>
-                <li><a href="{{ url('cart') }}"><i class="fa fa-shopping-bag"></i> <span>3</span></a></li>
+                <li><a title="sản phẩm yêu thích" href="{{ url('wishlist') }}"><i class="fa fa-heart"></i></a></li>
+                <li><a title="giỏ hàng" href="{{ url('cart') }}"><i class="fa fa-shopping-bag"></i></a></li>
             </ul>
         </div>
         <div class="humberger__menu__widget">
@@ -163,8 +167,8 @@
                 <div class="col-lg-3">
                     <div class="header__cart">
                         <ul>
-                            <li><a href="#"><i class="fa fa-heart"></i> <span>1</span></a></li>
-                            <li><a href="{{ url('cart') }}"><i class="fa fa-shopping-bag"></i> <span>3</span></a>
+                            <li><a title="sản phẩm yêu thích" href="{{ url('wishlist') }}"><i class="fa fa-heart"></i></a></li>
+                            <li><a title="giỏ hàng" href="{{ url('cart') }}"><i class="fa fa-shopping-bag"></i></a>
                             </li>
                         </ul>
                     </div>
@@ -213,15 +217,28 @@
                         <h6>Tham gia bản tin của chúng tôi ngay bây giờ</h6>
                         <p>Nhận thông tin cập nhật qua E-mail về cửa hàng mới nhất và các ưu đãi đặc biệt của chúng tôi.
                         </p>
-                        <form action="#">
-                            <input type="text" placeholder="Nhập email của bạn">
-                            <button type="submit" class="site-btn">Đăng ký</button>
+                        <form id="newsletterForm" class="newsletter-form">
+                            @csrf
+                            <div class="form-group mb-3">
+                                <input type="text" name="name" class="form-control"
+                                    placeholder="Tên của bạn (không bắt buộc)">
+                            </div>
+                            <div class="form-group mb-3">
+                                <input type="email" name="email" class="form-control"
+                                    placeholder="Nhập email của bạn" required>
+                            </div>
                         </form>
-                        <div class="footer__widget__social">
-                            <a href="https://www.facebook.com/"><i class="fa fa-facebook"></i></a>
-                            <a href="https://x.com/"><i class="fa fa-twitter"></i></a>
-                            <a href="https://www.linkedin.com/"><i class="fa fa-linkedin"></i></a>
-                            <a href="https://www.pinterest.com/"><i class="fa fa-pinterest-p"></i></a>
+                        <button type="button" class="site-btn" id="subscribeBtn">
+                            <span class="btn-text">Đăng ký</span>
+                            <span class="spinner-border spinner-border-sm d-none" role="status"></span>
+                        </button>
+
+                        <div id="newsletterMessage" class="mt-3"></div>
+                        <div class="footer__widget__social mt-4">
+                            <a href="#"><i class="fa fa-facebook"></i></a>
+                            <a href="#"><i class="fa fa-twitter"></i></a>
+                            <a href="#"><i class="fa fa-linkedin"></i></a>
+                            <a href="#"><i class="fa fa-pinterest-p"></i></a>
                         </div>
                     </div>
                 </div>
@@ -249,6 +266,7 @@
     <!-- Footer Section End -->
 
     <!-- Js Plugins -->
+    <script src="{{ asset('js/send-email.js') }}"></script>
     <script src="{{ asset('js/jquery-3.3.1.min.js') }}"></script>
     <script src="{{ asset('js/bootstrap.min.js') }}"></script>
     <script src="{{ asset('js/jquery.nice-select.min.js') }}"></script>
@@ -262,6 +280,95 @@
     </script>
     <script src="https://kit.fontawesome.com/f6dce9b617.js" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+
+    {{-- js thêm sản phẩm vào giỏ hàng --}}
+    <script>
+        // Xử lý sự kiện khi nhấn vào nút "Thêm vào giỏ hàng"
+        $(document).on('click', '.add-to-cart', function(e) {
+            e.preventDefault();
+            let productId = $(this).data('id');
+
+            $.ajax({
+                url: '{{ route('cart.add') }}',
+                method: 'POST',
+                data: {
+                    product_id: productId,
+                    _token: '{{ csrf_token() }}'
+                },
+                success: function(response) {
+                    if (response.status === 'success') {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Thành công',
+                            text: response.message,
+                            showConfirmButton: false,
+                            timer: 1500
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Lỗi',
+                            text: response.message,
+                            showConfirmButton: false,
+                            timer: 1500
+                        });
+                    }
+                },
+                error: function() {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Lỗi',
+                        text: 'Đã xảy ra lỗi. Vui lòng thử lại sau.',
+                        showConfirmButton: false,
+                        timer: 1500
+                    });
+                }
+            });
+        });
+    </script>
+
+
+    {{-- js thích sản phẩm --}}
+    <script>
+        $(document).on('click', '.ffa-heart', function(e) {
+            e.preventDefault();
+            let icon = $(this);
+            let productId = icon.data('id');
+
+            $.ajax({
+                url: '/product-toggle-like',
+                method: 'POST',
+                data: {
+                    product_id: productId
+                },
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                success: function(response) {
+                    icon.toggleClass('liked'); // Thêm hoặc bỏ class "liked" khi thích/bỏ thích
+
+                    // Hiển thị thông báo bằng SweetAlert2
+                    Swal.fire({
+                        title: 'Thành công!',
+                        text: response.message,
+                        icon: 'success',
+                        confirmButtonText: 'OK'
+                    });
+                },
+                error: function(xhr) {
+                    if (xhr.status === 401) {
+                        Swal.fire({
+                            title: 'Lỗi!',
+                            text: 'Vui lòng đăng nhập để thực hiện chức năng này',
+                            icon: 'error',
+                            confirmButtonText: 'OK'
+                        });
+                    }
+                }
+            });
+        });
+    </script>
 </body>
 
 </html>
