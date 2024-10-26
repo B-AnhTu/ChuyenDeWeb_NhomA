@@ -4,7 +4,7 @@
 <div class="container">
     <div class="row justify-content-center">
         <div class="col-md-12">
-            <h1 class="text-center">Blog Management</h1>
+            <h2 class="text-center">Blog Management</h2>
             @if (session('success'))
                 <div class="alert alert-success">
                     {{ session('success') }}
@@ -51,6 +51,9 @@
                     @endforeach
                 </tbody>
                 </table>
+                <div class="col-md-12 d-flex justify-content-center">
+                    {{ $data_blog->links('pagination::bootstrap-4') }}
+                </div>
             </div>
         </div>
     </div>

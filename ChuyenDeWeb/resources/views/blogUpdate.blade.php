@@ -3,7 +3,26 @@
 @section('content')
 <div class="container">
     <h2 class="text-center">Update Blog</h2>
-    <form action="{{ route('blogAdmin.update', $blog->blog_id) }}" method="POST">
+    @if ($errors->any())
+        <div class="alert alert-danger">
+            <ul>
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+    @if (session('success'))
+        <div class="alert alert-success">
+            {{ session('success') }}
+        </div>
+    @endif
+    @if (session('error'))
+        <div class="alert alert-danger">
+            {{ session('error') }}
+        </div>
+    @endif
+    <form action="{{ route('blogAdmin.update', $blog->blog_id) }}" method="POST" enctype="multipart/form-data">
         @csrf
         @method('PUT')
         <div class="form-group">
@@ -25,7 +44,7 @@
         </div>
         <div class="form-group">
             <label for="author">Author</label>
-            <input type="text" name="author" class="form-control" readonly>
+            <input type="text" name="author" class="form-control" readonly value="{{ $blog->user->fullname }}">
         </div>
         <div class="col-md-12 text-center">
             <button type="submit" class="btn btn-primary">Update</button>

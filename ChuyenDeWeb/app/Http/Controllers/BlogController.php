@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Blog;
 use App\Models\Category;
 use Illuminate\Http\Request;
-
+use Illuminate\Support\Facades\Auth;
 class BlogController extends Controller
 {
     /**
@@ -54,10 +54,10 @@ class BlogController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'image' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             'title' => 'required|max:100',
             'short_description' => 'required|max:255',
             'content' => 'required',
+            'image' => 'required|image|mimes:jpeg,png,jpg|max:5048',
         ],[
             'image.required' => 'Vui lòng chọn hình ảnh để tải lên',
             'image.mimes' => 'Vui lòng chọn hình ảnh có đuôi hợp lệ như .png, .jpeg. .jpg',
@@ -85,6 +85,7 @@ class BlogController extends Controller
             'short_description' => $data['short_description'],
             'content' => $data['content'],
             'image' => $data['image'],
+            'user_id' => Auth::user()->user_id,
         ]);
         $blog->save();
 
