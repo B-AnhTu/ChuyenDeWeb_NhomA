@@ -8,9 +8,10 @@ use Illuminate\Http\Request;
 use App\Models\Product;
 use App\Models\Manufacturer;
 use App\Models\Category;
+use App\Models\ProductLike;
 use App\Rules\SingleSpaceOnly;
 use App\Rules\NoSpecialCharacters;
-
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 
 class ProductController extends Controller
@@ -29,10 +30,15 @@ class ProductController extends Controller
             ]);
         }
 
+        // Kiểm tra xem người dùng đã thích sản phẩm nào
+        $likedProductIds = Auth::check()
+            ? ProductLike::where('user_id', Auth::id())->pluck('product_id')->toArray()
+            : [];
+
         $posts = Blog::orderBy('created_at', 'desc')
             ->take(3)
             ->get();
-        return view('index', compact('products', 'manufacturers', 'categories', 'posts'));
+        return view('index', compact('products', 'manufacturers', 'categories', 'posts' , 'likedProductIds'));
     }
 
 
