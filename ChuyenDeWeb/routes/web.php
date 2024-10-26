@@ -14,6 +14,7 @@ use App\Http\Controllers\AdminDashboardController;
 use App\Http\Controllers\NewsletterController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\CartController;
+use App\Http\Controllers\ProductLikeController;
 
 // route đăng xuất
 Route::get('/logout', [LoginController::class, 'logout'])->name('logout');
@@ -97,6 +98,11 @@ Route::post('/add-to-cart', [CartController::class, 'addToCart'])->name('cart.ad
 // route hiển thị sản phẩm trong giỏ hàng
 Route::get('/cart', [CartController::class, 'viewCart'])->name('cart.view');
 
+// route thích và bỏ thích sản phẩm
+Route::post('/product-toggle-like', [ProductLikeController::class, 'toggleLike'])->middleware('auth');
+
+// route hiển thị sản phẩm thích 
+Route::get('/wishlist', [ProductLikeController::class, 'wishlist'])->name('wishlist');
 //route blog
 Route::get('blog/{slug?}', [BlogController::class, 'index'])->name('blog.index');
 //route mail
