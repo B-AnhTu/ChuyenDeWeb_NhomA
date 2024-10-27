@@ -13,21 +13,16 @@ class Blog extends Model
 {
     use HasFactory;
 
-    protected $fillable = [
-        'image',
-        'title',
-        'short_description',
-        'content',
-        'created_at',
-    ];
+    protected $fillable = ['title', 'slug', 'short_description', 'image', 'content', 'created_at', 'updated_at'];
 
     protected $table = 'blog';
 
     protected $primaryKey = 'blog_id';
 
-    // public function user(): BelongsTo{
-    //     return $this->belongsTo(User::class);
-    // }
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
 
     // public function blogcomment(): HasOne{
     //     return $this->hasOne(BlogComment::class);

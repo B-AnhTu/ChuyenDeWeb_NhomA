@@ -225,7 +225,7 @@
             <li class="nav-item topbar-user dropdown hidden-caret">
                 <a class="dropdown-toggle profile-pic" data-bs-toggle="dropdown" href="#" aria-expanded="false">
                     <div class="avatar-sm">
-                        <img src="{{ asset('admin/assets/img/profile.jpg') }}" alt="..." class="avatar-img rounded-circle" />
+                        <img src="{{ asset('img/profile-picture/' . Auth::user()->image) }}" alt="..." class="avatar-img rounded-circle" />
                     </div>
                     <span class="profile-username">
                         <!-- điền tên user vào đây -->
@@ -236,11 +236,11 @@
                         <li>
                             <div class="user-box">
                                 <div class="avatar-lg">
-                                    <img src="{{ asset('admin/assets/img/profile.jpg') }}" alt="image profile" class="avatar-img rounded" />
+                                    <img src="{{ asset('img/profile-picture/' . Auth::user()->image) }}" alt="image profile" class="avatar-img rounded" />
                                 </div>
                                 <div class="u-text">
-                                    <h4>Hizrian</h4>
-                                    <p class="text-muted">hello@example.com</p>
+                                    <h4>{{ Auth::user()->fullname }}</h4>
+                                    <p class="text-muted">{{ Auth::user()->email }}</p>
                                     <a href="#" class="btn btn-xs btn-secondary btn-sm">View Profile</a>
                                 </div>
                             </div>
@@ -252,7 +252,7 @@
                             <div class="dropdown-divider"></div>
                             <a class="dropdown-item" href="#">Account Setting</a>
                             <div class="dropdown-divider"></div>
-                            <a class="dropdown-item" href="#">Logout</a>
+                            <a class="dropdown-item" href="{{ route('logout') }}">Logout</a>
                         </li>
                     </div>
                 </ul>

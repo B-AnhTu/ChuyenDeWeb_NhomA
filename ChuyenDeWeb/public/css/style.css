@@ -213,8 +213,8 @@ ol {
 	object-fit: cover;
 }
 .big-img{
-	width: 230px;
-	height: 150px;
+	width: 300px;
+	height: 250px;
 	object-fit: cover;
 }
 .img-fluid{
@@ -943,6 +943,31 @@ ol {
 .featured__item__text h5 {
 	color: #252525;
 	font-weight: 700;
+}
+/*---------------------
+ newsletter-form
+-----------------------*/
+.newsletter-form .alert {
+    padding: 10px;
+    border-radius: 5px;
+    margin-top: 10px;
+}
+
+.alert-success {
+    background-color: #d4edda;
+    border-color: #c3e6cb;
+    color: #155724;
+}
+
+.alert-danger {
+    background-color: #f8d7da;
+    border-color: #f5c6cb;
+    color: #721c24;
+}
+
+.loading {
+    opacity: 0.7;
+    pointer-events: none;
 }
 
 /*---------------------

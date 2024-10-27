@@ -80,12 +80,16 @@
                                 <div class="featured__item__pic set-bg"
                                     data-setbg="{{ asset('img/products/' . $product->image) }}">
                                     <ul class="featured__item__pic__hover">
-                                        <li><a href="#"><i class="fa fa-heart"></i></a></li>
-                                        <li><a href="#"><i class="fa fa-shopping-cart"></i></a></li>
+                                        <li><a href="#"><i class="fa fa-heart ffa-heart {{ in_array($product->product_id, $likedProductIds) ? 'liked' : '' }}" data-id="{{ $product->product_id }}"></i></a></li>
+                                        <li> <a href="#"><i class="fa fa-shopping-cart add-to-cart"
+                                                    data-id="{{ $product->product_id }}"></i></a>
+                                        </li>
                                     </ul>
                                 </div>
                                 <div class="featured__item__text">
-                                    <h6><a href="#">{{ $product->product_name }}</a></h6>
+                                    <h6><a
+                                            href="{{ url('/productDetail/' . $product->slug) }}">{{ $product->product_name }}</a>
+                                    </h6>
                                     <p><i class="fa-solid fa-eye px-1"></i>{{ $product->product_view }}</p>
                                     <h5>{{ number_format($product->price) }} vnđ</h5>
                                 </div>
@@ -124,12 +128,12 @@
             <div class="row">
                 <div class="col-lg-6 col-md-6 col-sm-6">
                     <div class="banner__pic">
-                        <img src="img/banner/banner-1.jpg" alt="">
+                        <img src="{{ asset('img/banners/banner1.png') }}" alt="Banner">
                     </div>
                 </div>
                 <div class="col-lg-6 col-md-6 col-sm-6">
                     <div class="banner__pic">
-                        <img src="img/banner/banner-2.jpg" alt="">
+                        <img src="{{ asset('img/banners/banner2.png') }}" alt="Banner">
                     </div>
                 </div>
             </div>
@@ -148,7 +152,7 @@
                             <div class="latest-prdouct__slider__item">
                                 <a href="#" class="latest-product__item">
                                     <div class="latest-product__item__pic">
-                                        <img src="img/latest-product/lp-3.jpg" alt="">
+                                        <img src="" alt="">
                                     </div>
                                     <div class="latest-product__item__text">
                                         <h6>Crab Pool Security</h6>
@@ -159,7 +163,7 @@
                             <div class="latest-prdouct__slider__item">
                                 <a href="#" class="latest-product__item">
                                     <div class="latest-product__item__pic">
-                                        <img src="img/latest-product/lp-3.jpg" alt="">
+                                        <img src="" alt="">
                                     </div>
                                     <div class="latest-product__item__text">
                                         <h6>Crab Pool Security</h6>
@@ -177,7 +181,7 @@
                             <div class="latest-prdouct__slider__item">
                                 <a href="#" class="latest-product__item">
                                     <div class="latest-product__item__pic">
-                                        <img src="img/latest-product/lp-3.jpg" alt="">
+                                        <img src="" alt="">
                                     </div>
                                     <div class="latest-product__item__text">
                                         <h6>Crab Pool Security</h6>
@@ -188,7 +192,7 @@
                             <div class="latest-prdouct__slider__item">
                                 <a href="#" class="latest-product__item">
                                     <div class="latest-product__item__pic">
-                                        <img src="img/latest-product/lp-3.jpg" alt="">
+                                        <img src="" alt="">
                                     </div>
                                     <div class="latest-product__item__text">
                                         <h6>Crab Pool Security</h6>
@@ -206,7 +210,7 @@
                             <div class="latest-prdouct__slider__item">
                                 <a href="#" class="latest-product__item">
                                     <div class="latest-product__item__pic">
-                                        <img src="img/latest-product/lp-3.jpg" alt="">
+                                        <img src="" alt="">
                                     </div>
                                     <div class="latest-product__item__text">
                                         <h6>Crab Pool Security</h6>
@@ -217,7 +221,7 @@
                             <div class="latest-prdouct__slider__item">
                                 <a href="#" class="latest-product__item">
                                     <div class="latest-product__item__pic">
-                                        <img src="img/latest-product/lp-3.jpg" alt="">
+                                        <img src="" alt="">
                                     </div>
                                     <div class="latest-product__item__text">
                                         <h6>Crab Pool Security</h6>
@@ -244,63 +248,37 @@
                 </div>
             </div>
             <div class="row">
-                <div class="col-lg-4 col-md-4 col-sm-6">
-                    <div class="blog__item">
-                        <div class="blog__item__pic">
-                            <img src="img/blog/blog-1.jpg" alt="">
+                @if (isset($posts))
+                    @foreach ($posts as $post)
+                        <div class="col-lg-4 col-md-4 col-sm-6">
+                            <div class="blog__item">
+                                <div class="blog__item__pic">
+                                    <img src="{{ asset('/img/blog/' . $post->image) }}" alt="" class="big-img">
+                                </div>
+                                <div class="blog__item__text">
+                                    <ul>
+                                        <li><i class="fa fa-calendar-o"></i>{{ $post->created_at }}</li>
+                                        <li><i class="fa fa-comment-o"></i> 0</li>
+                                    </ul>
+                                    <h5><a
+                                            href="{{ route('blog.index', ['slug' => $post->slug]) }}">{{ $post->title }}</a>
+                                    </h5>
+                                    <p>{{ $post->short_description }}</p>
+                                </div>
+                            </div>
                         </div>
-                        <div class="blog__item__text">
-                            <ul>
-                                <li><i class="fa fa-calendar-o"></i> May 4,2019</li>
-                                <li><i class="fa fa-comment-o"></i> 5</li>
-                            </ul>
-                            <h5><a href="#">Cooking tips make cooking simple</a></h5>
-                            <p>Sed quia non numquam modi tempora indunt ut labore et dolore magnam aliquam quaerat </p>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-4 col-md-4 col-sm-6">
-                    <div class="blog__item">
-                        <div class="blog__item__pic">
-                            <img src="img/blog/blog-2.jpg" alt="">
-                        </div>
-                        <div class="blog__item__text">
-                            <ul>
-                                <li><i class="fa fa-calendar-o"></i> May 4,2019</li>
-                                <li><i class="fa fa-comment-o"></i> 5</li>
-                            </ul>
-                            <h5><a href="#">6 ways to prepare breakfast for 30</a></h5>
-                            <p>Sed quia non numquam modi tempora indunt ut labore et dolore magnam aliquam quaerat </p>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-4 col-md-4 col-sm-6">
-                    <div class="blog__item">
-                        <div class="blog__item__pic">
-                            <img src="img/blog/blog-3.jpg" alt="">
-                        </div>
-                        <div class="blog__item__text">
-                            <ul>
-                                <li><i class="fa fa-calendar-o"></i> May 4,2019</li>
-                                <li><i class="fa fa-comment-o"></i> 5</li>
-                            </ul>
-                            <h5><a href="#">Visit the clean farm in the US</a></h5>
-                            <p>Sed quia non numquam modi tempora indunt ut labore et dolore magnam aliquam quaerat </p>
-                        </div>
-                    </div>
-                </div>
+                    @endforeach
+                @endif
             </div>
         </div>
     </section>
     <!-- Blog Section End -->
 
-    {{-- jquery --}}
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
     <script>
         var productImageBasePath = "{{ asset('img/products') }}/";
         var isFilterActive = false;
         var currentManufacturerId = null;
+        let likedProductIds = @json($likedProductIds);
 
         $(document).ready(function() {
             // Hàm so sánh để sắp xếp sản phẩm
@@ -330,17 +308,19 @@
                 }
 
                 response.data.forEach(function(product) {
+                    let isLiked = likedProductIds.includes(product.product_id); 
                     $('#product-list').append(`
                         <div class="col-lg-3 col-md-4 col-sm-6 mix fastfood vegetables">
                             <div class="featured__item">
                                 <div class="featured__item__pic set-bg" style="background-image: url('${productImageBasePath}${product.image}');">
                                     <ul class="featured__item__pic__hover">
-                                        <li><a href="#"><i class="fa fa-heart"></i></a></li>
-                                        <li><a href="#"><i class="fa fa-shopping-cart"></i></a></li>
+                                        <li><a href="#"><i class="fa fa-heart ffa-heart ${isLiked ? 'liked' : ''}" data-id="${product.product_id}"></i></a></li>
+                                        <li><a href="#"><i class="fa fa-shopping-cart add-to-cart" data-id="${product.product_id}"></i></a></li>
                                     </ul>
                                 </div>
                                 <div class="featured__item__text">
-                                    <h6><a href="#">${product.product_name}</a></h6>
+                                <h6><a href="/productDetail/${product.slug}">${product.product_name}</a></h6>
+                                    <h6><a href="#"></a></h6>
                                     <p><i class="fa-solid fa-eye px-1"></i>${product.product_view}</p>
                                     <h5>${numberFormat(product.price)} VNĐ</h5>
                                 </div>
