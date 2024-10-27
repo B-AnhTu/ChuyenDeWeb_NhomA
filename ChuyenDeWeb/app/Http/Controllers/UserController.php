@@ -24,7 +24,10 @@ class UserController extends Controller
     public function list()
     {
         $users = User::paginate(5);
-        return view('userAdmin', compact('users'));
+        $totalUsers = User::count();
+        $onlineUsers = User::where('is_online', true)->count();
+
+        return view('userAdmin', compact('users', 'totalUsers', 'onlineUsers'));
     }
 
     /**
