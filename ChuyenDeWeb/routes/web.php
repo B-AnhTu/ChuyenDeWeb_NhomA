@@ -16,12 +16,12 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\ProductLikeController;
 use App\Http\Controllers\CartProductController;
-
+use App\Http\Controllers\AdminController;
 // route đăng xuất
 Route::get('/logout', [LoginController::class, 'logout'])->name('logout');
 
 // Route for admin dashboard
-Route::get('/adminPage', [AdminDashboardController::class, 'index'])->name('admin.index');
+Route::get('/adminPage', [UserController::class, 'listRole'])->name('admin.index');
 
 //route manufacturer
 Route::get('/manufacturerAdmin', [ManufacturerController::class, 'index'])->name('manufacturer.index');
@@ -75,9 +75,25 @@ Route::put('/userUpdate/{user_id}', [UserController::class, 'update'])->name('us
 
 Route::delete('/userDelete/{user_id}', [UserController::class, 'destroy'])->name('userAdmin.delete');
 
+
+//route blog (admin)
+Route::get('/blogAdmin', [BlogController::class, 'list'])->name('blogAdmin.index');
+
+Route::get('/blogAdmin/{blog_id}', [BlogController::class, 'show'])->name('blogAdmin.show');
+
+Route::get('/blogCreate', [BlogController::class, 'create'])->name('blogAdmin.create');
+Route::post('/blogCreate', [BlogController::class, 'store'])->name('blogAdmin.store');
+
+Route::get('/blogUpdate/{blog_id}', [BlogController::class, 'edit'])->name('blogAdmin.edit');
+Route::put('/blogUpdate/{blog_id}', [BlogController::class, 'update'])->name('blogAdmin.update');
+
+Route::delete('/blogDelete/{blog_id}', [BlogController::class, 'destroy'])->name('blogAdmin.delete');
+
 //route cart
 Route::get('/cart/cartAdmin', [CartProductController::class, 'index'])->name('cart.index');
 Route::delete('/cart/{cart_id}/product/{product_id}', [CartProductController::class, 'destroy'])->name('cart.destroy');
+
+Route::put('/userAdmin/{user_id}/update-permissions', [UserController::class, 'updatePermissions'])->name('userAdmin.updatePermissions');
 
 // route hiển thị sản phẩm trang index
 Route::get('/', [ProductController::class, 'index'])->name('products.index');
@@ -149,4 +165,6 @@ Route::middleware(['auth'])->group(function () {
 
     // Thêm route mới cho trang Profile-User
     Route::get('/Profile-user', [ProfileUserController::class, 'show'])->name('profile.show');
+
+    
 });
