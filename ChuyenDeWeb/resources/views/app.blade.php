@@ -80,7 +80,7 @@
         <nav class="humberger__menu__nav mobile-menu">
             <ul>
                 <li class="active"><a href="{{ '/' }}">Trang chủ</a></li>
-                <li><a href="./shop-grid.html">Sản phẩm</a></li>
+                <li><a href="{{url('product')}}">Sản phẩm</a></li>
                 <li><a href="{{ url('/blog') }}">Tin tức</a></li>
                 <li><a href="{{ url('/contact') }}">Liên hệ</a></li>
             </ul>
@@ -158,7 +158,7 @@
                     <nav class="header__menu">
                         <ul>
                             <li class="active"><a href="{{ '/' }}">Trang chủ</a></li>
-                            <li><a href="./shop-grid.html">Sản phẩm</a></li>
+                            <li><a href="{{url('product')}}">Sản phẩm</a></li>
                             <li><a href="{{ url('/blog') }}">Tin tức</a></li>
                             <li><a href="{{ url('/contact') }}">Liên hệ</a></li>
                         </ul>
