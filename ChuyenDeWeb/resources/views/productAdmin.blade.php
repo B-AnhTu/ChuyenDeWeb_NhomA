@@ -4,7 +4,7 @@
 <div class="container">
     <div class="row justify-content-center">
         <div class="col-md-12">
-            <h2 class="text-center">Product</h2>
+            <h2 class="text-center">Product Management</h2>
             @if (session('success'))
                 <div class="alert alert-success">
                     {{ session('success') }}
@@ -15,6 +15,24 @@
                     {{ session('error') }}
                 </div>
             @endif
+            <div class="col-md-12 mt-3">
+                <div class="row mb-3 d-flex align-items-center">
+                    <div class="col-md-3">
+                        <select class="form-control" name="filter" id="filter">
+                            <option value="" disabled selected>Sắp xếp</option>
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6 mx-auto">
+                        <form class="d-flex">
+                            <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+                            <button class="btn btn-outline-success" type="submit">Search</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
             <div class="col-md-12 d-flex justify-content-end">
                 <a href="{{ route('product.create') }}" class="btn btn-primary my-3">Add Product</a>
             </div>
@@ -22,7 +40,7 @@
                 <table class="table table-bordered table-striped">
                     <thead>
                         <tr>
-                            <th>ID</th>
+                            <th>#</th>
                             <th>Product name</th>
                             <th>Price</th>
                             <th>Stock quantity</th>
@@ -36,7 +54,7 @@
                     <tbody>
                         @foreach ($products as $product)
                             <tr>
-                                <td>{{ $product->product_id }}</td>
+                                <td>{{ $loop->iteration + ($products->currentPage() - 1) * $products->perPage() }}</td> <!-- Sequential number -->
                                 <td>{{ $product->product_name }}</td>
                                 <td>{{ $product->price }}</td>
                                 <td>{{ $product->stock_quantity }}</td>

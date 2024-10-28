@@ -251,6 +251,6 @@ class UserController extends Controller
 
         $user->save();
 
-        return response()->json(['success' => true, 'message' => 'Cập nhật quyền truy cập thành công']);
+        return response()->json(['success' => true, 'message' => 'Cập nhật quyền người dùng thành công']);
     }
 }

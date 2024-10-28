@@ -132,7 +132,7 @@ class BlogController extends Controller
      */
     public function show(string $id)
     {
-        $blog = Blog::findOrFail($id);
+        $blog = Blog::with('user')->findOrFail($id);
         return view('blogShow', ['blog' => $blog]);  
     }
 
@@ -188,6 +188,7 @@ class BlogController extends Controller
         $blog->title = $request->input('title');
         $blog->short_description = $request->input('short_description');
         $blog->content = $request->input('content');
+        $blog->updated_at = now();
         $blog->save();
 
         return redirect()->route('blogAdmin.index')->with('success', 'Blog updated successfully');

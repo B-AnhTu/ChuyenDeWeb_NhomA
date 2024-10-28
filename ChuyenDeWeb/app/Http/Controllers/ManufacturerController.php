@@ -17,7 +17,7 @@ class ManufacturerController extends Controller
      */
     public function index()
     {
-        $manufacturers = Manufacturer::orderBy('manufacturer_id', 'asc')->paginate(3);
+        $manufacturers = Manufacturer::paginate(5);
         return view('manufacturerAdmin', ['manufacturers' => $manufacturers]);
     }
 

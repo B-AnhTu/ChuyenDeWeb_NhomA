@@ -3,6 +3,24 @@
 @section('content')
 <div class="container">
     <h2 class="text-center mb-5">Admin Page - Manage User Permissions</h2>
+    <div class="col-md-12 mt-3">
+        <div class="row mb-3 d-flex align-items-center">
+            <div class="col-md-3">
+                <select class="form-control" name="filter" id="filter">
+                    <option value="" disabled selected>Sắp xếp</option>
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                </select>
+            </div>
+            <div class="col-md-6 mx-auto">
+                <form class="d-flex">
+                    <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+                    <button class="btn btn-outline-success" type="submit">Search</button>
+                </form>
+            </div>
+        </div>
+    </div>
     <div id="alert-container" class="my-3"></div> <!-- Container for alerts -->
     <table class="table table-bordered">
         <thead>
@@ -41,7 +59,7 @@
             @endforeach
         </tbody>
     </table>
-    <div class="col-md-12 text-center">
+    <div class="col-md-12 d-flex justify-content-center mb-5">
         {{ $users->links('pagination::bootstrap-4') }}
     </div>
 </div>
