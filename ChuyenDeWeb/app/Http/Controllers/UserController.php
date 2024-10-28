@@ -234,6 +234,11 @@ class UserController extends Controller
             $user->role = $request->input('role');
             $user->permission = $defaultPermissions[$user->role];
         } elseif ($currentUserRole == 'editor') {
+            // Kiểm tra xem nếu người dùng tự đổi quyền của bản thân là admin
+            if ($user->role == 'admin') {
+                return response()->json(['success' => false, 'message' => 'Bạn không thể thay đổi cài đặt hệ thống.']);
+            }
+            // Kiểm tra xem vai trò mới của người dùng có hợp lệ không
             if ($newRoleLevel <= $targetUserRoleLevel + 1 && $newRoleLevel <= $currentUserRoleLevel) {
                 $user->role = $request->input('role');
                 $user->permission = $defaultPermissions[$user->role];
