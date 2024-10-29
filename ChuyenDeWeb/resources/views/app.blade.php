@@ -147,6 +147,12 @@
                 </div>
             </div>
         </div>
+        <!-- Hiển thị thông báo lỗi nếu người dùng vai trò user cố đăng nhập vào trang quản trị -->
+        @if (session('error'))
+            <div class="alert alert-danger">
+                {{ session('error') }}
+            </div>
+        @endif
         <div class="container">
             <div class="row">
                 <div class="col-lg-3">

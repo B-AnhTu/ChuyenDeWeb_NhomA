@@ -20,74 +20,6 @@ use App\Http\Controllers\AdminController;
 // route đăng xuất
 Route::get('/logout', [LoginController::class, 'logout'])->name('logout');
 
-// Route for admin dashboard
-Route::get('/adminPage', [UserController::class, 'listRole'])->name('admin.index');
-
-//route manufacturer
-Route::get('/manufacturerAdmin', [ManufacturerController::class, 'index'])->name('manufacturer.index');
-
-Route::get('/manufacturerAdmin/{manufacturer_id}', [ManufacturerController::class, 'show'])->name('manufacturer.show');
-
-Route::get('/manufacturerCreate', [ManufacturerController::class, 'create'])->name('manufacturer.create');
-Route::post('/manufacturerCreate', [ManufacturerController::class, 'store'])->name('manufacturer.store');
-
-Route::get('/manufacturerUpdate/{manufacturer_id}', [ManufacturerController::class, 'edit'])->name('manufacturer.edit');
-Route::put('/manufacturerUpdate/{manufacturer_id}', [ManufacturerController::class, 'update'])->name('manufacturer.update');
-
-Route::delete('/manufacturerDelete/{manufacturer_id}', [ManufacturerController::class, 'destroy'])->name('manufacturer.delete');
-
-//route category
-Route::get('/categoryAdmin', [CategoryController::class, 'list'])->name('category.index');
-
-Route::get('/categoryAdmin/{category_id}', [CategoryController::class, 'show'])->name('category.show');
-
-Route::get('/categoryCreate', [CategoryController::class, 'create'])->name('category.create');
-Route::post('/categoryCreate', [CategoryController::class, 'store'])->name('category.store');
-
-Route::get('/categoryUpdate/{category_id}', [CategoryController::class, 'edit'])->name('category.edit');
-Route::put('/categoryUpdate/{category_id}', [CategoryController::class, 'update'])->name('category.update');
-
-Route::delete('/categoryDelete/{category_id}', [CategoryController::class, 'destroy'])->name('category.delete');
-
-//route product
-Route::get('/productAdmin', [ProductController::class, 'list'])->name('product.index');
-
-Route::get('/productAdmin/{product_id}', [ProductController::class, 'show'])->name('product.show');
-
-Route::get('/productCreate', [ProductController::class, 'create'])->name('product.create');
-Route::post('/productCreate', [ProductController::class, 'store'])->name('product.store');
-
-Route::get('/productUpdate/{product_id}', [ProductController::class, 'edit'])->name('product.edit');
-Route::put('/productUpdate/{product_id}', [ProductController::class, 'update'])->name('product.update');
-
-Route::delete('/productDelete/{product_id}', [ProductController::class, 'destroy'])->name('product.delete');
-
-//route user
-Route::get('/userAdmin', [UserController::class, 'list'])->name('userAdmin.index');
-
-Route::get('/userAdmin/{user_id}', [UserController::class, 'show'])->name('userAdmin.show');
-
-Route::get('/userCreate', [UserController::class, 'create'])->name('userAdmin.create');
-Route::post('/userCreate', [UserController::class, 'store'])->name('userAdmin.store');
-
-Route::get('/userUpdate/{user_id}', [UserController::class, 'edit'])->name('userAdmin.edit');
-Route::put('/userUpdate/{user_id}', [UserController::class, 'update'])->name('userAdmin.update');
-
-Route::delete('/userDelete/{user_id}', [UserController::class, 'destroy'])->name('userAdmin.delete');
-
-
-//route blog (admin)
-Route::get('/blogAdmin', [BlogController::class, 'list'])->name('blogAdmin.index');
-
-Route::get('/blogAdmin/{blog_id}', [BlogController::class, 'show'])->name('blogAdmin.show');
-
-Route::get('/blogCreate', [BlogController::class, 'create'])->name('blogAdmin.create');
-Route::post('/blogCreate', [BlogController::class, 'store'])->name('blogAdmin.store');
-
-Route::get('/blogUpdate/{blog_id}', [BlogController::class, 'edit'])->name('blogAdmin.edit');
-Route::put('/blogUpdate/{blog_id}', [BlogController::class, 'update'])->name('blogAdmin.update');
-
-Route::delete('/blogDelete/{blog_id}', [BlogController::class, 'destroy'])->name('blogAdmin.delete');
 
 //route cart
 Route::get('/cart/cartAdmin', [CartProductController::class, 'index'])->name('cart.index');
@@ -137,6 +69,78 @@ Route::get('/newsletter/unsubscribe/{email}', [NewsletterController::class, 'uns
 Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('/admin/newsletter', [NewsletterController::class, 'index'])->name('admin.newsletter.index');
     Route::post('/admin/newsletter/send', [NewsletterController::class, 'sendNotification'])->name('admin.newsletter.send');
+});
+
+Route::group(['middleware' => 'role:admin,editor'], function () {
+    // Route for admin dashboard
+    Route::get('/adminPage', [UserController::class, 'listRole'])->name('admin.index');
+
+    //route manufacturer
+    Route::get('/manufacturerAdmin', [ManufacturerController::class, 'index'])->name('manufacturer.index');
+
+    Route::get('/manufacturerAdmin/{manufacturer_id}', [ManufacturerController::class, 'show'])->name('manufacturer.show');
+
+    Route::get('/manufacturerCreate', [ManufacturerController::class, 'create'])->name('manufacturer.create');
+    Route::post('/manufacturerCreate', [ManufacturerController::class, 'store'])->name('manufacturer.store');
+
+    Route::get('/manufacturerUpdate/{manufacturer_id}', [ManufacturerController::class, 'edit'])->name('manufacturer.edit');
+    Route::put('/manufacturerUpdate/{manufacturer_id}', [ManufacturerController::class, 'update'])->name('manufacturer.update');
+
+    Route::delete('/manufacturerDelete/{manufacturer_id}', [ManufacturerController::class, 'destroy'])->name('manufacturer.delete');
+
+    //route category
+    Route::get('/categoryAdmin', [CategoryController::class, 'list'])->name('category.index');
+
+    Route::get('/categoryAdmin/{category_id}', [CategoryController::class, 'show'])->name('category.show');
+
+    Route::get('/categoryCreate', [CategoryController::class, 'create'])->name('category.create');
+    Route::post('/categoryCreate', [CategoryController::class, 'store'])->name('category.store');
+
+    Route::get('/categoryUpdate/{category_id}', [CategoryController::class, 'edit'])->name('category.edit');
+    Route::put('/categoryUpdate/{category_id}', [CategoryController::class, 'update'])->name('category.update');
+
+    Route::delete('/categoryDelete/{category_id}', [CategoryController::class, 'destroy'])->name('category.delete');
+
+    //route product
+    Route::get('/productAdmin', [ProductController::class, 'list'])->name('product.index');
+
+    Route::get('/productAdmin/{product_id}', [ProductController::class, 'show'])->name('product.show');
+
+    Route::get('/productCreate', [ProductController::class, 'create'])->name('product.create');
+    Route::post('/productCreate', [ProductController::class, 'store'])->name('product.store');
+
+    Route::get('/productUpdate/{product_id}', [ProductController::class, 'edit'])->name('product.edit');
+    Route::put('/productUpdate/{product_id}', [ProductController::class, 'update'])->name('product.update');
+
+    Route::delete('/productDelete/{product_id}', [ProductController::class, 'destroy'])->name('product.delete');
+
+    //route user
+    Route::get('/userAdmin', [UserController::class, 'list'])->name('userAdmin.index');
+
+    Route::get('/userAdmin/{user_id}', [UserController::class, 'show'])->name('userAdmin.show');
+
+    Route::get('/userCreate', [UserController::class, 'create'])->name('userAdmin.create');
+    Route::post('/userCreate', [UserController::class, 'store'])->name('userAdmin.store');
+
+    Route::get('/userUpdate/{user_id}', [UserController::class, 'edit'])->name('userAdmin.edit');
+    Route::put('/userUpdate/{user_id}', [UserController::class, 'update'])->name('userAdmin.update');
+
+    Route::delete('/userDelete/{user_id}', [UserController::class, 'destroy'])->name('userAdmin.delete');
+
+
+    //route blog (admin)
+    Route::get('/blogAdmin', [BlogController::class, 'list'])->name('blogAdmin.index');
+
+    Route::get('/blogAdmin/{blog_id}', [BlogController::class, 'show'])->name('blogAdmin.show');
+
+    Route::get('/blogCreate', [BlogController::class, 'create'])->name('blogAdmin.create');
+    Route::post('/blogCreate', [BlogController::class, 'store'])->name('blogAdmin.store');
+
+    Route::get('/blogUpdate/{blog_id}', [BlogController::class, 'edit'])->name('blogAdmin.edit');
+    Route::put('/blogUpdate/{blog_id}', [BlogController::class, 'update'])->name('blogAdmin.update');
+
+    Route::delete('/blogDelete/{blog_id}', [BlogController::class, 'destroy'])->name('blogAdmin.delete');
+
 });
 
 
