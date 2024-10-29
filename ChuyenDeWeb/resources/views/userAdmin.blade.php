@@ -15,8 +15,40 @@
                     {{ session('error') }}
                 </div>
             @endif
-            <div class="col-md-12 d-flex justify-content-end">
-                <a href="{{ route('userAdmin.create') }}" class="btn btn-primary my-3">Add User</a>
+            <div class="col-md-12">
+                <div class="row mb-3 d-flex align-items-center">
+                    <div class="col-md-3">
+                        <select class="form-control" name="filter" id="filter">
+                            <option value="" disabled selected>Sắp xếp</option>
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6 mx-auto">
+                        <form class="d-flex">
+                            <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+                            <button class="btn btn-outline-success" type="submit">Search</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-12">
+                <div class="row mb-3 d-flex align-items-center">
+                    <div class="col-md-2">
+                        <div class="head-content text-center bg-white p-2">
+                            <p>Total Users: <span class="badge bg-primary">{{ $totalUsers }}</span></p>
+                        </div>    
+                    </div>
+                    <div class="col-md-2">
+                        <div class="head-content text-center bg-white p-2">
+                            <p>Online Users: <span class="badge bg-primary">{{ $onlineUsers }}</span></p>
+                        </div>    
+                    </div>
+                    <div class="col-md-8 d-flex justify-content-end">
+                        <a href="{{ route('userAdmin.create') }}" class="btn btn-primary">Add User</a>
+                    </div>
+                </div>
             </div>
             <div class="col-md-12 justify-content-center mx-auto">
                 <table class="table table-bordered table-striped">

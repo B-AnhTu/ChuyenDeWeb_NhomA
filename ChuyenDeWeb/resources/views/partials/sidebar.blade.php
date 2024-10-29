@@ -66,8 +66,13 @@
                                 </a>
                             </li>
                             <li>
-                                <a href="#">
+                                <a href="{{ route('blogAdmin.index') }}">
                                     <span class="sub-item">Blog Management</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{{ route('cart.index') }}">
+                                    <span class="sub-item">Cart Management</span>
                                 </a>
                             </li>
                         </ul>

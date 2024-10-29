@@ -14,12 +14,15 @@ use App\Http\Controllers\AdminDashboardController;
 use App\Http\Controllers\NewsletterController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\CartController;
-
+use App\Http\Controllers\ProductLikeController;
+use App\Http\Controllers\CartProductController;
+use App\Http\Controllers\AdminController;
+use App\Http\Controllers\IndexController;
 // route đăng xuất
 Route::get('/logout', [LoginController::class, 'logout'])->name('logout');
 
 // Route for admin dashboard
-Route::get('/adminPage', [AdminDashboardController::class, 'index'])->name('admin.index');
+Route::get('/adminPage', [UserController::class, 'listRole'])->name('admin.index');
 
 //route manufacturer
 Route::get('/manufacturerAdmin', [ManufacturerController::class, 'index'])->name('manufacturer.index');
@@ -73,23 +76,56 @@ Route::put('/userUpdate/{user_id}', [UserController::class, 'update'])->name('us
 
 Route::delete('/userDelete/{user_id}', [UserController::class, 'destroy'])->name('userAdmin.delete');
 
+
+//route blog (admin)
+Route::get('/blogAdmin', [BlogController::class, 'list'])->name('blogAdmin.index');
+
+Route::get('/blogAdmin/{blog_id}', [BlogController::class, 'show'])->name('blogAdmin.show');
+
+Route::get('/blogCreate', [BlogController::class, 'create'])->name('blogAdmin.create');
+Route::post('/blogCreate', [BlogController::class, 'store'])->name('blogAdmin.store');
+
+Route::get('/blogUpdate/{blog_id}', [BlogController::class, 'edit'])->name('blogAdmin.edit');
+Route::put('/blogUpdate/{blog_id}', [BlogController::class, 'update'])->name('blogAdmin.update');
+
+Route::delete('/blogDelete/{blog_id}', [BlogController::class, 'destroy'])->name('blogAdmin.delete');
+
+//route cart
+Route::get('/cart/cartAdmin', [CartProductController::class, 'index'])->name('cart.index');
+Route::delete('/cart/{cart_id}/product/{product_id}', [CartProductController::class, 'destroy'])->name('cart.destroy');
+
+Route::put('/userAdmin/{user_id}/update-permissions', [UserController::class, 'updatePermissions'])->name('userAdmin.updatePermissions');
+
 // route hiển thị sản phẩm trang index
-Route::get('/', [ProductController::class, 'index'])->name('products.index');
+Route::get('/', [IndexController::class, 'index'])->name('products.index');
+
+// route hiển thị sản phẩm khi chọn nhà sản xuất
+Route::get('/filterByManufacturer', [IndexController::class, 'filter'])->name('products.filter');
+
+// route để lọc sản phẩm theo loại sản phẩm
+Route::get('/filterByCategory', [IndexController::class, 'filterByCategory'])->name('products.filterByCategory');
+
+// route cho tìm kiếm sản phẩm
+Route::get('/search', [IndexController::class, 'search'])->name('products.search');
+
+// route sắp xếp
+Route::get('/sort', [IndexController::class, 'sort'])->name('products.sort');
+
+// route hiển thị sản phẩm trang product
+Route::get('/product', [ProductController::class, 'index'])->name('products.index');
 
 // route hiển thị sản phẩm khi chọn nhà sản xuất
 Route::get('/filterByManufacturer', [ProductController::class, 'filter'])->name('products.filter');
 
-// route để lọc sản phẩm theo loại sản phẩm
-Route::get('/filterByCategory', [ProductController::class, 'filterByCategory'])->name('products.filterByCategory');
 
 // route cho tìm kiếm sản phẩm
 Route::get('/search', [ProductController::class, 'search'])->name('products.search');
 
 // route sắp xếp
-Route::get('/sort', [ProductController::class, 'sort'])->name('products.sort');
+Route::get('/products/sort', [ProductController::class, 'sort'])->name('products.sort');
 
 // route chi tiết sản phẩm 
-Route::get('/productDetail/{slug}', [ProductController::class, 'showProductDetail']);
+Route::get('/productDetail/{slug}', [IndexController::class, 'showProductDetail']);
 
 // route thêm sản phẩm vào giỏ hàng
 Route::post('/add-to-cart', [CartController::class, 'addToCart'])->name('cart.add');
@@ -97,6 +133,11 @@ Route::post('/add-to-cart', [CartController::class, 'addToCart'])->name('cart.ad
 // route hiển thị sản phẩm trong giỏ hàng
 Route::get('/cart', [CartController::class, 'viewCart'])->name('cart.view');
 
+// route thích và bỏ thích sản phẩm
+Route::post('/product-toggle-like', [ProductLikeController::class, 'toggleLike'])->middleware('auth');
+
+// route hiển thị sản phẩm thích 
+Route::get('/wishlist', [ProductLikeController::class, 'wishlist'])->name('wishlist');
 //route blog
 Route::get('blog/{slug?}', [BlogController::class, 'index'])->name('blog.index');
 //route mail
@@ -138,4 +179,6 @@ Route::middleware(['auth'])->group(function () {
 
     // Thêm route mới cho trang Profile-User
     Route::get('/Profile-user', [ProfileUserController::class, 'show'])->name('profile.show');
+
+    
 });

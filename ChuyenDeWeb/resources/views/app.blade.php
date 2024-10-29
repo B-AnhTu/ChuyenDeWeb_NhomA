@@ -9,7 +9,11 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Web bán hàng</title>
-
+    <style>
+        .fa-heart.liked {
+            color: red;
+        }
+    </style>
     <!-- Google Font -->
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@200;300;400;600;900&display=swap" rel="stylesheet">
 
@@ -45,38 +49,38 @@
         </div>
         <div class="humberger__menu__cart">
             <ul>
-                <li><a href="#"><i class="fa fa-heart"></i> <span>1</span></a></li>
-                <li><a href="{{ url('cart') }}"><i class="fa fa-shopping-bag"></i> <span>3</span></a></li>
+                <li><a title="sản phẩm yêu thích" href="{{ url('wishlist') }}"><i class="fa fa-heart"></i></a></li>
+                <li><a title="giỏ hàng" href="{{ url('cart') }}"><i class="fa fa-shopping-bag"></i></a></li>
             </ul>
         </div>
         <div class="humberger__menu__widget">
             <div class="header__top__right__auth">
                 @guest
-                <!-- Hiển thị nút Đăng nhập nếu chưa đăng nhập -->
-                <a href="{{ url('/login') }}"><i class="fa fa-user"></i> Đăng nhập</a>
+                    <!-- Hiển thị nút Đăng nhập nếu chưa đăng nhập -->
+                    <a href="{{ url('/login') }}"><i class="fa fa-user"></i> Đăng nhập</a>
                 @else
-                <!-- Dropdown khi người dùng đã đăng nhập -->
-                <div class="dropdown-center">
-                    <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown"
-                        aria-expanded="false">
-                        {{ auth()->user()->fullname }}
-                    </button>
-                    <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="{{ url('Profile-user') }}"><i
-                                    class="fa-solid fa-user"></i>Thông tin cá nhân</a></li>
-                        <li><a class="dropdown-item" href="{{ url('change-password') }}"><i class="fa fa-lock"></i> Đổi
-                                mật khẩu</a></li>
-                        <li><a class="dropdown-item" href="{{ route('logout') }}"><i
-                                    class="fa-solid fa-right-from-bracket"></i> Đăng xuất</a></li>
-                    </ul>
-                </div>
+                    <!-- Dropdown khi người dùng đã đăng nhập -->
+                    <div class="dropdown-center">
+                        <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown"
+                            aria-expanded="false">
+                            {{ auth()->user()->fullname }}
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="{{ url('Profile-user') }}"><i
+                                        class="fa-solid fa-user"></i>Thông tin cá nhân</a></li>
+                            <li><a class="dropdown-item" href="{{ url('change-password') }}"><i class="fa fa-lock"></i> Đổi
+                                    mật khẩu</a></li>
+                            <li><a class="dropdown-item" href="{{ route('logout') }}"><i
+                                        class="fa-solid fa-right-from-bracket"></i> Đăng xuất</a></li>
+                        </ul>
+                    </div>
                 @endguest
             </div>
         </div>
         <nav class="humberger__menu__nav mobile-menu">
             <ul>
                 <li class="active"><a href="{{ '/' }}">Trang chủ</a></li>
-                <li><a href="./shop-grid.html">Sản phẩm</a></li>
+                <li><a href="{{url('product')}}">Sản phẩm</a></li>
                 <li><a href="{{ url('/blog') }}">Tin tức</a></li>
                 <li><a href="{{ url('/contact') }}">Liên hệ</a></li>
             </ul>
@@ -118,24 +122,24 @@
                             </div>
                             <div class="header__top__right__auth">
                                 @guest
-                                <!-- Hiển thị nút Đăng nhập nếu chưa đăng nhập -->
-                                <a href="{{ url('/login') }}"><i class="fa fa-user"></i> Đăng nhập</a>
+                                    <!-- Hiển thị nút Đăng nhập nếu chưa đăng nhập -->
+                                    <a href="{{ url('/login') }}"><i class="fa fa-user"></i> Đăng nhập</a>
                                 @else
-                                <!-- Dropdown khi người dùng đã đăng nhập -->
-                                <div class="dropdown-center">
-                                    <button class="btn btn-secondary dropdown-toggle" type="button"
-                                        data-bs-toggle="dropdown" aria-expanded="false">
-                                        {{ auth()->user()->fullname }}
-                                    </button>
-                                    <ul class="dropdown-menu">
-                                        <li><a class="dropdown-item" href="{{ url('Profile-user') }}"><i
-                                                    class="fa-solid fa-user"></i>Thông tin cá nhân</a></li>
-                                        <li><a class="dropdown-item" href="{{ url('change-password') }}"><i
-                                                    class="fa fa-lock"></i> Đổi mật khẩu</a></li>
-                                        <li><a class="dropdown-item" href="{{ route('logout') }}"><i
-                                                    class="fa-solid fa-right-from-bracket"></i> Đăng xuất</a></li>
-                                    </ul>
-                                </div>
+                                    <!-- Dropdown khi người dùng đã đăng nhập -->
+                                    <div class="dropdown-center">
+                                        <button class="btn btn-secondary dropdown-toggle" type="button"
+                                            data-bs-toggle="dropdown" aria-expanded="false">
+                                            {{ auth()->user()->fullname }}
+                                        </button>
+                                        <ul class="dropdown-menu">
+                                            <li><a class="dropdown-item" href="{{ url('Profile-user') }}"><i
+                                                        class="fa-solid fa-user"></i>Thông tin cá nhân</a></li>
+                                            <li><a class="dropdown-item" href="{{ url('change-password') }}"><i
+                                                        class="fa fa-lock"></i> Đổi mật khẩu</a></li>
+                                            <li><a class="dropdown-item" href="{{ route('logout') }}"><i
+                                                        class="fa-solid fa-right-from-bracket"></i> Đăng xuất</a></li>
+                                        </ul>
+                                    </div>
                                 @endguest
                             </div>
                         </div>
@@ -154,7 +158,7 @@
                     <nav class="header__menu">
                         <ul>
                             <li class="active"><a href="{{ '/' }}">Trang chủ</a></li>
-                            <li><a href="./shop-grid.html">Sản phẩm</a></li>
+                            <li><a href="{{url('product')}}">Sản phẩm</a></li>
                             <li><a href="{{ url('/blog') }}">Tin tức</a></li>
                             <li><a href="{{ url('/contact') }}">Liên hệ</a></li>
                         </ul>
@@ -163,8 +167,8 @@
                 <div class="col-lg-3">
                     <div class="header__cart">
                         <ul>
-                            <li><a href="#"><i class="fa fa-heart"></i> <span>1</span></a></li>
-                            <li><a href="{{ url('cart') }}"><i class="fa fa-shopping-bag"></i> <span>3</span></a>
+                            <li><a title="sản phẩm yêu thích" href="{{ url('wishlist') }}"><i class="fa fa-heart"></i></a></li>
+                            <li><a title="giỏ hàng" href="{{ url('cart') }}"><i class="fa fa-shopping-bag"></i></a>
                             </li>
                         </ul>
                     </div>
@@ -211,14 +215,17 @@
                 <div class="col-lg-4 col-md-12">
                     <div class="footer__widget">
                         <h6>Tham gia bản tin của chúng tôi ngay bây giờ</h6>
-                        <p>Nhận thông tin cập nhật qua E-mail về cửa hàng mới nhất và các ưu đãi đặc biệt của chúng tôi.</p>
+                        <p>Nhận thông tin cập nhật qua E-mail về cửa hàng mới nhất và các ưu đãi đặc biệt của chúng tôi.
+                        </p>
                         <form id="newsletterForm" class="newsletter-form">
                             @csrf
                             <div class="form-group mb-3">
-                                <input type="text" name="name" class="form-control" placeholder="Tên của bạn (không bắt buộc)">
+                                <input type="text" name="name" class="form-control"
+                                    placeholder="Tên của bạn (không bắt buộc)">
                             </div>
                             <div class="form-group mb-3">
-                                <input type="email" name="email" class="form-control" placeholder="Nhập email của bạn" required>
+                                <input type="email" name="email" class="form-control"
+                                    placeholder="Nhập email của bạn" required>
                             </div>
                         </form>
                         <button type="button" class="site-btn" id="subscribeBtn">
@@ -273,6 +280,95 @@
     </script>
     <script src="https://kit.fontawesome.com/f6dce9b617.js" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+
+    {{-- js thêm sản phẩm vào giỏ hàng --}}
+    <script>
+        // Xử lý sự kiện khi nhấn vào nút "Thêm vào giỏ hàng"
+        $(document).on('click', '.add-to-cart', function(e) {
+            e.preventDefault();
+            let productId = $(this).data('id');
+
+            $.ajax({
+                url: '{{ route('cart.add') }}',
+                method: 'POST',
+                data: {
+                    product_id: productId,
+                    _token: '{{ csrf_token() }}'
+                },
+                success: function(response) {
+                    if (response.status === 'success') {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Thành công',
+                            text: response.message,
+                            showConfirmButton: false,
+                            timer: 1500
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Lỗi',
+                            text: response.message,
+                            showConfirmButton: false,
+                            timer: 1500
+                        });
+                    }
+                },
+                error: function() {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Lỗi',
+                        text: 'Đã xảy ra lỗi. Vui lòng thử lại sau.',
+                        showConfirmButton: false,
+                        timer: 1500
+                    });
+                }
+            });
+        });
+    </script>
+
+
+    {{-- js thích sản phẩm --}}
+    <script>
+        $(document).on('click', '.ffa-heart', function(e) {
+            e.preventDefault();
+            let icon = $(this);
+            let productId = icon.data('id');
+
+            $.ajax({
+                url: '/product-toggle-like',
+                method: 'POST',
+                data: {
+                    product_id: productId
+                },
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                success: function(response) {
+                    icon.toggleClass('liked'); // Thêm hoặc bỏ class "liked" khi thích/bỏ thích
+
+                    // Hiển thị thông báo bằng SweetAlert2
+                    Swal.fire({
+                        title: 'Thành công!',
+                        text: response.message,
+                        icon: 'success',
+                        confirmButtonText: 'OK'
+                    });
+                },
+                error: function(xhr) {
+                    if (xhr.status === 401) {
+                        Swal.fire({
+                            title: 'Lỗi!',
+                            text: 'Vui lòng đăng nhập để thực hiện chức năng này',
+                            icon: 'error',
+                            confirmButtonText: 'OK'
+                        });
+                    }
+                }
+            });
+        });
+    </script>
 </body>
 
 </html>
