@@ -6,6 +6,7 @@ use App\Models\Blog;
 use App\Models\Category;
 use App\Models\Manufacturer;
 use App\Models\Product;
+use App\Models\ProductLike;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -27,7 +28,7 @@ class IndexController extends Controller
 
         // Kiểm tra xem người dùng đã thích sản phẩm nào
         $likedProductIds = Auth::check()
-            ? Product::where('user_id', Auth::id())->pluck('product_id')->toArray()
+            ? ProductLike::where('user_id', Auth::id())->pluck('product_id')->toArray()
             : [];
 
         $posts = Blog::orderBy('created_at', 'desc')

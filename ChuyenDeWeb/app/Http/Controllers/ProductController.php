@@ -32,7 +32,7 @@ class ProductController extends Controller
 
         // Kiểm tra xem người dùng đã thích sản phẩm nào
         $likedProductIds = Auth::check()
-            ? Product::where('user_id', Auth::id())->pluck('product_id')->toArray()
+            ? ProductLike::where('user_id', Auth::id())->pluck('product_id')->toArray()
             : [];
 
         $posts = Blog::orderBy('created_at', 'desc')
