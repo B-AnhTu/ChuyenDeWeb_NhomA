@@ -17,6 +17,7 @@ use App\Http\Controllers\CartController;
 use App\Http\Controllers\ProductLikeController;
 use App\Http\Controllers\CartProductController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\IndexController;
 // route đăng xuất
 Route::get('/logout', [LoginController::class, 'logout'])->name('logout');
 
@@ -28,22 +29,35 @@ Route::delete('/cart/{cart_id}/product/{product_id}', [CartProductController::cl
 Route::put('/userAdmin/{user_id}/update-permissions', [UserController::class, 'updatePermissions'])->name('userAdmin.updatePermissions');
 
 // route hiển thị sản phẩm trang index
-Route::get('/', [ProductController::class, 'index'])->name('products.index');
+Route::get('/', [IndexController::class, 'index'])->name('products.index');
+
+// route hiển thị sản phẩm khi chọn nhà sản xuất
+Route::get('/filterByManufacturer', [IndexController::class, 'filter'])->name('products.filter');
+
+// route để lọc sản phẩm theo loại sản phẩm
+Route::get('/filterByCategory', [IndexController::class, 'filterByCategory'])->name('products.filterByCategory');
+
+// route cho tìm kiếm sản phẩm
+Route::get('/search', [IndexController::class, 'search'])->name('products.search');
+
+// route sắp xếp
+Route::get('/sort', [IndexController::class, 'sort'])->name('products.sort');
+
+// route hiển thị sản phẩm trang product
+Route::get('/product', [ProductController::class, 'index'])->name('products.index');
 
 // route hiển thị sản phẩm khi chọn nhà sản xuất
 Route::get('/filterByManufacturer', [ProductController::class, 'filter'])->name('products.filter');
 
-// route để lọc sản phẩm theo loại sản phẩm
-Route::get('/filterByCategory', [ProductController::class, 'filterByCategory'])->name('products.filterByCategory');
 
 // route cho tìm kiếm sản phẩm
 Route::get('/search', [ProductController::class, 'search'])->name('products.search');
 
 // route sắp xếp
-Route::get('/sort', [ProductController::class, 'sort'])->name('products.sort');
+Route::get('/products/sort', [ProductController::class, 'sort'])->name('products.sort');
 
 // route chi tiết sản phẩm 
-Route::get('/productDetail/{slug}', [ProductController::class, 'showProductDetail']);
+Route::get('/productDetail/{slug}', [IndexController::class, 'showProductDetail']);
 
 // route thêm sản phẩm vào giỏ hàng
 Route::post('/add-to-cart', [CartController::class, 'addToCart'])->name('cart.add');
