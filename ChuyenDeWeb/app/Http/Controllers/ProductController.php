@@ -164,7 +164,7 @@ class ProductController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'product_name' => ['required', 'string', 'max:50', new SingleSpaceOnly, new NoSpecialCharacters],
+            'product_name' => ['required', 'string', 'max:50', new NoSpecialCharacters],
             'price' => 'required|numeric|min:0',
             'image' => 'required|mimes:jpeg,jpg,png,gif|max:5120',
             'description' => 'required|string',
@@ -235,7 +235,7 @@ class ProductController extends Controller
     public function update(Request $request, $product_id)
     {
         $request->validate([
-            'product_name' => ['required', 'string', 'max:50', new SingleSpaceOnly, new NoSpecialCharacters],
+            'product_name' => ['required', 'string', 'max:50'],
             'price' => 'required|numeric|min:0',
             'image' => 'nullable|mimes:jpeg,jpg,png,gif|max:5120',
             'description' => 'required|string',

@@ -193,12 +193,13 @@ class UserController extends Controller
         }
     }
 
+    //Hiển thị danh sách user trên trang quản lý vai trò
     public function listRole()
     {
         $users = User::paginate(5);
         return view('adminPage', compact('users'));
     }
-    
+    // Cập nhật quyền hạn user
     public function updatePermissions(Request $request, $id)
     {
         $roleHierarchy = [
@@ -251,6 +252,6 @@ class UserController extends Controller
 
         $user->save();
 
-        return response()->json(['success' => true, 'message' => 'Cập nhật quyền truy cập thành công']);
+        return response()->json(['success' => true, 'message' => 'Cập nhật quyền người dùng thành công']);
     }
 }

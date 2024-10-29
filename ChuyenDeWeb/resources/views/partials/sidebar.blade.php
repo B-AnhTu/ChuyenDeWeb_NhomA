@@ -78,7 +78,7 @@
                         </ul>
                     </div>
                 </li>
-                <li class="nav-section">
+                <!-- <li class="nav-section">
                     <span class="sidebar-mini-icon">
                         <i class="fa fa-ellipsis-h"></i>
                     </span>
@@ -297,7 +297,7 @@
                             </li>
                         </ul>
                     </div>
-                </li>
+                </li> -->
             </ul>
         </div>
     </div>
