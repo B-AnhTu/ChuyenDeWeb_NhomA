@@ -15,6 +15,24 @@
                     {{ session('error') }}
                 </div>
             @endif
+            <div class="col-md-12 mt-3">
+                <div class="row mb-3 d-flex align-items-center">
+                    <div class="col-md-3">
+                        <select class="form-control" name="filter" id="filter">
+                            <option value="" disabled selected>Sắp xếp</option>
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6 mx-auto">
+                        <form class="d-flex">
+                            <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+                            <button class="btn btn-outline-success" type="submit">Search</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
             <div class="col-md-12 d-flex justify-content-end my-3">
                 <a href="{{ route('blogAdmin.create') }}" class="btn btn-success">Create Blog</a>
             </div>
@@ -22,7 +40,7 @@
             <table class="table table-bordered table-striped">
                 <thead>
                     <tr>
-                        <th>ID</th>
+                        <th>#</th>
                         <th>Title</th>
                         <th>Short Description</th>
                         <th>Content</th>
@@ -33,7 +51,7 @@
                 <tbody>
                     @foreach ($data_blog as $blog)
                     <tr>
-                        <td>{{ $blog->blog_id }}</td>
+                        <td>{{ $loop->iteration + ($data_blog->currentPage() - 1) * $data_blog->perPage() }}</td> <!-- Sequential number -->
                         <td>{{ $blog->title }}</td>
                         <td>{{ Str::limit($blog->short_description, 15) }}</td>
                         <td>{{ Str::limit($blog->content, 20) }}</td>

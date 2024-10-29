@@ -4,15 +4,17 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Session;
 
 class AdminDashboardController extends Controller
 {
     /**
      * Display the admin dashboard.
      */
-    public function index($page = 'adminPage')
+    public function index()
     {
-        return view($page); // Ensure this matches the directory structure and file name
+        return view('adminPage');
     }
 
     /**

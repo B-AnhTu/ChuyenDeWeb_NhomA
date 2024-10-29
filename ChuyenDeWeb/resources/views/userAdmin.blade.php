@@ -4,7 +4,7 @@
 <div class="container">
     <div class="row justify-content-center">
         <div class="col-md-12">
-            <h2 class="text-center">Product</h2>
+            <h2 class="text-center">User Management</h2>
             @if (session('success'))
                 <div class="alert alert-success">
                     {{ session('success') }}
@@ -54,7 +54,7 @@
                 <table class="table table-bordered table-striped">
                     <thead>
                         <tr>
-                            <th>ID</th>
+                            <th>#</th>
                             <th>Fullname</th>
                             <th>Email</th>
                             <th>Phone</th>
@@ -65,7 +65,7 @@
                     <tbody>
                         @foreach ($users as $user)
                             <tr>
-                                <td>{{ $user->user_id }}</td>
+                                <td>{{ $loop->iteration + ($users->currentPage() - 1) * $users->perPage() }}</td> <!-- Sequential number -->
                                 <td>{{ $user->fullname }}</td>
                                 <td>{{ $user->email }}</td>
                                 <td>{{ $user->phone }}</td>

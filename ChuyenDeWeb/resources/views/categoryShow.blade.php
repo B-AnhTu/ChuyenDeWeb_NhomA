@@ -4,7 +4,7 @@
     <div class="container">
         <div class="row">
             <div class="col-md-12 text-center py-3">
-                <h2>Thông tin danh mục</h2>
+                <h2>Category Details</h2>
             </div>
         </div>
         <div class="row">
