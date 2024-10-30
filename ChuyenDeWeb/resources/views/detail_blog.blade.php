@@ -32,33 +32,50 @@
         </div>
     </div>
     <!---Comment Section --->
-    <div class="row" style="margin-top: -8%">
+    <div class="row">
         <div class="col-md-8">
             <div class="card my-4">
-                <h5 class="card-header">Bình luận:</h5>
+                <h5 class="card-header">Leave a Comment:</h5>
                 <div class="card-body">
-                    <form name="Comment" method="post">
-                        <input type="hidden" name="csrftoken" value="" />
+                    <form action="{{ route('comments.store') }}" method="POST">
+                        @csrf
+                        <input type="hidden" name="blog_id" value="{{ $blog->blog_id }}">
+
                         <div class="form-group">
-                            <input type="email" name="email" class="form-control" placeholder="Nhập email của bạn" required>
+                            <input type="text" name="name" class="form-control" value="{{ Auth::user()->fullname }}" readonly>
                         </div>
                         <div class="form-group">
-                            <textarea class="form-control" name="comment" rows="3" placeholder="Bình luận" required></textarea>
+                            <input type="email" name="email" class="form-control" value="{{ Auth::user()->email }}" readonly>
                         </div>
-                        <button type="submit" class="btn btn-primary" name="submit">Gửi</button>
+                        <div class="form-group">
+                            <textarea class="form-control" name="comment" rows="3" placeholder="Comment" required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Submit</button>
                     </form>
+
                 </div>
             </div>
-            <!---Comment Display Section --->
+
+            <!-- Comment Display Section -->
+            <h5>Comments:</h5>
+            @if(isset($comments) && $comments->count() > 0)
+            @foreach ($comments as $comment)
             <div class="media mb-4">
                 <img class="d-flex mr-3 rounded-circle" src="images/usericon.png" alt="">
                 <div class="media-body">
-                    <h5 class="mt-0"> <br />
+                    <h5 class="mt-0">{{ $comment->user->fullname }} <br />
+                        <span style="font-size:11px;"><b>at</b> {{ $comment->created_at }}</span>
                     </h5>
+                    {{ $comment->content }}
                 </div>
             </div>
+            @endforeach
+            @else
+            <p>No comments available.</p>
+            @endif
         </div>
     </div>
+</div>
 </div>
 
 @endsection

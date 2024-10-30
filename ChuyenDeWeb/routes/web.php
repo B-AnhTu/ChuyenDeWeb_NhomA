@@ -17,6 +17,7 @@ use App\Http\Controllers\CartController;
 use App\Http\Controllers\ProductLikeController;
 use App\Http\Controllers\CartProductController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\BlogCommentController;
 use App\Http\Controllers\IndexController;
 // route đăng xuất
 Route::get('/logout', [LoginController::class, 'logout'])->name('logout');
@@ -72,6 +73,26 @@ Route::post('/product-toggle-like', [ProductLikeController::class, 'toggleLike']
 Route::get('/wishlist', [ProductLikeController::class, 'wishlist'])->name('wishlist');
 //route blog
 Route::get('blog/{slug?}', [BlogController::class, 'index'])->name('blog.index');
+// Routes cho quản lý bình luận
+Route::middleware(['auth'])->group(function () {
+    // Route cho quản lý bình luận đã duyệt
+    Route::get('/comments/manage', [BlogCommentController::class, 'manageComments'])->name('comments.manage');
+
+    // Route cho quản lý bình luận đang chờ duyệt
+    Route::get('/comments/unapproved', [BlogCommentController::class, 'unapprovedComments'])->name('comments.unapproved');
+
+    // Route cho phê duyệt bình luận
+    Route::post('/comments/{id}/approve', [BlogCommentController::class, 'approve'])->name('comments.approve');
+
+    // Route cho không phê duyệt bình luận
+    Route::post('/comments/{id}/disapprove', [BlogCommentController::class, 'disapprove'])->name('comments.disapprove');
+
+    // Route để xóa bình luận
+    Route::delete('/comments/{id}', [BlogCommentController::class, 'destroy'])->name('comments.destroy');
+
+    // Route để lưu trữ bình luận
+    Route::post('/comments', [BlogCommentController::class, 'store'])->name('comments.store');
+});
 //route mail
 // routes/web.php
 
@@ -154,7 +175,6 @@ Route::group(['middleware' => 'role:admin,editor'], function () {
     Route::put('/blogUpdate/{blog_id}', [BlogController::class, 'update'])->name('blogAdmin.update');
 
     Route::delete('/blogDelete/{blog_id}', [BlogController::class, 'destroy'])->name('blogAdmin.delete');
-
 });
 
 
@@ -183,6 +203,4 @@ Route::middleware(['auth'])->group(function () {
 
     // Thêm route mới cho trang Profile-User
     Route::get('/Profile-user', [ProfileUserController::class, 'show'])->name('profile.show');
-
-    
 });

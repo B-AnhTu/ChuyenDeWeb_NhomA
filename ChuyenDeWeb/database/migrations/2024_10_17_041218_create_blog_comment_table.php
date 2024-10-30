@@ -17,6 +17,8 @@ return new class extends Migration
             $table->unsignedInteger('user_id');
             $table->text('content');
             $table->timestamps();
+            $table->integer('status')->default(0);
+            $table->string('email')->nullable();
 
             $table->foreign('blog_id')->references('blog_id')->on('blog');
             $table->foreign('user_id')->references('user_id')->on('users');
