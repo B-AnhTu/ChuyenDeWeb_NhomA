@@ -18,12 +18,17 @@
             <div class="col-md-12 mt-3">
                 <div class="row mb-3 d-flex align-items-center">
                     <div class="col-md-3">
-                        <select class="form-control" name="filter" id="filter">
-                            <option value="" disabled selected>Sắp xếp</option>
-                            <option value="1">1</option>
-                            <option value="2">2</option>
-                            <option value="3">3</option>
-                        </select>
+                        <form action="{{ route('sortBlogs') }}" method="get">
+                            <select class="form-control me-2" name="sort_by" onchange="this.form.submit()">
+                                <option value="" disabled selected>Sắp xếp theo</option>
+                                <option value="name_asc" {{ request('sort_by') == 'name_asc' ? 'selected' : '' }}>Tên (Từ A - Z)</option>
+                                <option value="name_desc" {{ request('sort_by') == 'name_desc' ? 'selected' : '' }}>Tên (Từ Z - A)</option>
+                                <option value="description_asc" {{ request('sort_by') == 'description_asc' ? 'selected' : '' }}>Mô tả (Từ A - Z)</option>
+                                <option value="description_desc" {{ request('sort_by') == 'description_desc' ? 'selected' : '' }}>Mô tả (Từ Z - A)</option>
+                                <option value="created_at_asc" {{ request('sort_by') == 'created_at_asc' ? 'selected' : '' }}>Ngày tạo (Tăng dần)</option>
+                                <option value="created_at_desc" {{ request('sort_by') == 'created_at_desc' ? 'selected' : '' }}>Ngày tạo (Giảm dần)</option>
+                            </select>
+                        </form>
                     </div>
                     <div class="col-md-6 mx-auto">
                         <form class="d-flex">
