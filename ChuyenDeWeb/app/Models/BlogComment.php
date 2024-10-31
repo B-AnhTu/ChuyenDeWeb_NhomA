@@ -9,7 +9,7 @@ class BlogComment extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['blog_id', 'user_id', 'content', 'status', 'fullname', 'email'];
+    protected $fillable = ['blog_id', 'user_id', 'content', 'status', 'name', 'email'];
 
     protected $table = 'blog_comment';
 
@@ -18,5 +18,9 @@ class BlogComment extends Model
     public function user()
     {
         return $this->belongsTo(User::class, 'user_id');
+    }
+    public function blog()
+    {
+        return $this->belongsTo(Blog::class, 'blog_id');
     }
 }

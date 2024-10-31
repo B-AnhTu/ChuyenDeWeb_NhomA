@@ -15,8 +15,8 @@ class BlogCommentController extends Controller
      */
     public function index()
     {
-        $comments = BlogComment::with('user')->where('status', 1)->get(); // load approved comments
-        return view('comments.index', compact('comments'));
+        $comments = BlogComment::with('user')->where('status', 1)->orderBy('created_at', 'desc')->get();
+        return view('blog', compact('comments'));
     }
 
     /**
@@ -49,18 +49,21 @@ class BlogCommentController extends Controller
             'status' => 0 // Trạng thái mặc định là chưa phê duyệt
         ]);
 
-        return redirect()->route('comments.unapproved')->with('message', 'Comment submitted successfully! Waiting for approval.');
+        return response()->json(['message' => 'Bình luận thành công! Vui lòng chờ duyệt!']);
     }
     /**
      * Display the specified resource.
      */
-    public function show($id)
+    public function show($slug)
     {
-        $blog = Blog::findOrFail($id);
-        $comments = BlogComment::with('user')->where('blog_id', $id)->where('status', 1)->get();
-
+        $blog = Blog::where('slug', $slug)->firstOrFail();
+        $comments = BlogComment::where('blog_id', $blog->blog_id)
+            ->where('status', 1)
+            ->orderBy('created_at', 'desc') // Thêm dòng này
+            ->get();
         return view('detail_blog', compact('blog', 'comments'));
     }
+
 
     /**
      * Show the form for editing the specified resource.
@@ -86,7 +89,7 @@ class BlogCommentController extends Controller
         $comment = BlogComment::findOrFail($id);
         $comment->delete();
 
-        return redirect()->back()->with('message', 'Comment deleted successfully!');
+        return redirect()->back()->with('message', 'Xóa bình luận thành công!');
     }
 
     public function approve($id)
@@ -95,7 +98,7 @@ class BlogCommentController extends Controller
         $comment->status = 1; // Cập nhật trạng thái bình luận thành đã phê duyệt
         $comment->save();
 
-        return redirect()->back()->with('message', 'Comment approved successfully!');
+        return redirect()->back()->with('message', 'Duyệt bình luận thành công!');
     }
 
     public function disapprove($id)
@@ -109,14 +112,17 @@ class BlogCommentController extends Controller
 
     public function manageComments()
     {
-        // Lấy bình luận đã được phê duyệt cùng với thông tin người dùng
-        $comments = BlogComment::with('user')->where('status', 1)->paginate(10);
+        $comments = BlogComment::with('user')->where('status', 1)
+            ->orderBy('created_at', 'desc') // Thêm dòng này
+            ->paginate(10);
         return view('comments.manageBlogComment', compact('comments'));
     }
 
     public function unapprovedComments()
     {
-        $comments = BlogComment::with('user')->where('status', 0)->paginate(10); // load unapproved comments
+        $comments = BlogComment::with('user')->where('status', 0)
+            ->orderBy('created_at', 'desc') // Thêm dòng này
+            ->paginate(10);
         return view('comments.unapprovedBlogComment', compact('comments'));
     }
-}
+}    

@@ -19,6 +19,7 @@ return new class extends Migration
             $table->timestamps();
             $table->integer('status')->default(0);
             $table->string('email')->nullable();
+            $table->string('name')->nullable();
 
             $table->foreign('blog_id')->references('blog_id')->on('blog');
             $table->foreign('user_id')->references('user_id')->on('users');

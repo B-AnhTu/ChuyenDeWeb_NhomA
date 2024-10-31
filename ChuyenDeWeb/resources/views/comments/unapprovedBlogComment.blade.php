@@ -30,7 +30,7 @@
                             <td>{{ $comment->user->fullname }}</td> <!-- Hiển thị fullname của user -->
                             <td>{{ $comment->user->email }}</td> <!-- Hiển thị email của user -->
                             <td>{{ $comment->content }}</td>
-                            <td>Waiting for approval</td>
+                            <td>{{ $comment->status == 0 ? 'Waiting for approval' : 'Approved' }}</td>
                             <td>
                                 <form action="{{ route('comments.approve', $comment->comment_id) }}" method="POST" style="display:inline;">
                                     @csrf

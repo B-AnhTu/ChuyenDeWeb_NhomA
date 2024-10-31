@@ -72,6 +72,8 @@ Route::post('/product-toggle-like', [ProductLikeController::class, 'toggleLike']
 // route hiển thị sản phẩm thích 
 Route::get('/wishlist', [ProductLikeController::class, 'wishlist'])->name('wishlist');
 //route blog
+Route::get('/blog/{slug}', [BlogCommentController::class, 'show'])->name('blog.detail');
+
 Route::get('blog/{slug?}', [BlogController::class, 'index'])->name('blog.index');
 // Routes cho quản lý bình luận
 Route::middleware(['auth'])->group(function () {
