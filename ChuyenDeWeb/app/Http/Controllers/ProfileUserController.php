@@ -20,7 +20,7 @@ class ProfileUserController extends Controller
             'fullname' => 'required|string|max:50|regex:/^[^\d\W_]+( [^\d\W_]+)*$/u',
             'email' => 'required|email|max:50|unique:users,email,' . $user->user_id . ',user_id',
             'phone' => 'required|digits:10|starts_with:0',
-            'address' => 'nullable|string',
+            'address' => 'nullable|string|max:255|regex:/^[a-zA-Z0-9\s]+$/|regex:/^(?!.*\s\s)/',
         ], [
             'fullname.required' => 'Họ và tên là bắt buộc',
             'fullname.regex' => 'Không đúng định dạng họ và tên',
@@ -32,6 +32,8 @@ class ProfileUserController extends Controller
             'phone.required' => 'Số điện thoại là bắt buộc',
             'phone.digits' => 'Số điện thoại phải có 10 số',
             'phone.starts_with' => 'Số điện thoại phải bắt đầu bằng số 0',
+            'address.max' => 'Địa chỉ không quá 255 ký tự',
+            'address.regex' => 'Địa chỉ không được chứa ký tự đặc biệt hoặc khoảng trắng kép',
         ]);
 
         // Kiểm tra có lỗi hay không

@@ -39,7 +39,7 @@
                         </div>
                         <div class="product__details__price">{{ number_format($product->price) }} vnđ</div>
                         <p>{{ $product->description }}</p>
-                        <a href="#" class="primary-btn add-to-cart" data-id="{{ $product->product_id }}">Thêm vào giỏ hàng</a>
+                        <a href="#" class="primary-btn add-to-cart rounded-pill" data-id="{{ $product->product_id }}"><i class="pe-1 fa fa-shopping-cart"></i>Thêm vào giỏ hàng</a>
                     </div>
                 </div>
                 <div class="col-lg-12">
