@@ -65,7 +65,7 @@
                             <div class="blog__item__text">
                                 <ul>
                                     <li><i class="fa fa-calendar-o"></i> {{ $blog->created_at->format('d/m/Y') }}</li>
-                                    <li><i class="fa fa-comment-o"></i> 0</li>
+                                    <li><i class="fa fa-comment-o"></i> {{ $blog->comments->where('status', 1)->count() }}</li>
                                 </ul>
                                 <h5><a href="{{ route('blog.index', ['slug' => $blog->slug])}}">{{$blog->title}}</a></h5>
                                 <p>{{$blog->short_description}}</p>
