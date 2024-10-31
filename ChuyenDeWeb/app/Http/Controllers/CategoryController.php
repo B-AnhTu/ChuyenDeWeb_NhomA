@@ -158,4 +158,34 @@ class CategoryController extends Controller
             return redirect()->route('category.index')->with('error', 'Xóa danh mục không thành công.');
         }
     }
+    // Sắp xếp theo tên, ngày cập nhật (quan ly user)
+    public function sortCategories(Request $request)
+    {
+        $query = Category::query();
+
+        // Sắp xếp theo yêu cầu
+        if ($request->has('sort_by')) {
+            switch ($request->sort_by) {
+                case 'name_asc':
+                    $query->orderBy('category_name', 'asc');
+                    break;
+                case 'name_desc':
+                    $query->orderBy('category_name', 'desc');
+                    break;
+                case 'updated_at_asc':
+                    $query->orderBy('updated_at', 'asc');
+                    break;
+                case 'updated_at_desc':
+                    $query->orderBy('updated_at', 'desc');
+                    break;
+                default:
+                    // Mặc định không sắp xếp
+                    break;
+            }
+        }
+
+        $categories = $query->paginate(5); // Phân trang
+
+        return view('categoryAdmin', compact('categories'));
+    }
 }
