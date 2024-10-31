@@ -49,7 +49,7 @@
                                                     <div class="latest-product__item__text">
                                                         <h6>{{ $product->product_name }}
                                                         </h6>
-                                                        <span>{{ number_format($product->price) }} vnđ</span>
+                                                        <span>{{ number_format($product->price) }} VNĐ</span>
                                                     </div>
                                                 </a>
                                             </div>
@@ -108,7 +108,7 @@
                                                     </h5>
                                                     <p><i class="fa-solid fa-eye px-1"></i>{{ $product->product_view }}</p>
                                                     <div class="product__item__price">{{ number_format($product->price) }}
-                                                        vnđ</div>
+                                                        VNĐ</div>
                                                 </div>
                                             </div>
                                         </div>
@@ -154,7 +154,7 @@
                                                     href="{{ url('/productDetail/' . $product->slug) }}">{{ $product->product_name }}</a>
                                             </h6>
                                             <p><i class="fa-solid fa-eye px-1"></i>{{ $product->product_view }}</p>
-                                            <h5>{{ number_format($product->price) }}</h5>
+                                            <h5>{{ number_format($product->price) }} VNĐ</h5>
                                         </div>
                                     </div>
                                 </div>
@@ -318,7 +318,7 @@
 
             function fetchNewestProducts(page) {
                 $.ajax({
-                    url: '{{ route('products.index') }}',
+                    url: '{{ route('products.product') }}',
                     type: 'GET',
                     data: {
                         page: page
@@ -334,7 +334,7 @@
 
             function fetchProductsByManufacturer(manufacturerId, page) {
                 $.ajax({
-                    url: '/filterByManufacturer',
+                    url: '/filterByManufacturers',
                     type: 'GET',
                     data: {
                         manufacturer_id: manufacturerId,
@@ -391,7 +391,7 @@
 
             function searchProducts(manufacturerId, keyword) {
                 $.ajax({
-                    url: '/search',
+                    url: '/searchProduct',
                     type: 'GET',
                     data: {
                         manufacturer_id: manufacturerId,

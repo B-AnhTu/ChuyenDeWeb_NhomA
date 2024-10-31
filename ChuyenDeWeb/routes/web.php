@@ -33,26 +33,26 @@ Route::put('/userAdmin/{user_id}/update-permissions', [UserController::class, 'u
 Route::get('/', [IndexController::class, 'index'])->name('products.index');
 
 // route hiển thị sản phẩm khi chọn nhà sản xuất
-Route::get('/filterByManufacturer', [IndexController::class, 'filter'])->name('products.filter');
+Route::get('/filterByManufacturer', [IndexController::class, 'filter']);
 
 // route để lọc sản phẩm theo loại sản phẩm
-Route::get('/filterByCategory', [IndexController::class, 'filterByCategory'])->name('products.filterByCategory');
+Route::get('/filterByCategory', [IndexController::class, 'filterByCategory']);
 
 // route cho tìm kiếm sản phẩm
-Route::get('/search', [IndexController::class, 'search'])->name('products.search');
+Route::get('/search', [IndexController::class, 'search']);
 
 // route sắp xếp
-Route::get('/sort', [IndexController::class, 'sort'])->name('products.sort');
+Route::get('/sort', [IndexController::class, 'sort']);
 
 // route hiển thị sản phẩm trang product
-Route::get('/product', [ProductController::class, 'index'])->name('products.index');
+Route::get('/product', [ProductController::class, 'index'])->name('products.product');
 
 // route hiển thị sản phẩm khi chọn nhà sản xuất
-Route::get('/filterByManufacturer', [ProductController::class, 'filter'])->name('products.filter');
+Route::get('/filterByManufacturers', [ProductController::class, 'filter'])->name('products.filter');
 
 
 // route cho tìm kiếm sản phẩm
-Route::get('/search', [ProductController::class, 'search'])->name('products.search');
+Route::get('/searchProduct', [ProductController::class, 'search'])->name('products.search');
 
 // route sắp xếp
 Route::get('/products/sort', [ProductController::class, 'sort'])->name('products.sort');
