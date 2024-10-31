@@ -19,6 +19,8 @@ use App\Http\Controllers\CartProductController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\BlogCommentController;
 use App\Http\Controllers\IndexController;
+use App\Http\Controllers\ProductReviewController;
+
 // route đăng xuất
 Route::get('/logout', [LoginController::class, 'logout'])->name('logout');
 
@@ -94,6 +96,17 @@ Route::middleware(['auth'])->group(function () {
 
     // Route để lưu trữ bình luận
     Route::post('/comments', [BlogCommentController::class, 'store'])->name('comments.store');
+});
+
+Route::post('/product-review', [ProductReviewController::class, 'store'])->name('review.store');
+Route::get('/product/{slug}', [ProductReviewController::class, 'show'])->name('product.details');
+//Route quản lý review product
+Route::middleware(['auth'])->group(function () {
+    Route::get('/reviews/pending', [ProductReviewController::class, 'pendingReviews'])->name('reviews.pending');
+    Route::get('/reviews/approved', [ProductReviewController::class, 'approvedReviews'])->name('reviews.approved');
+    Route::post('/reviews/{id}/approve', [ProductReviewController::class, 'approve'])->name('reviews.approve');
+    Route::post('/reviews/{id}/reject', [ProductReviewController::class, 'reject'])->name('reviews.reject');
+    Route::delete('/reviews/{id}', [ProductReviewController::class, 'destroy'])->name('reviews.destroy');
 });
 //route mail
 // routes/web.php

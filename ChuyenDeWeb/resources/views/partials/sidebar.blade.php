@@ -103,6 +103,16 @@
                                     <span class="sub-item">Unapproved Comments</span>
                                 </a>
                             </li>
+                            <li>
+                                <a href="{{ route('reviews.approved') }}">
+                                    <span class="sub-item">Review Management</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{{ route('reviews.pending') }}">
+                                    <span class="sub-item">Unapproved Review</span>
+                                </a>
+                            </li>
                             <!-- <li>
                                 <a href="{{ asset('admin/components/gridsystem.html') }}">
                                     <span class="sub-item">Grid System</span>

@@ -49,7 +49,9 @@
                             <input type="email" name="email" class="form-control" value="{{ Auth::user()->email }}" readonly>
                         </div>
                         @else
-                        <p class="text-danger">Vui lòng đăng nhập để bình luận.</p>
+                        <div class="alert alert-info">
+                            Vui lòng <a href="{{ route('login') }}">đăng nhập</a> để gửi đánh giá
+                        </div>
                         @endif
                         <div class="form-group">
                             <textarea class="form-control" name="comment" rows="3" placeholder="Bình luận...." required></textarea>
@@ -71,14 +73,13 @@
                         </h6>
                         <p>{{ $comment->content }}</p>
                     </div>
-                    <hr>
+                    <hr class="my-3">
                     @endforeach
                     @else
                     <p>Chưa có bình luận nào.</p>
                     @endif
                 </div>
             </div>
-
         </div>
     </div>
 </div>
