@@ -34,7 +34,7 @@ class IndexController extends Controller
         $posts = Blog::orderBy('created_at', 'desc')
             ->take(3)
             ->get();
-        return view('index', compact('products', 'manufacturers', 'categories', 'posts' , 'likedProductIds'));
+        return view('index', compact('products', 'manufacturers', 'categories', 'posts', 'likedProductIds'));
     }
 
 
@@ -63,22 +63,24 @@ class IndexController extends Controller
     // lọc sản phẩm theo loại sản phẩm
     public function filterByCategory(Request $request)
     {
-        // Kiểm tra xem category_id có được gửi từ request hay không
         if ($request->has('category_id')) {
             $products = Product::where('category_id', $request->category_id)
                 ->orderBy('created_at', 'desc')
-                ->paginate(8); // Phân trang với 8 sản phẩm một lần
+                ->paginate(8);
 
-            // Trả về JSON chứa sản phẩm và thông tin phân trang
             return response()->json([
-                'data' => $products->items(),  // Trả về danh sách sản phẩm
+                'data' => $products->items(),
                 'current_page' => $products->currentPage(),
-                'last_page' => $products->lastPage()
+                'last_page' => $products->lastPage(),
+                'total' => $products->total()
             ]);
         }
 
         return response()->json([
-            'data' => []  // Trả về mảng rỗng nếu không có sản phẩm
+            'data' => [],
+            'current_page' => 1,
+            'last_page' => 1,
+            'total' => 0
         ]);
     }
 
@@ -177,5 +179,4 @@ class IndexController extends Controller
         // Trả về view chi tiết sản phẩm và truyền dữ liệu sản phẩm
         return view('productDetail', compact('product'));
     }
-
 }
