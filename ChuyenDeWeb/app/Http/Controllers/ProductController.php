@@ -311,4 +311,56 @@ class ProductController extends Controller
             return redirect()->route('product.index')->with('error', 'Xóa sản phẩm không thành công.');
         }
     }
+    public function sortProducts(Request $request) {
+        $query = Product::query();
+
+        // Sắp xếp theo yêu cầu
+        if ($request->has('sort_by')) {
+            switch ($request->sort_by) {
+                case 'name_asc':
+                    $query->orderBy('product_name', 'asc');
+                    break;
+                case 'name_desc':
+                    $query->orderBy('product_name', 'desc');
+                    break;
+                case 'price_asc':
+                    $query->orderBy('price', 'asc');
+                    break;
+                case 'price_desc':
+                    $query->orderBy('price', 'desc');
+                    break;
+                case 'views_asc':
+                    $query->orderBy('product_view', 'asc'); 
+                    break;
+                case 'views_desc':
+                    $query->orderBy('product_view', 'desc');
+                    break;
+                case 'purchases_asc':
+                    $query->orderBy('sold_quantity', 'asc'); 
+                    break;
+                case 'purchases_desc':
+                    $query->orderBy('sold_quantity', 'desc');
+                    break;
+                case 'stock_asc':
+                    $query->orderBy('stock_quantity', 'asc'); 
+                    break;
+                case 'stock_desc':
+                    $query->orderBy('stock_quantity', 'desc');
+                    break;
+                case 'updated_at_asc':
+                    $query->orderBy('updated_at', 'asc');
+                    break;
+                case 'updated_at_desc':
+                    $query->orderBy('updated_at', 'desc');
+                    break;
+                default:
+                    // Mặc định không sắp xếp
+                    break;
+            }
+        }
+
+        $products = $query->paginate(5); // Phân trang
+
+        return view('productAdmin', compact('products'));
+    }
 }

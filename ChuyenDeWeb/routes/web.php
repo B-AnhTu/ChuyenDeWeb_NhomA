@@ -155,6 +155,15 @@ Route::group(['middleware' => 'role:admin,editor'], function () {
 
     Route::delete('/blogDelete/{blog_id}', [BlogController::class, 'destroy'])->name('blogAdmin.delete');
 
+    //Route sorting cho trang quản trị
+    Route::get('/sortProducts', [ProductController::class,'sortProducts'])->name('sortProducts');
+    Route::get('/sortCategories', [CategoryController::class,'sortCategories'])->name('sortCategories');
+    Route::get('/sortManufacturers', [ManufacturerController::class,'sortManufacturers'])->name('sortManufacturers');
+    Route::get('/sortBlogs', [BlogController::class,'sortBlogs'])->name('sortBlogs');
+    Route::get('/sortUsers', [UserController::class,'sortUsers'])->name('sortUsers');
+    Route::get('/sortAdmin', [UserController::class,'sortAdmin'])->name('sortAdmin');
+
+    
 });
 
 
