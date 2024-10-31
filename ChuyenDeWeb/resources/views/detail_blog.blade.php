@@ -31,34 +31,91 @@
             </div>
         </div>
     </div>
+
     <!---Comment Section --->
-    <div class="row" style="margin-top: -8%">
+    <div class="row">
         <div class="col-md-8">
             <div class="card my-4">
-                <h5 class="card-header">Bình luận:</h5>
+                <h5 class="card-header">Hãy để lại bình luận:</h5>
                 <div class="card-body">
-                    <form name="Comment" method="post">
-                        <input type="hidden" name="csrftoken" value="" />
+                    <form id="commentForm">
+                        @csrf
+                        <input type="hidden" name="blog_id" value="{{ $blog->blog_id }}">
+                        @if (Auth::check())
                         <div class="form-group">
-                            <input type="email" name="email" class="form-control" placeholder="Nhập email của bạn" required>
+                            <input type="text" name="name" class="form-control" value="{{ Auth::user()->fullname }}" readonly>
                         </div>
                         <div class="form-group">
-                            <textarea class="form-control" name="comment" rows="3" placeholder="Bình luận" required></textarea>
+                            <input type="email" name="email" class="form-control" value="{{ Auth::user()->email }}" readonly>
                         </div>
-                        <button type="submit" class="btn btn-primary" name="submit">Gửi</button>
+                        @else
+                        <p class="text-danger">Vui lòng đăng nhập để bình luận.</p>
+                        @endif
+                        <div class="form-group">
+                            <textarea class="form-control" name="comment" rows="3" placeholder="Bình luận...." required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Submit</button>
                     </form>
                 </div>
             </div>
-            <!---Comment Display Section --->
-            <div class="media mb-4">
-                <img class="d-flex mr-3 rounded-circle" src="images/usericon.png" alt="">
-                <div class="media-body">
-                    <h5 class="mt-0"> <br />
-                    </h5>
+
+            <!-- Comment Display Section -->
+            <div class="card my-4">
+                <h5 class="card-header">Bình luận:</h5>
+                <div class="card-body">
+                    @if(isset($comments))
+                    @foreach($comments as $comment)
+                    <div class="comment">
+                        <h6>{{ $comment->user ? $comment->user->fullname : 'Người dùng ẩn danh' }}
+                            <small class="text-muted">{{ $comment->created_at->format('d/m/Y H:i') }}</small>
+                        </h6>
+                        <p>{{ $comment->content }}</p>
+                    </div>
+                    <hr>
+                    @endforeach
+                    @else
+                    <p>Chưa có bình luận nào.</p>
+                    @endif
                 </div>
             </div>
+
         </div>
     </div>
 </div>
+
+<script>
+    $('#commentForm').on('submit', function(e) {
+        e.preventDefault();
+
+        $.ajax({
+            type: 'POST',
+            url: "{{ route('comments.store') }}",
+            data: $(this).serialize(),
+            success: function(response) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Thành công!',
+                    text: 'Bình luận của bạn đã được gửi thành công và đang chờ phê duyệt.',
+                    confirmButtonText: 'OK',
+                    confirmButtonColor: '#6f42c1'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        location.reload();
+                    }
+                });
+            },
+            error: function(xhr) {
+                console.log(xhr.responseJSON);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Lỗi!',
+                    text: 'Có lỗi xảy ra, vui lòng thử lại.',
+                    confirmButtonText: 'OK',
+                    confirmButtonColor: '#d33'
+                });
+            }
+        });
+    });
+</script>
 
 @endsection
