@@ -106,6 +106,9 @@ class BlogController extends Controller
 
         $data = $request->all();
 
+        // Tạo slug từ title
+        $data['slug'] = $this->slugify($data['title']); // Sử dụng hàm slugify để tạo slug
+
         if ($request->hasFile('image')) {
             $file = $request->file('image');
             $filename = time() . '_' . $file->getClientOriginalName();
@@ -117,10 +120,13 @@ class BlogController extends Controller
 
         $blog = Blog::create([
             'title' => $data['title'],
+            'slug' => $data['slug'],
             'short_description' => $data['short_description'],
             'content' => $data['content'],
-            'image' => $data['image'],
             'user_id' => Auth::user()->user_id,
+            'image' => $data['image'],
+            'created_at' => now(),
+            'updated_at' => now(),
         ]);
         $blog->save();
 
@@ -166,6 +172,9 @@ class BlogController extends Controller
 
         $blog = Blog::findOrFail($id);
 
+        // Tạo slug từ title
+        $blog->slug = $this->slugify($request->input('title')); // Sử dụng hàm slugify để tạo slug
+
         if(!$blog){
             return redirect()->route('blogAdmin.index')->with('error', 'Blog not found');
         }
@@ -188,6 +197,7 @@ class BlogController extends Controller
         $blog->title = $request->input('title');
         $blog->short_description = $request->input('short_description');
         $blog->content = $request->input('content');
+        $blog->user_id = Auth::user()->user_id; // Lưu user_id của người đăng nhập đang đăng nhập hiện tại
         $blog->updated_at = now();
         $blog->save();
 
@@ -252,5 +262,63 @@ class BlogController extends Controller
         $data_blog = $query->paginate(5); // Phân trang
 
         return view('blogAdmin', compact('data_blog'));
+    }
+    // Tìm kiếm blog
+    public function searchBlogs(Request $request)
+    {
+        $query = $request->input('query');
+
+        // Tìm kiếm bằng Full Text
+        $data_blog = Blog::whereRaw("MATCH(title, content) AGAINST(? IN NATURAL LANGUAGE MODE)", [$query])->paginate(5);
+
+        return view('blogAdmin', compact('data_blog'));
+    }
+    // Hàm để tạo slug từ title
+    private function slugify($text)
+    {
+        // Chuyển đổi ký tự có dấu thành không dấu
+        $text = $this->removeVietnameseAccent($text);
+        
+        // Thay thế nhiều khoảng trắng thành một khoảng trắng
+        $text = preg_replace('/\s+/', ' ', $text);
+        $text = trim($text); // Xóa khoảng trắng ở đầu và cuối
+        $text = strtolower($text); // Chuyển thành chữ thường
+        $text = str_replace(' ', '-', $text); // Thay dấu khoảng trắng bằng dấu gạch nối
+
+        return $text;
+    }
+
+    // Hàm để loại bỏ dấu tiếng Việt
+    private function removeVietnameseAccent($string)
+    {
+        $unicode = [
+            'à' => 'a', 'á' => 'a', 'ả' => 'a', 'ã' => 'a', 'ạ' => 'a',
+            'ă' => 'a', 'ằ' => 'a', 'ắ' => 'a', 'ẳ' => 'a', 'ẵ' => 'a', 'ặ' => 'a',
+            'â' => 'a', 'ầ' => 'a', 'ấ' => 'a', 'ẩ' => 'a', 'ẫ' => 'a', 'ậ' => 'a',
+            'è' => 'e', 'é' => 'e', 'ẻ' => 'e', 'ẽ' => 'e', 'ẹ' => 'e',
+            'ê' => 'e', 'ề' => 'e', 'ế' => 'e', 'ể' => 'e', 'ễ' => 'e', 'ệ' => 'e',
+            'ì' => 'i', 'í' => 'i', 'ỉ' => 'i', 'ĩ' => 'i', 'ị' => 'i',
+            'ò' => 'o', 'ó' => 'o', 'ỏ' => 'o', 'õ' => 'o', 'ọ' => 'o',
+            'ô' => 'o', 'ồ' => 'o', 'ố' => 'o', 'ổ' => 'o', 'ỗ' => 'o', 'ộ' => 'o',
+            'ơ' => 'o', 'ờ' => 'o', 'ớ' => 'o', 'ở' => 'o', 'ỡ' => 'o', 'ợ' => 'o',
+            'ù' => 'u', 'ú' => 'u', 'ủ' => 'u', 'ũ' => 'u', 'ụ' => 'u',
+            'ư' => 'u', 'ừ' => 'u', 'ứ' => 'u', 'ử' => 'u', 'ữ' => 'u', 'ự' => 'u',
+            'ỳ' => 'y', 'ý' => 'y', 'ỷ' => 'y', 'ỹ' => 'y', 'ỵ' => 'y',
+            'đ' => 'd',
+            'À' => 'A', 'Á' => 'A', 'Ả' => 'A', 'Ã' => 'A', 'Ạ' => 'A',
+            'Ă' => 'A', 'Ằ' => 'A', 'Ắ' => 'A', 'Ẳ' => 'A', 'Ẵ' => 'A', 'Ặ' => 'A',
+            'Â' => 'A', 'Ầ' => 'A', 'Ấ' => 'A', 'Ẩ' => 'A', 'Ẫ' => 'A', 'Ậ' => 'A',
+            'È' => 'E', 'É' => 'E', 'Ẻ' => 'E', 'Ẽ' => 'E', 'Ẹ' => 'E',
+            'Ê' => 'E', 'Ề' => 'E', 'Ế' => 'E', 'Ể' => 'E', 'Ễ' => 'E', 'Ệ' => 'E',
+            'Ì' => 'I', 'Í' => 'I', 'Ỉ' => 'I', 'Ĩ' => 'I', 'Ị' => 'I',
+            'Ò' => 'O', 'Ó' => 'O', 'Ỏ' => 'O', 'Õ' => 'O', 'Ọ' => 'O',
+            'Ô' => 'O', 'Ồ' => 'O', 'Ố' => 'O', 'Ổ' => 'O', 'Ỗ' => 'O', 'Ộ' => 'O',
+            'Ơ' => 'O', 'Ờ' => 'O', 'Ớ' => 'O', 'Ở' => 'O', 'Ỡ' => 'O', 'Ợ' => 'O',
+            'Ù' => 'U', 'Ú' => 'U', 'Ủ' => 'U', 'Ũ' => 'U', 'Ụ' => 'U',
+            'Ư' => 'U', 'Ừ' => 'U', 'Ứ' => 'U', 'Ử' => 'U', 'Ữ' => 'U', 'Ự' => 'U',
+            'Ỳ' => 'Y', 'Ý' => 'Y', 'Ỷ' => 'Y', 'Ỹ' => 'Y', 'Ỵ' => 'Y',
+            'Đ' => 'D',
+        ];
+        return strtr($string, $unicode);
     }
 }

@@ -16,6 +16,10 @@ return new class extends Migration
             $table->string('category_name');
             $table->string('image')->nullable();
             $table->timestamps();
+
+            // Add fulltext index for faster search
+            $table->fullText('category_name');
+            $table->string('slug')->unique();
         });
     }
 

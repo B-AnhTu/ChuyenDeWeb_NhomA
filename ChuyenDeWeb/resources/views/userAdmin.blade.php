@@ -29,8 +29,9 @@
                         </form>
                     </div>
                     <div class="col-md-6 mx-auto">
-                        <form class="d-flex">
-                            <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+                        <form class="d-flex" action="{{ route('searchUsers') }}" method="GET">
+                            @csrf
+                            <input name="query" class="form-control me-2" type="text" placeholder="Search" aria-label="Search">
                             <button class="btn btn-outline-success" type="submit">Search</button>
                         </form>
                     </div>
@@ -76,11 +77,11 @@
                                         alt="{{ $user->fullname }}" width="50"></td>
                                 <td>
                                     <!-- Add action buttons here -->
-                                    <a href="{{ route('userAdmin.show', $user->user_id) }}"
+                                    <a href="{{ route('userAdmin.show', $user->slug) }}"
                                         class="btn btn-primary"><i class="fas fa-eye"></i></a>
-                                    <a href="{{ route('userAdmin.edit', $user->user_id) }}"
+                                    <a href="{{ route('userAdmin.edit', $user->slug) }}"
                                         class="btn btn-primary"><i class="fas fa-pencil-alt"></i></a>
-                                    <form action="{{ route('userAdmin.delete', $user->user_id) }}"
+                                    <form action="{{ route('userAdmin.delete', $user->slug) }}"
                                         method="POST" style="display:inline;">
                                         @csrf
                                         @method('DELETE')

@@ -16,6 +16,10 @@ return new class extends Migration
             $table->string('manufacturer_name', 50);
             $table->string('image')->nullable();
             $table->timestamps();
+
+            //Full text fields
+            $table->fullText('manufacturer_name');
+            $table->string('slug')->unique();
         });
     }
 
