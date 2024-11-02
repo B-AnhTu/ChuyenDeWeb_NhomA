@@ -159,4 +159,34 @@ class ManufacturerController extends Controller
             return redirect()->route('manufacturer.index')->with('error', 'Xóa nhà sản xuất không thành công.');
         }
     }
+    // Sắp xếp theo tên, ngày cập nhật (quan ly user)
+    public function sortManufacturers(Request $request)
+    {
+        $query = Manufacturer::query();
+
+        // Sắp xếp theo yêu cầu
+        if ($request->has('sort_by')) {
+            switch ($request->sort_by) {
+                case 'name_asc':
+                    $query->orderBy('manufacturer_name', 'asc');
+                    break;
+                case 'name_desc':
+                    $query->orderBy('manufacturer_name', 'desc');
+                    break;
+                case 'updated_at_asc':
+                    $query->orderBy('updated_at', 'asc');
+                    break;
+                case 'updated_at_desc':
+                    $query->orderBy('updated_at', 'desc');
+                    break;
+                default:
+                    // Mặc định không sắp xếp
+                    break;
+            }
+        }
+
+        $manufacturers = $query->paginate(5); // Phân trang
+
+        return view('manufacturerAdmin', compact('manufacturers'));
+    }
 }

@@ -193,12 +193,13 @@ class UserController extends Controller
         }
     }
 
+    //Hiển thị danh sách user trên trang quản lý vai trò
     public function listRole()
     {
         $users = User::paginate(5);
         return view('adminPage', compact('users'));
     }
-    
+    // Cập nhật quyền hạn user
     public function updatePermissions(Request $request, $id)
     {
         $roleHierarchy = [
@@ -252,5 +253,71 @@ class UserController extends Controller
         $user->save();
 
         return response()->json(['success' => true, 'message' => 'Cập nhật quyền người dùng thành công']);
+    }
+    // Sắp xếp theo tên, quyền, ngày cập nhật (quan ly quyen)
+    public function sortAdmin(Request $request)
+    {
+        $query = User::query();
+
+        // Sắp xếp theo yêu cầu
+        if ($request->has('sort_by')) {
+            switch ($request->sort_by) {
+                case 'name_asc':
+                    $query->orderBy('fullname', 'asc');
+                    break;
+                case 'name_desc':
+                    $query->orderBy('fullname', 'desc');
+                    break;
+                case 'role_asc':
+                    $query->orderByRaw("FIELD(role, 'user', 'editor', 'admin') ASC");
+                    break;
+                case 'role_desc':
+                    $query->orderByRaw("FIELD(role, 'user', 'editor', 'admin') DESC");
+                    break;
+                case 'updated_at_asc':
+                    $query->orderBy('updated_at', 'asc');
+                    break;
+                case 'updated_at_desc':
+                    $query->orderBy('updated_at', 'desc');
+                    break;
+                default:
+                    // Mặc định không sắp xếp
+                    break;
+            }
+        }
+
+        $users = $query->paginate(5); // Phân trang
+
+        return view('adminPage', compact('users'));
+    }
+    // Sắp xếp theo tên, ngày cập nhật (quan ly user)
+    public function sortUsers(Request $request)
+    {
+        $query = User::query();
+
+        // Sắp xếp theo yêu cầu
+        if ($request->has('sort_by')) {
+            switch ($request->sort_by) {
+                case 'name_asc':
+                    $query->orderBy('fullname', 'asc');
+                    break;
+                case 'name_desc':
+                    $query->orderBy('fullname', 'desc');
+                    break;
+                case 'updated_at_asc':
+                    $query->orderBy('updated_at', 'asc');
+                    break;
+                case 'updated_at_desc':
+                    $query->orderBy('updated_at', 'desc');
+                    break;
+                default:
+                    // Mặc định không sắp xếp
+                    break;
+            }
+        }
+
+        $users = $query->paginate(5); // Phân trang
+
+        return view('userAdmin', compact('users'));
     }
 }

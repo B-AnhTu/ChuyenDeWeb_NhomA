@@ -217,4 +217,40 @@ class BlogController extends Controller
             return redirect()->route('blogAdmin.index')->with('error', 'Xóa blog không thành công.');
         }
     }
+    // Sắp xếp theo tên, ngày cập nhật (quan ly user)
+    public function sortBlogs(Request $request)
+    {
+        $query = Blog::query();
+
+        // Sắp xếp theo yêu cầu
+        if ($request->has('sort_by')) {
+            switch ($request->sort_by) {
+                case 'name_asc':
+                    $query->orderBy('title', 'asc');
+                    break;
+                case 'name_desc':
+                    $query->orderBy('title', 'desc');
+                    break;
+                case 'description_asc':
+                    $query->orderBy('short_description', 'asc');
+                    break;
+                case 'description_desc':
+                    $query->orderBy('short_description', 'desc');
+                    break;
+                case 'updated_at_asc':
+                    $query->orderBy('updated_at', 'asc');
+                    break;
+                case 'updated_at_desc':
+                    $query->orderBy('updated_at', 'desc');
+                    break;
+                default:
+                    // Mặc định không sắp xếp
+                    break;
+            }
+        }
+
+        $data_blog = $query->paginate(5); // Phân trang
+
+        return view('blogAdmin', compact('data_blog'));
+    }
 }

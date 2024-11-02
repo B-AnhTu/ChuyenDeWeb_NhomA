@@ -18,12 +18,24 @@
             <div class="col-md-12 mt-3">
                 <div class="row mb-3 d-flex align-items-center">
                     <div class="col-md-3">
-                        <select class="form-control" name="filter" id="filter">
-                            <option value="" disabled selected>Sắp xếp</option>
-                            <option value="1">1</option>
-                            <option value="2">2</option>
-                            <option value="3">3</option>
-                        </select>
+                        <form action="{{route('sortProducts')}}" method="get">
+                            <select class="form-control me-2" name="sort_by" onchange="this.form.submit()">
+                                <option value="" disabled selected>Sắp xếp theo</option>
+                                <option value="name_asc" {{ request('sort_by') == 'name_asc' ? 'selected' : '' }}>Tên (Từ A - Z)</option>
+                                <option value="name_desc" {{ request('sort_by') == 'name_desc' ? 'selected' : '' }}>Tên (Từ Z - A)</option>
+                                <option value="price_asc" {{ request('sort_by') == 'price_asc' ? 'selected' : '' }}>Giá (Tăng dần)</option>
+                                <option value="price_desc" {{ request('sort_by') == 'price_desc' ? 'selected' : '' }}>Giá (Giảm dần)</option>
+                                <option value="views_asc" {{ request('sort_by') == 'views_asc' ? 'selected' : '' }}>Lượt xem (Tăng dần)</option>
+                                <option value="views_desc" {{ request('sort_by') == 'views_desc' ? 'selected' : '' }}>Lượt xem (Giảm dần)</option>
+                                <option value="purchases_asc" {{ request('sort_by') == 'purchases_asc' ? 'selected' : '' }}>Số lượng mua (Tăng dần)</option>
+                                <option value="purchases_desc" {{ request('sort_by') == 'purchases_desc' ? 'selected' : '' }}>Số lượng mua (Giảm dần)</option>
+                                <option value="stock_asc" {{ request('sort_by') == 'stock_asc' ? 'selected' : '' }}>Số lượng hàng tồn (Tăng dần)</option>
+                                <option value="stock_desc" {{ request('sort_by') == 'stock_desc' ? 'selected' : '' }}>Số lượng hàng tồn (Giảm dần)</option>
+                                <option value="updated_at_asc" {{ request('sort_by') == 'updated_at_asc' ? 'selected' : '' }}>Ngày cập nhật (cũ nhất)</option>
+                                <option value="updated_at_desc" {{ request('sort_by') == 'updated_at_desc' ? 'selected' : '' }}>Ngày cập nhật (mới nhất)</option>
+                            </select>
+                            <!-- <button class="btn btn-outline-success" type="submit">Lọc</button> -->
+                        </form>
                     </div>
                     <div class="col-md-6 mx-auto">
                         <form class="d-flex">
