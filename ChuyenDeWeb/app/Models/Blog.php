@@ -34,4 +34,15 @@ class Blog extends Model
     {
         return self::all();
     }
+    //Hàm tìm kiếm full text
+    public static function searchFullText($searchTerm)
+    {
+        $keywords = explode(' ', $searchTerm);
+        return self::where(function ($query) use ($keywords) {
+            foreach ($keywords as $keyword) {
+                $query->orWhere('title', 'LIKE', "%{$keyword}%")
+                    ->orWhere('content', 'LIKE', "%{$keyword}%");
+            }
+        });
+    }
 }

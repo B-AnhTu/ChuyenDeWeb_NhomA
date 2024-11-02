@@ -59,4 +59,36 @@ class CartController extends Controller
 
         return view('cart', compact('cartItems'));
     }
+
+    public function updateAjax(Request $request)
+    {
+        $request->validate([
+            'product_id' => 'required|integer',
+            'quantity' => 'required|integer|min:1',
+        ]);
+
+        $cart = Cart::where('user_id', Auth::id())->first();
+        if (!$cart) {
+            return response()->json(['success' => false, 'message' => 'Giỏ hàng không tồn tại.']);
+        }
+
+        $cartProduct = $cart->cartProducts()->where('product_id', $request->product_id)->first();
+        if (!$cartProduct) {
+            return response()->json(['success' => false, 'message' => 'Sản phẩm không tồn tại trong giỏ hàng.']);
+        }
+
+        // Cập nhật số lượng
+        $cartProduct->quantity = $request->quantity;
+        $cartProduct->save();
+
+        // Tính lại tổng tiền sản phẩm và tổng giỏ hàng
+        $totalPrice = $cartProduct->product->price * $cartProduct->quantity;
+        $cartTotal = $cart->cartProducts->sum(fn ($item) => $item->product->price * $item->quantity);
+
+        return response()->json([
+            'success' => true,
+            'total_price' => number_format($totalPrice),
+            'cart_total' => number_format($cartTotal),
+        ]);
+    }
 }

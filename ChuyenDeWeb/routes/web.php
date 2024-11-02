@@ -67,6 +67,8 @@ Route::post('/add-to-cart', [CartController::class, 'addToCart'])->name('cart.ad
 
 // route hiển thị sản phẩm trong giỏ hàng
 Route::get('/cart', [CartController::class, 'viewCart'])->name('cart.view');
+//route cập nhật giỏ hàng
+Route::post('/cart/update', [CartController::class, 'updateAjax']);
 
 // route thích và bỏ thích sản phẩm
 Route::post('/product-toggle-like', [ProductLikeController::class, 'toggleLike'])->middleware('auth');
@@ -192,13 +194,12 @@ Route::group(['middleware' => 'role:admin,editor'], function () {
     Route::delete('/blogDelete/{blog_id}', [BlogController::class, 'destroy'])->name('blogAdmin.delete');
 
     //Route sorting cho trang quản trị
-    Route::get('/sortProducts', [ProductController::class,'sortProducts'])->name('sortProducts');
-    Route::get('/sortCategories', [CategoryController::class,'sortCategories'])->name('sortCategories');
-    Route::get('/sortManufacturers', [ManufacturerController::class,'sortManufacturers'])->name('sortManufacturers');
-    Route::get('/sortBlogs', [BlogController::class,'sortBlogs'])->name('sortBlogs');
-    Route::get('/sortUsers', [UserController::class,'sortUsers'])->name('sortUsers');
-    Route::get('/sortAdmin', [UserController::class,'sortAdmin'])->name('sortAdmin');
-
+    Route::get('/sortProducts', [ProductController::class, 'sortProducts'])->name('sortProducts');
+    Route::get('/sortCategories', [CategoryController::class, 'sortCategories'])->name('sortCategories');
+    Route::get('/sortManufacturers', [ManufacturerController::class, 'sortManufacturers'])->name('sortManufacturers');
+    Route::get('/sortBlogs', [BlogController::class, 'sortBlogs'])->name('sortBlogs');
+    Route::get('/sortUsers', [UserController::class, 'sortUsers'])->name('sortUsers');
+    Route::get('/sortAdmin', [UserController::class, 'sortAdmin'])->name('sortAdmin');
 });
 
 

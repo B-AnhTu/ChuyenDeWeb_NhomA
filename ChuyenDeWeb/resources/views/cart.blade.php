@@ -22,70 +22,78 @@
 <section class="shoping-cart spad">
     <div class="container">
         @if ($cartItems->isEmpty())
-            <p>Bạn chưa thêm sản phẩm nào vào giỏ hàng.</p>
+        <p>Bạn chưa thêm sản phẩm nào vào giỏ hàng.</p>
         @else
-            <div class="row">
-                <div class="col-lg-12">
-                    <div class="shoping__cart__table">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th class="shoping__product">Sản phẩm</th>
-                                    <th>Giá</th>
-                                    <th>Số lượng</th>
-                                    <th>Tổng tiền</th>
-                                    <th></th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach ($cartItems as $item)
-                                    <tr>
-                                        <td class="shoping__cart__item">
-                                            <h5>{{ $item->product->product_name }}</h5>
-                                        </td>
-                                        <td class="shoping__cart__price">
-                                            {{ number_format($item->product->price) }} vnđ
-                                        </td>
-                                        <td class="shoping__cart__quantity">
-                                            <div class="quantity">
-                                                <div class="pro-qty">
-                                                    <input type="text" value="{{ $item->quantity }}">
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td class="shoping__cart__total">
-                                            {{ number_format($item->product->price * $item->quantity) }} vnđ
-                                        </td>
-                                        <td class="shoping__cart__item__close">
-                                            <span class="icon_close"></span>
-                                        </td>
-                                    </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-lg-12">
-                    <div class="shoping__cart__btns">
-                        <a href="#" class="primary-btn cart-btn cart-btn-right"><span class="icon_loading"></span>
-                            Cập nhật giỏ hàng</a>
-                    </div>
-                </div>
-                <div class="col-lg-6">
-                    <div class="shoping__checkout">
-                        <h5>Tổng số giỏ hàng</h5>
-                        <ul>
-                            <li>Tổng phụ <span>{{ number_format($cartItems->sum(fn($item) => $item->product->price * $item->quantity)) }} vnđ</span></li>
-                            <li>Tổng tiền <span>{{ number_format($cartItems->sum(fn($item) => $item->product->price * $item->quantity)) }} vnđ</span></li>
-                        </ul>
-                        <a href="#" class="primary-btn">Mua</a>
-                    </div>
-                </div>
-            </div>
+        @if (session('success'))
+        <div class="alert alert-success">
+            {{ session('success') }}
+        </div>
         @endif
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="shoping__cart__table">
+
+                    <table>
+                        <thead>
+                            <tr>
+                                <th class="shoping__cart__image">Hình ảnh</th>
+                                <th class="shoping__product">Sản phẩm</th>
+                                <th>Giá</th>
+                                <th>Số lượng</th>
+                                <th>Tổng tiền</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach ($cartItems as $item)
+                            <tr>
+                                <td class="shoping__cart__image">
+                                    <a href="{{ url('/productDetail/' . $item->product->slug) }}"><img src="{{ asset('img/products/' . $item->product->image) }}" alt=""></a>
+                                </td>
+                                <td class="shoping__cart__item">
+                                    <a href="{{ url('/productDetail/' . $item->product->slug) }}">
+                                        <h5>{{ $item->product->product_name }}</h5>
+                                    </a>
+                                </td>
+                                <td class="shoping__cart__price">
+                                    {{ number_format($item->product->price) }} vnđ
+                                </td>
+                                <td class="shoping__cart__quantity">
+                                    <div class="quantity">
+                                        <div class="pro-qty">
+                                            <input type="text" name="quantities[{{ $item->product->id }}]" value="{{ $item->quantity }}">
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="shoping__cart__total cart-total-{{ $item->product->id }}">
+                                    {{ number_format($item->product->price * $item->quantity) }} vnđ
+                                </td>
+                                <td class="shoping__cart__item__close">
+                                    <span class="icon_close"></span>
+                                </td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                    <div class="shoping__cart__btns">
+                        <button type="submit" class="primary-btn cart-btn cart-btn-right"><span class="icon_loading"></span> Cập nhật giỏ hàng</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="shoping__checkout">
+                <h5>Tổng số giỏ hàng</h5>
+                <ul>
+                    <li>Tổng phụ <span>{{ number_format($cartItems->sum(fn($item) => $item->product->price * $item->quantity)) }} vnđ</span></li>
+                    <li>Tổng tiền <span class="cart-total">{{ number_format($cartItems->sum(fn($item) => $item->product->price * $item->quantity)) }} vnđ</span></li>
+                </ul>
+                <a href="#" class="primary-btn">Mua</a>
+            </div>
+        </div>
+    </div>
+    @endif
     </div>
 </section>
+<script src="{{ asset('js/update-cart.js') }}"></script>
 <!-- Shoping Cart Section End -->
 @endsection
