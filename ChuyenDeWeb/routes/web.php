@@ -19,6 +19,7 @@ use App\Http\Controllers\CartProductController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\BlogCommentController;
 use App\Http\Controllers\IndexController;
+use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ProductReviewController;
 
 // route đăng xuất
@@ -68,8 +69,8 @@ Route::post('/add-to-cart', [CartController::class, 'addToCart'])->name('cart.ad
 // route hiển thị sản phẩm trong giỏ hàng
 Route::get('/cart', [CartController::class, 'viewCart'])->name('cart.view');
 //route cập nhật giỏ hàng
-Route::post('/cart/update', [CartController::class, 'updateAjax']);
-
+Route::post('/update-cart', [CartController::class, 'update'])->name('cart.update');
+Route::post('/cart/remove', [CartController::class, 'remove'])->name('cart.remove');
 // route thích và bỏ thích sản phẩm
 Route::post('/product-toggle-like', [ProductLikeController::class, 'toggleLike'])->middleware('auth');
 

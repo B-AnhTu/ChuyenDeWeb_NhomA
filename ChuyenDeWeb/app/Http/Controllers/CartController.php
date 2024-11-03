@@ -7,6 +7,7 @@ use App\Models\CartProduct;
 use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
 
 class CartController extends Controller
@@ -60,35 +61,105 @@ class CartController extends Controller
         return view('cart', compact('cartItems'));
     }
 
-    public function updateAjax(Request $request)
+    public function __construct()
     {
-        $request->validate([
-            'product_id' => 'required|integer',
-            'quantity' => 'required|integer|min:1',
+        $this->middleware('auth');
+    }
+
+    public function update(Request $request)
+    {
+        Log::info('Update cart request received', [
+            'request' => $request->all(),
+            'user' => Auth::id()
         ]);
 
-        $cart = Cart::where('user_id', Auth::id())->first();
-        if (!$cart) {
-            return response()->json(['success' => false, 'message' => 'Giỏ hàng không tồn tại.']);
-        }
+        
+            $request->validate([
+                'product_id' => 'required|exists:product,product_id',
+                'quantity' => 'required|integer|min:1'
+            ]);
 
-        $cartProduct = $cart->cartProducts()->where('product_id', $request->product_id)->first();
-        if (!$cartProduct) {
-            return response()->json(['success' => false, 'message' => 'Sản phẩm không tồn tại trong giỏ hàng.']);
-        }
+            $cart = Cart::where('user_id', Auth::id())->first();
 
-        // Cập nhật số lượng
-        $cartProduct->quantity = $request->quantity;
-        $cartProduct->save();
+            if (!$cart) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Giỏ hàng không tồn tại'
+                ], 404);
+            }
 
-        // Tính lại tổng tiền sản phẩm và tổng giỏ hàng
-        $totalPrice = $cartProduct->product->price * $cartProduct->quantity;
-        $cartTotal = $cart->cartProducts->sum(fn ($item) => $item->product->price * $item->quantity);
+            $cartProduct = CartProduct::where('cart_id', $cart->cart_id)
+                ->where('product_id', $request->product_id)
+                ->first();
 
-        return response()->json([
-            'success' => true,
-            'total_price' => number_format($totalPrice),
-            'cart_total' => number_format($cartTotal),
+            if ($cartProduct) {
+                $cartProduct->update(['quantity' => $request->quantity]);
+
+                // Tính toán lại tổng tiền của sản phẩm và tổng giỏ hàng
+                $itemTotal = $cartProduct->quantity * $cartProduct->product->price;
+                $cartTotal = $cart->cartProducts->sum(fn($item) => $item->quantity * $item->product->price);
+
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Cập nhật số lượng thành công',
+                    'itemTotal' => $itemTotal,
+                    'cartTotal' => $cartTotal,
+                ]);
+            }
+            return response()->json([
+                'success' => false,
+                'message' => 'Sản phẩm không tồn tại trong giỏ hàng'
+            ], 404);
+        
+    }
+
+
+    public function remove(Request $request)
+    {
+        Log::info('Remove from cart request received', [
+            'request' => $request->all(),
+            'user' => Auth::id()
         ]);
+
+        try {
+            $request->validate([
+                'product_id' => 'required|exists:product,product_id'
+            ]);
+
+            $cart = Cart::where('user_id', Auth::id())->first();
+
+            if (!$cart) {
+                Log::error('Cart not found for user', ['user_id' => Auth::id()]);
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Giỏ hàng không tồn tại'
+                ], 404);
+            }
+
+            $deleted = CartProduct::where('cart_id', $cart->cart_id)
+                ->where('product_id', $request->product_id)
+                ->delete();
+
+            Log::info('Product removed from cart', [
+                'deleted' => $deleted,
+                'cart_id' => $cart->cart_id,
+                'product_id' => $request->product_id
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Đã xóa sản phẩm khỏi giỏ hàng'
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error removing from cart', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Có lỗi xảy ra: ' . $e->getMessage()
+            ], 500);
+        }
     }
 }
