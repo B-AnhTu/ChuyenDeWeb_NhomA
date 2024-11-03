@@ -44,12 +44,12 @@ class UserController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'fullname' => ['required', 'string', 'max:50', new SingleSpaceOnly],
+            'fullname' => ['required', 'string', 'max:50', new SingleSpaceOnly, new NoSpecialCharacters],
             'image' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:5120',
             'email' => ['required', 'email', 'max:50', 'unique:users,email', new GmailOnly, new NoSpace],
             'password' => ['required', 'min:8', 'max:20', new NoSpace],
             'phone' => ['required', 'digits:10', 'regex:/^0[0-9]{9}$/', new NoSpecialCharacters, new NoSpace],
-            'address' => ['required', 'string', 'max:255', new NoSpecialCharacters],
+            'address' => ['required', 'string', 'max:255', new NoSpecialCharacters, new SingleSpaceOnly],
         ],[
             'fullname.required' => 'Vui lòng nhập tên người dùng',
             'image.required' => 'Vui lòng nhập ảnh',
@@ -98,9 +98,9 @@ class UserController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Request $request, string $user_id)
+    public function show(Request $request, $slug)
     {
-        $user = User::findOrFail($user_id);
+        $user = User::where('slug', $slug)->first();
         if (!$user) {
             return redirect()->route('userAdmin.index')->with('error', 'Người dùng không tồn tại');
         }
@@ -110,22 +110,25 @@ class UserController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Request $request, string $user_id)
+    public function edit(Request $request, $slug)
     {
-        $user = User::findOrFail($user_id);
+        $user = User::where('slug', $slug);
+        if (!$user) {
+            return redirect()->route('userAdmin.index')->with('error', 'Người dùng không tồn tại');
+        }
         return view('userUpdate', compact('user'));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, $slug)
     {
         $request->validate([
-            'fullname' => ['required', 'string', 'max:50', new SingleSpaceOnly],
+            'fullname' => ['required', 'string', 'max:50', new SingleSpaceOnly, new NoSpecialCharacters],
             'image' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:5120',
             'email' => ['required', 'email', 'max:50', 'unique:users,email', new GmailOnly, new NoSpace],
-            'password' => 'required|min:8|max:20',
+            'password' => ['required', 'min:8', 'max:20', new NoSpace],
             'phone' => ['required', 'digits:10', 'regex:/^0[0-9]{9}$/', new NoSpecialCharacters, new NoSpace],
             'address' => ['required', 'string', 'max:255', new NoSpecialCharacters],
         ],[
@@ -146,15 +149,9 @@ class UserController extends Controller
             'address.max' => 'Địa chỉ không được quá 255 ký tự',
         ]);
 
-        $user = User::findOrFail($id);
+        $user = User::where('slug', $slug)->first();
 
-        // Tạo slug từ title
-        $user->slug = $this->slugify($request->input('fullname')); // Sử dụng hàm slugify để tạo slug
-
-        if(!$user){
-            return redirect()->route('userAdmin.index')->with('error', 'Người dùng không tồn tại');
-        }
-
+        
         if ($request->hasFile('image')) {
             $file = $request->file('image');
             $filename = time() . '_' . $file->getClientOriginalName();
@@ -174,6 +171,8 @@ class UserController extends Controller
         $user->password = Hash::make($request->input('password'));
         $user->phone = $request->input('phone');
         $user->address = $request->input('address');
+        // Tạo slug từ fullname
+        $user->slug = $this->slugify($request->input('fullname')); // Sử dụng hàm slugify để tạo slug
         $user->updated_at = now();
         $user->save();
 
@@ -183,10 +182,10 @@ class UserController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy($slug)
     {
-        $user = User::findOrFail($id);
-        if(!$user){
+        $user = User::where('slug', $slug)->first();
+        if(!$user) {
             return redirect()->route('userAdmin.index')->with('error', 'Người dùng không tồn tại');
         }
         // Delete image if exists
@@ -334,9 +333,11 @@ class UserController extends Controller
         $query = $request->input('query');
 
         // Tìm kiếm bằng Full Text
-        $users = User::whereRaw("MATCH(fullname) AGAINST(? IN NATURAL LANGUAGE MODE)", [$query])->get();
+        $users = User::where('fullname','LIKE', '%' . $query . '%')->paginate(5);
+        $totalUsers = User::count();
+        $onlineUsers = User::where('is_online', true)->count();
 
-        return view('userAdmin', compact('users'));
+        return view('userAdmin', compact('users', 'totalUsers', 'onlineUsers'));
     }
     // Tìm kiếm người dùng theo tên (quan ly user)
     public function searchPage(Request $request)
@@ -344,7 +345,7 @@ class UserController extends Controller
         $query = $request->input('query');
 
         // Tìm kiếm bằng Full Text
-        $users = User::whereRaw("MATCH(fullname) AGAINST(? IN NATURAL LANGUAGE MODE)", [$query])->paginate(5);
+        $users = User::where('fullname','LIKE', '%' . $query . '%')->paginate(5);
 
         return view('adminPage', compact('users'));
     }

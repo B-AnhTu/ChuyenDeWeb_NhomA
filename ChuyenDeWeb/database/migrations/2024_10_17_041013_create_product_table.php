@@ -28,10 +28,6 @@ return new class extends Migration
             $table->foreign('manufacturer_id')->references('manufacturer_id')->on('manufacturer');
             $table->string('slug')->unique();
             $table->timestamps();
-
-            //Thêm thuộc tính full text
-            $table->fullText('product_name');
-            $table->fullText('description');
         });
     }
 

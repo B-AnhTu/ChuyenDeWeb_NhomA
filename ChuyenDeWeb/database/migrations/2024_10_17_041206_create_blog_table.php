@@ -21,10 +21,6 @@ return new class extends Migration
             $table->integer('user_id')->unsigned();
             $table->timestamps();
 
-            // Thêm chỉ mục Full Text cho cột title và description
-            $table->fullText('title');
-            $table->fullText('short_description');
-
             $table->foreign('user_id')->references('user_id')->on('users');
         });
     }

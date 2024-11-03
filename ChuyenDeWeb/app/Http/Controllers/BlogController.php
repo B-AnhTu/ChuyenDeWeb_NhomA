@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use App\Models\Blog;
 use App\Models\Category;
+use App\Rules\NoSpecialCharacters;
+use App\Rules\SingleSpaceOnly;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 class BlogController extends Controller
@@ -72,7 +74,8 @@ class BlogController extends Controller
     public function list()
     {
         $data_blog = Blog::with('user')->paginate(5);
-        return view('blogAdmin', ['data_blog' => $data_blog]);
+
+        return view('blogAdmin', compact('data_blog'));
     }
 
     /**
@@ -89,9 +92,9 @@ class BlogController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'title' => 'required|max:100',
-            'short_description' => 'required|max:255',
-            'content' => 'required',
+            'title' => ['required', 'max:100', new NoSpecialCharacters, new SingleSpaceOnly],
+            'short_description' => ['required','max:255', new NoSpecialCharacters, new SingleSpaceOnly],
+            'content' => ['required', new NoSpecialCharacters, new SingleSpaceOnly],
             'image' => 'required|image|mimes:jpeg,png,jpg|max:5048',
         ],[
             'image.required' => 'Vui lòng chọn hình ảnh để tải lên',
@@ -136,31 +139,37 @@ class BlogController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show($slug)
     {
-        $blog = Blog::with('user')->findOrFail($id);
+        $blog = Blog::with('user')->where('slug', $slug)->first();
+        if (!$blog) {
+            return redirect()->route('blogAdmin.index')->with('error', 'Blog not found');
+        }
         return view('blogShow', ['blog' => $blog]);  
     }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id)
+    public function edit($slug)
     {
-        $blog = Blog::findOrFail($id);
+        $blog = Blog::where('slug', $slug)->first();
+        if (!$blog) {
+            return redirect()->route('blogAdmin.index')->with('error', 'Blog not found');
+        }
         return view('blogUpdate', ['blog' => $blog]);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, $slug)
     {
         $request->validate([
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-            'title' => 'required|max:100',
-            'short_description' => 'required|max:255',
-            'content' => 'required',
+            'title' => ['required', 'max:100', new NoSpecialCharacters, new SingleSpaceOnly],
+            'short_description' => ['required','max:255', new NoSpecialCharacters, new SingleSpaceOnly],
+            'content' => ['required', new NoSpecialCharacters, new SingleSpaceOnly],
         ],[
             'image.mimes' => 'Vui lòng chọn hình ảnh có đuôi hợp lệ như .png, .jpeg. .jpg',
             'title.required' => 'Vui lòng nhập tiêu đề',
@@ -170,14 +179,9 @@ class BlogController extends Controller
             'content.required' => 'Vui lòng nhập nội dung',
         ]);
 
-        $blog = Blog::findOrFail($id);
+        $blog = Blog::where('slug', $slug)->first();
 
-        // Tạo slug từ title
-        $blog->slug = $this->slugify($request->input('title')); // Sử dụng hàm slugify để tạo slug
-
-        if(!$blog){
-            return redirect()->route('blogAdmin.index')->with('error', 'Blog not found');
-        }
+        
 
         // Check if a new image is uploaded
         if ($request->hasFile('image')) {
@@ -197,6 +201,8 @@ class BlogController extends Controller
         $blog->title = $request->input('title');
         $blog->short_description = $request->input('short_description');
         $blog->content = $request->input('content');
+        // Tạo slug từ title mới
+        $blog->slug = $this->slugify($request->input('title')); // Sử dụng hàm slugify để tạo slug
         $blog->user_id = Auth::user()->user_id; // Lưu user_id của người đăng nhập đang đăng nhập hiện tại
         $blog->updated_at = now();
         $blog->save();
@@ -207,10 +213,10 @@ class BlogController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy($slug)
     {
         // Kiểm tra xem blog có tồn tại không
-        $blog = Blog::findOrFail($id);
+        $blog = Blog::where('slug', $slug)->first();
         if (!$blog) {
             return redirect()->route('blogAdmin.index')->with('error', 'Blog không tồn tại.');
         }
@@ -266,10 +272,13 @@ class BlogController extends Controller
     // Tìm kiếm blog
     public function searchBlogs(Request $request)
     {
-        $query = $request->input('query');
+        $searchQuery = $request->input('query');
 
-        // Tìm kiếm bằng Full Text
-        $data_blog = Blog::whereRaw("MATCH(title, content) AGAINST(? IN NATURAL LANGUAGE MODE)", [$query])->paginate(5);
+        // Tìm kiếm theo thứ tự ưu tiên: title trước, sau đó là short_description
+        $data_blog = Blog::where('title', 'LIKE', '%' . $searchQuery . '%')
+            ->orWhere('short_description', 'LIKE', '%' . $searchQuery . '%')
+            ->orderByRaw("CASE WHEN title LIKE '%$searchQuery%' THEN 1 ELSE 2 END") // Ưu tiên title
+            ->paginate(5); // Phân trang
 
         return view('blogAdmin', compact('data_blog'));
     }
@@ -321,4 +330,5 @@ class BlogController extends Controller
         ];
         return strtr($string, $unicode);
     }
+    
 }

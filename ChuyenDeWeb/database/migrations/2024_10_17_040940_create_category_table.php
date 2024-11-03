@@ -18,7 +18,6 @@ return new class extends Migration
             $table->timestamps();
 
             // Add fulltext index for faster search
-            $table->fullText('category_name');
             $table->string('slug')->unique();
         });
     }

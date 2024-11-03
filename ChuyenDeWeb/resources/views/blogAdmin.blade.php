@@ -33,7 +33,7 @@
                     <div class="col-md-6 mx-auto">
                         <form class="d-flex" action="{{ route('searchBlogs') }}" method="GET">
                             @csrf
-                            <input name="query" class="form-control me-2" type="text" placeholder="Search" aria-label="Search">
+                            <input name="query" class="form-control me-2" type="text" placeholder="Search Blog" aria-label="Search">
                             <button class="btn btn-outline-success" type="submit">Search</button>
                         </form>
                     </div>

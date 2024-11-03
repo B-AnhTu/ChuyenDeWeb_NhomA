@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Facades\DB;
 
+
 class Blog extends Model
 {
     use HasFactory;
@@ -19,6 +20,12 @@ class Blog extends Model
 
     protected $primaryKey = 'blog_id';
 
+    /**
+     * Định nghĩa dữ liệu sẽ được lập chỉ mục.
+     *
+     * @return array
+     */
+    
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id');

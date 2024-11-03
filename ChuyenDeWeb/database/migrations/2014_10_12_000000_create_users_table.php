@@ -25,8 +25,6 @@ return new class extends Migration
             $table->rememberToken();
             $table->timestamps();
 
-            //Thêm thuộc tính full text
-            $table->fullText('fullname');
             $table->string('slug')->unique();
         });
     }

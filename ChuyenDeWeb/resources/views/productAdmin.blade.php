@@ -39,8 +39,9 @@
                     </div>
                     <div class="col-md-6 mx-auto">
                         <form class="d-flex" action="{{ route('searchProducts') }}" method="GET">
-                            <input type="text" name="query" placeholder="Tìm kiếm...">
-                            <button type="submit">Tìm kiếm</button>
+                            @csrf
+                            <input name="query" class="form-control me-2" type="text" placeholder="Search" aria-label="Search">
+                            <button class="btn btn-outline-success" type="submit">Search</button>
                         </form>
                     </div>
                 </div>

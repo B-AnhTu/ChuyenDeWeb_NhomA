@@ -150,7 +150,7 @@ class ProductController extends Controller
     // Hiển thị danh sách sản phẩm trong admin
     public function list()
     {
-        $products = Product::orderBy('created_at', 'asc')->paginate(5);
+        $products = Product::paginate(5);
         return view('productAdmin', compact('products'));
     }
     // Hiển thị form tạo sản phẩm trong admin
@@ -164,10 +164,10 @@ class ProductController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'product_name' => ['required', 'string', 'max:50', new NoSpecialCharacters],
+            'product_name' => ['required', 'string', 'max:50', new NoSpecialCharacters, new SingleSpaceOnly],
             'price' => 'required|numeric|min:0',
             'image' => 'required|mimes:jpeg,jpg,png,gif|max:5120',
-            'description' => 'required|string',
+            'description' => ['required', new NoSpecialCharacters, new SingleSpaceOnly],
             'stock_quantity' => 'required|integer|min:0',
             'manufacturer_id' => 'required',
             'category_id' => 'required',
@@ -218,30 +218,34 @@ class ProductController extends Controller
         return redirect()->route('product.index')->with('success', 'Sản phẩm đã được tạo thành công');
     }
     // Hiển thị chi tiết sản phẩm
-    public function show(Request $request, string $product_id)
-    {
-        $product = Product::findOrFail($product_id);
+    public function show($slug)
+    {       
+        $product = Product::where('slug', $slug)->first();
         if (!$product) {
-            return redirect()->route('productAdmin.index')->with('error', 'Sản phẩm không tồn tại');
+            return redirect()->route('product.index')->with('error', 'Sản phẩm không tồn tại');
         }
         return view('productShow', compact('product'));
     }
     // Hiển thị form cập nhật sản phẩm trong admin
-    public function edit($product_id)
+    public function edit($slug)
     {
-        $product = Product::find($product_id);
+        $product = Product::where('slug', $slug)->first();
+
+        if (!$product) {
+            return redirect()->route('product.index')->with('error', 'Sản phẩm không tồn tại');
+        }
         $manufacturers = Manufacturer::all();
         $categories = Category::all();
         return view('productUpdate', compact('product', 'manufacturers', 'categories'));
     }
     // Cập nhật sản phẩm trong database
-    public function update(Request $request, $product_id)
+    public function update(Request $request, $slug)
     {
         $request->validate([
-            'product_name' => ['required', 'string', 'max:50'],
+            'product_name' => ['required', 'string', 'max:50', new NoSpecialCharacters, new SingleSpaceOnly],
             'price' => 'required|numeric|min:0',
             'image' => 'nullable|mimes:jpeg,jpg,png,gif|max:5120',
-            'description' => 'required|string',
+            'description' => ['required', new NoSpecialCharacters, new SingleSpaceOnly],
             'stock_quantity' => 'required|integer|min:0',
             'manufacturer_id' => 'required',
             'category_id' => 'required',
@@ -261,14 +265,7 @@ class ProductController extends Controller
             'category_id.required' => 'Danh mục không được để trống',
         ]);
 
-        $product = Product::find($product_id);
-
-        // Tạo slug từ tên sản phẩm
-        $product->slug = $this->slugify($request->input('product_name')); // Sử dụng hàm slugify để tạo slug
-
-        if (!$product) {
-            return redirect()->route('product.index')->with('error', 'Sản phẩm không tồn tại.');
-        }
+        $product = Product::where('slug', $slug)->first();
 
         // Check if a new image is uploaded
         if ($request->hasFile('image')) {
@@ -292,15 +289,17 @@ class ProductController extends Controller
         $product->stock_quantity = $request->input('stock_quantity');
         $product->manufacturer_id = $request->input('manufacturer_id');
         $product->category_id = $request->input('category_id');
+        // Tạo slug mới nếu tên sản phẩm thay đổi
+        $product->slug = $this->slugify($request->input('product_name')); // Sử dụng hàm slugify để tạo slug
         $product->save();
 
         return redirect()->route('product.index')->with('success', 'Sản phẩm đã được cập nhật thành công');
     }
     // Xóa sản phẩm trong database
-    public function destroy($product_id)
+    public function destroy($slug)
     {
         // Kiểm tra xem sản phẩm có tồn tại không
-        $product = Product::findOrFail($product_id);
+        $product = Product::where('slug', $slug)->first();
         if (!$product) {
             return redirect()->route('product.index')->with('error', 'Sản phẩm không tồn tại.');
         }
@@ -372,10 +371,13 @@ class ProductController extends Controller
     public function searchProducts(Request $request) {
         $query = $request->input('query');
 
-        // Tìm kiếm bằng Full Text
-        $results = Product::whereRaw("MATCH(product_name, description) AGAINST(? IN NATURAL LANGUAGE MODE)", [$query])->paginate(5);
+        // Tìm kiếm theo thứ tự ưu tiên: product_name trước, sau đó là description
+        $products = Product::where('product_name', 'LIKE', '%' . $query . '%')
+            ->orWhere('description', 'LIKE', '%' . $query . '%')
+            ->orderByRaw("CASE WHEN product_name LIKE '%$query%' THEN 1 ELSE 2 END") // Ưu tiên product_name
+            ->paginate(5);
 
-        return view('productAdmin', compact('results'));
+        return view('productAdmin', compact('products'));
     }
     // Hàm để tạo slug từ title
     private function slugify($text)

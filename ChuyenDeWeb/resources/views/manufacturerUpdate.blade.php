@@ -24,7 +24,7 @@
                         {{ session('error') }}
                     </div>
                 @endif
-                <form action="{{ route('manufacturer.update', $manufacturer->manufacturer_id) }}" method="post" enctype="multipart/form-data">
+                <form action="{{ route('manufacturer.update', $manufacturer->slug) }}" method="post" enctype="multipart/form-data">
                     @csrf
                     @method('PUT')
                     <input type="hidden" name="manufacturer_id" value="{{ $manufacturer->manufacturer_id }}">

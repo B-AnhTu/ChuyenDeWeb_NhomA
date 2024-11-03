@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Models\Category;
+use App\Rules\NoSpecialCharacters;
 use App\Rules\SingleSpaceOnly;
 use Illuminate\Http\Request;
 
@@ -36,7 +37,7 @@ class CategoryController extends Controller
     public function store(Request $request)
     {
         $validator = $request->validate([
-            'category_name' => ['required', 'string', 'max:50', new SingleSpaceOnly],
+            'category_name' => ['required', 'string', 'max:50', new SingleSpaceOnly, new NoSpecialCharacters],
             'image' => 'required|mimes:jpeg,jpg,png,gif|max:5120', 
         ], [
             'category_name.required' => 'Vui lòng nhập tên danh mục',
@@ -72,10 +73,10 @@ class CategoryController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Request $request, string $category_id)
+    public function show($slug)
     {
         //Tìm id của danh mục cần xem
-        $category = Category::findOrFail($category_id);
+        $category = Category::where('slug', $slug)->first();
         if (!$category) {
             return redirect()->route('category.index')->with('error', 'Danh mục không tồn tại');
         }
@@ -85,11 +86,13 @@ class CategoryController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $category_id)
+    public function edit($slug)
     {
-        //Tìm id của danh mục cần sửa
-        // $manufacturer_id = $request->get('manufacturer_id');
-        $category = Category::findOrFail($category_id);
+        //Tìm danh mục cần sửa
+        $category = Category::where('slug', $slug)->first();
+        if (!$category) {
+            return redirect()->route('category.index')->with('error', 'Danh mục không tồn tại');
+        }
 
         //Chuyển đến trang cập nhật
         return view('categoryUpdate', ['category' => $category]);
@@ -98,10 +101,10 @@ class CategoryController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, $slug)
     {
         $validator = $request->validate([
-            'category_name' => ['required', 'string', 'max:50', new SingleSpaceOnly], 
+            'category_name' => ['required', 'string', 'max:50', new SingleSpaceOnly, new NoSpecialCharacters], 
             'image' => 'nullable|mimes:jpeg,jpg,png,gif|max:5120', 
         ], [
             'category_name.required' => 'Vui lòng nhập tên danh mục',
@@ -110,14 +113,7 @@ class CategoryController extends Controller
             'image.max' => 'Kích thước tối đa của hình là 5MB',
         ]);
 
-        $category = Category::find($id);
-
-        // Tạo slug từ tên danh mục
-        $category->slug = $this->slugify($request->input('category_name')); // Sử dụng hàm slugify để tạo slug
-
-        if(!$category){
-            return redirect()->route('category.index')->with('error', 'Danh mục không tồn tại.');
-        }
+        $category = Category::where('slug', $slug)->first();    
 
         // Check if a new image is uploaded
         if ($request->hasFile('image')) {
@@ -136,6 +132,9 @@ class CategoryController extends Controller
 
         // Update other fields
         $category->category_name = $request->input('category_name');
+        // Tạo slug từ tên danh mục mới
+        $category->slug = $this->slugify($request->input('category_name')); // Sử dụng hàm slugify để tạo slug
+        $category->update_at = now();
         $category->save();
 
         return redirect()->route('category.index')->with('success', 'Category updated successfully');
@@ -144,10 +143,10 @@ class CategoryController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $category_id)
+    public function destroy($slug)
     {
         // Kiểm tra xem danh mục có tồn tại không
-        $category = Category::findOrFail($category_id);
+        $category = Category::where('slug', $slug)->first();
         if (!$category) {
             return redirect()->route('category.index')->with('error', 'Danh mục không tồn tại.');
         }
@@ -194,15 +193,15 @@ class CategoryController extends Controller
 
         return view('categoryAdmin', compact('categories'));
     }
-    // Tìm kiếm blog
+    // Tìm kiếm 
     public function searchCategories(Request $request)
     {
         $query = $request->input('query');
 
-        // Tìm kiếm bằng Full Text
-        $categories = Category::whereRaw("MATCH(category_name) AGAINST(? IN NATURAL LANGUAGE MODE)", [$query])->paginate(5);
+        // Tìm kiếm thông thường bằng tên danh mục
+        $categories = Category::where('category_name', 'like', '%' . $query . '%')->paginate(5);
 
-        return view('blogAdmin', compact('categories'));
+        return view('categoryAdmin', compact('categories'));
     }
     // Hàm để tạo slug từ title
     private function slugify($text)
