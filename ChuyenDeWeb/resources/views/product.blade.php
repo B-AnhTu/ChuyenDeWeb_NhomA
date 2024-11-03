@@ -192,6 +192,10 @@
         var isFilterActive = false;
         var currentManufacturerId = null;
         let likedProductIds = @json($likedProductIds);
+        let searchState = {
+            manufacturerId: '',
+            keyword: ''
+        };
 
         $(document).ready(function() {
             // Hàm so sánh để sắp xếp sản phẩm
@@ -271,7 +275,10 @@
             $(document).on('click', '#pagination .page-link', function(e) {
                 e.preventDefault();
                 var page = $(this).data('page');
-                if (isFilterActive) {
+                if(searchState.keyword || searchState.manufacturerId) {
+                    searchProducts(searchState.manufacturerId, searchState.keyword, page);
+                }
+                else if (isFilterActive) {
                     fetchProductsByManufacturer(currentManufacturerId, page);
                 } else {
                     fetchNewestProducts(page);
@@ -385,17 +392,21 @@
                 const keyword = $('#search-input').val().trim();
 
                 if (manufacturerId || keyword) {
-                    searchProducts(manufacturerId, keyword);
+                    searchProducts(manufacturerId, keyword, 1);
                 }
             });
 
-            function searchProducts(manufacturerId, keyword) {
+            function searchProducts(manufacturerId, keyword, page = 1) {
+                // Lưu trạng thái tìm kiếm hiện tại
+                searchState.manufacturerId = manufacturerId;
+                searchState.keyword = keyword;
                 $.ajax({
                     url: '/searchProduct',
                     type: 'GET',
                     data: {
                         manufacturer_id: manufacturerId,
-                        keyword: keyword
+                        keyword: keyword,
+                        page: page
                     },
                     success: function(response) {
                         updateProductList(response);
