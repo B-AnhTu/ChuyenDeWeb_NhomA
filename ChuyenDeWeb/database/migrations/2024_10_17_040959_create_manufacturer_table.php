@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('manufacturer', function (Blueprint $table) {
             $table->increments('manufacturer_id');
-            $table->string('manufacturer_name');
+            $table->string('manufacturer_name', 50);
             $table->string('image')->nullable();
             $table->timestamps();
         });

@@ -15,8 +15,9 @@ return new class extends Migration
             $table->increments('review_id');
             $table->integer('user_id')->unsigned();
             $table->integer('product_id')->unsigned();
-            $table->string('comment');
+            $table->text('comment');
             $table->timestamps();
+            $table->tinyInteger('status')->default(0);
 
             $table->foreign('product_id')->references('product_id')->on('product');
             $table->foreign('user_id')->references('user_id')->on('users');
