@@ -90,13 +90,45 @@ class IndexController extends Controller
     {
         $query = Product::query();
 
+        // Xử lý tìm kiếm full-text
+        if ($request->has('keyword') && $request->keyword) {
+            $searchTerm = $request->keyword;
+
+            // Chuẩn bị từ khóa tìm kiếm
+            $searchWords = explode(' ', $searchTerm);
+            $searchWords = array_filter($searchWords, function ($word) {
+                return strlen($word) >= 2;
+            });
+
+            if (!empty($searchWords)) {
+                $searchQuery = '+' . implode('* +', $searchWords) . '*';
+
+                $query->whereRaw("MATCH(product_name, description) AGAINST(? IN BOOLEAN MODE)", [$searchQuery]);
+            }
+        }
+
+        // Lọc theo nhà sản xuất
         if ($request->has('manufacturer_id') && $request->manufacturer_id) {
             $query->where('manufacturer_id', $request->manufacturer_id);
         }
 
-        if ($request->has('keyword') && $request->keyword) {
-            $query->where('product_name', 'like', '%' . $request->keyword . '%');
-        }
+        // Sắp xếp kết quả theo độ phù hợp và thêm các thông tin liên quan
+        $query->select('product.*')
+            ->with(['category', 'manufacturer'])
+            ->when($request->has('keyword') && $request->keyword, function ($q) use ($request) {
+                $searchTerm = $request->keyword;
+                $searchWords = explode(' ', $searchTerm);
+                $searchWords = array_filter($searchWords, function ($word) {
+                    return strlen($word) >= 2;
+                });
+                if (!empty($searchWords)) {
+                    $searchQuery = '+' . implode('* +', $searchWords) . '*';
+                    $q->selectRaw("MATCH(product_name, description) AGAINST(? IN BOOLEAN MODE) as relevance", [$searchQuery]);
+                    $q->orderBy('relevance', 'desc');
+                }
+            })
+            ->orderBy('product_view', 'desc') // Sắp xếp thêm theo lượt xem
+            ->orderBy('sold_quantity', 'desc'); // Và theo số lượng đã bán
 
         $products = $query->paginate(8);
 
@@ -108,6 +140,7 @@ class IndexController extends Controller
                 'message' => $products->isEmpty() ? 'Không tìm thấy sản phẩm nào.' : null
             ]);
         }
+
         return view('index', compact('products', 'manufacturers'));
     }
 

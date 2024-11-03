@@ -38,7 +38,7 @@ class ProductController extends Controller
         $posts = Blog::orderBy('created_at', 'desc')
             ->take(3)
             ->get();
-        return view('product', compact('products', 'manufacturers', 'posts' , 'likedProductIds'));
+        return view('product', compact('products', 'manufacturers', 'posts', 'likedProductIds'));
     }
 
 
@@ -70,13 +70,45 @@ class ProductController extends Controller
     {
         $query = Product::query();
 
+        // Xử lý tìm kiếm full-text
+        if ($request->has('keyword') && $request->keyword) {
+            $searchTerm = $request->keyword;
+
+            // Chuẩn bị từ khóa tìm kiếm
+            $searchWords = explode(' ', $searchTerm);
+            $searchWords = array_filter($searchWords, function ($word) {
+                return strlen($word) >= 2;
+            });
+
+            if (!empty($searchWords)) {
+                $searchQuery = '+' . implode('* +', $searchWords) . '*';
+
+                $query->whereRaw("MATCH(product_name, description) AGAINST(? IN BOOLEAN MODE)", [$searchQuery]);
+            }
+        }
+
+        // Lọc theo nhà sản xuất
         if ($request->has('manufacturer_id') && $request->manufacturer_id) {
             $query->where('manufacturer_id', $request->manufacturer_id);
         }
 
-        if ($request->has('keyword') && $request->keyword) {
-            $query->where('product_name', 'like', '%' . $request->keyword . '%');
-        }
+        // Sắp xếp kết quả theo độ phù hợp và thêm các thông tin liên quan
+        $query->select('product.*')
+            ->with(['category', 'manufacturer'])
+            ->when($request->has('keyword') && $request->keyword, function ($q) use ($request) {
+                $searchTerm = $request->keyword;
+                $searchWords = explode(' ', $searchTerm);
+                $searchWords = array_filter($searchWords, function ($word) {
+                    return strlen($word) >= 2;
+                });
+                if (!empty($searchWords)) {
+                    $searchQuery = '+' . implode('* +', $searchWords) . '*';
+                    $q->selectRaw("MATCH(product_name, description) AGAINST(? IN BOOLEAN MODE) as relevance", [$searchQuery]);
+                    $q->orderBy('relevance', 'desc');
+                }
+            })
+            ->orderBy('product_view', 'desc') // Sắp xếp thêm theo lượt xem
+            ->orderBy('sold_quantity', 'desc'); // Và theo số lượng đã bán
 
         $products = $query->paginate(8);
 
@@ -88,7 +120,8 @@ class ProductController extends Controller
                 'message' => $products->isEmpty() ? 'Không tìm thấy sản phẩm nào.' : null
             ]);
         }
-        return view('product', compact('products', 'manufacturers'));
+
+        return view('index', compact('products', 'manufacturers'));
     }
 
 
@@ -311,7 +344,8 @@ class ProductController extends Controller
             return redirect()->route('product.index')->with('error', 'Xóa sản phẩm không thành công.');
         }
     }
-    public function sortProducts(Request $request) {
+    public function sortProducts(Request $request)
+    {
         $query = Product::query();
 
         // Sắp xếp theo yêu cầu
@@ -330,19 +364,19 @@ class ProductController extends Controller
                     $query->orderBy('price', 'desc');
                     break;
                 case 'views_asc':
-                    $query->orderBy('product_view', 'asc'); 
+                    $query->orderBy('product_view', 'asc');
                     break;
                 case 'views_desc':
                     $query->orderBy('product_view', 'desc');
                     break;
                 case 'purchases_asc':
-                    $query->orderBy('sold_quantity', 'asc'); 
+                    $query->orderBy('sold_quantity', 'asc');
                     break;
                 case 'purchases_desc':
                     $query->orderBy('sold_quantity', 'desc');
                     break;
                 case 'stock_asc':
-                    $query->orderBy('stock_quantity', 'asc'); 
+                    $query->orderBy('stock_quantity', 'asc');
                     break;
                 case 'stock_desc':
                     $query->orderBy('stock_quantity', 'desc');
