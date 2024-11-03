@@ -110,7 +110,7 @@ class ProductController extends Controller
             ->orderBy('product_view', 'desc') // Sắp xếp thêm theo lượt xem
             ->orderBy('sold_quantity', 'desc'); // Và theo số lượng đã bán
 
-        $products = $query->paginate(8);
+        $products = $query->paginate(6);
 
         if ($request->ajax()) {
             return response()->json([
