@@ -22,7 +22,7 @@
             {{ session('error') }}
         </div>
     @endif
-    <form action="{{ route('blogAdmin.update', $blog->blog_id) }}" method="POST" enctype="multipart/form-data">
+    <form action="{{ route('blogAdmin.update', $blog->slug) }}" method="POST" enctype="multipart/form-data">
         @csrf
         @method('PUT')
         <div class="form-group">
