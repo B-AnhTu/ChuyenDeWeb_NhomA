@@ -21,14 +21,21 @@
 <!-- Shoping Cart Section Begin -->
 <section class="shoping-cart spad">
     <div class="container">
-        @if ($cartItems->isEmpty())
-        <p>Bạn chưa thêm sản phẩm nào vào giỏ hàng.</p>
-        @else
         @if (session('success'))
         <div class="alert alert-success">
             {{ session('success') }}
         </div>
         @endif
+        @if (session('error'))
+        <div class="alert alert-danger">
+            {{ session('error') }}
+        </div>
+        @endif
+        @if ($cartItems->isEmpty())
+        <p>Bạn chưa thêm sản phẩm nào vào giỏ hàng.</p>
+        @else
+        <!-- Hiển thị thông báo -->
+
         <div class="row">
             <div class="col-lg-12">
                 <form id="update-cart-form" method="POST" action="{{ route('cart.update') }}">
@@ -96,7 +103,7 @@
                     <li>Tổng phụ <span>{{ number_format($cartItems->sum(fn($item) => $item->product->price * $item->quantity)) }} vnđ</span></li>
                     <li>Tổng tiền <span class="cart-total">{{ number_format($cartItems->sum(fn($item) => $item->product->price * $item->quantity)) }} vnđ</span></li>
                 </ul>
-                <a href="#" class="primary-btn thanh-toan">Mua</a>
+                <a href="{{ route('checkout.show') }}" class="primary-btn thanh-toan">Mua</a>
             </div>
         </div>
     </div>
