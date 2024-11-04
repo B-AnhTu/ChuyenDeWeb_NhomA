@@ -18,6 +18,7 @@ use App\Http\Controllers\ProductLikeController;
 use App\Http\Controllers\CartProductController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\BlogCommentController;
+use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\IndexController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ProductReviewController;
@@ -69,6 +70,11 @@ Route::get('/cart', [CartController::class, 'viewCart'])->name('cart.view');
 //route cập nhật giỏ hàng
 Route::post('/update-cart', [CartController::class, 'update'])->name('cart.update');
 Route::post('/cart/remove', [CartController::class, 'remove'])->name('cart.remove');
+//Route thanh toán
+Route::middleware(['auth'])->group(function () {
+    Route::get('/checkout', [CheckoutController::class, 'showCheckoutForm'])->name('checkout.show');
+    Route::post('/checkout', [CheckoutController::class, 'processCheckout'])->name('checkout.process');
+});
 // route thích và bỏ thích sản phẩm
 Route::post('/product-toggle-like', [ProductLikeController::class, 'toggleLike'])->middleware('auth');
 
