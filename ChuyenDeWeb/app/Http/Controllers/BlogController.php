@@ -9,6 +9,7 @@ use App\Rules\NoSpecialCharacters;
 use App\Rules\SingleSpaceOnly;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+
 class BlogController extends Controller
 {
     /**
@@ -16,47 +17,28 @@ class BlogController extends Controller
      */
     public function index(Request $request, $slug = null)
     {
-        // Lấy bài viết mới nhất cho sidebar
         $recent_posts = Blog::orderBy('created_at', 'desc')->take(5)->get();
 
-        // Trường hợp có slug (chi tiết blog)
         if ($slug) {
-            try {
-                // Tìm bài viết theo slug
-                $blog = Blog::where('slug', $slug)->first();
+            $blog = Blog::where('slug', $slug)->first();
 
-                if (!$blog) {
-                    return view('404');
-                }
-
-                return view('detail_blog', [
-                    'blog' => $blog,
-                    'recent_posts' => $recent_posts
-                ]);
-            } catch (\Exception $e) {
-                // Nếu có lỗi, chuyển đến trang 404
+            if (!$blog) {
                 return view('404');
             }
+
+            return view('detail_blog', [
+                'blog' => $blog,
+                'recent_posts' => $recent_posts
+            ]);
         }
 
-        // Số bài viết trên mỗi trang
-        $perPage = 6;
-        // Lấy số trang hiện tại từ query parameter, mặc định là 1
-        $currentPage = $request->query('page', 1);
+        $searchTerm = $request->input('query');
+        $perPage = 6; // Số bài viết trên mỗi trang
 
-        // Lấy tất cả bài viết và phân trang
-        $data_blog = Blog::orderBy('created_at', 'desc')
-            ->skip(($currentPage - 1) * $perPage)
-            ->take($perPage)
-            ->get();
-
-        // Lấy tổng số bài viết để tính số trang
-        $totalPosts = Blog::count();
-        $totalPages = ceil($totalPosts / $perPage);
-
-        // Kiểm tra nếu trang hiện tại vượt quá tổng số trang
-        if ($currentPage > $totalPages && $totalPages > 0) {
-            return redirect()->route('blog.index', ['page' => 1]);
+        if ($searchTerm) {
+            $data_blog = Blog::searchFullText($searchTerm)->paginate($perPage);
+        } else {
+            $data_blog = Blog::orderBy('created_at', 'desc')->paginate($perPage);
         }
 
         $data_cate = Category::getAllCate();
@@ -65,9 +47,9 @@ class BlogController extends Controller
             'data_blog' => $data_blog,
             'data_cate' => $data_cate,
             'recent_posts' => $recent_posts,
-            'currentPage' => $currentPage,
-            'totalPages' => $totalPages,
-            'totalPosts' => $totalPosts
+            'currentPage' => $data_blog->currentPage(),
+            'totalPages' => $data_blog->lastPage(),
+            'searchTerm' => $searchTerm
         ]);
     }
 
@@ -96,7 +78,7 @@ class BlogController extends Controller
             'short_description' => ['required','max:255', new NoSpecialCharacters, new SingleSpaceOnly],
             'content' => ['required', new NoSpecialCharacters, new SingleSpaceOnly],
             'image' => 'required|image|mimes:jpeg,png,jpg|max:5048',
-        ],[
+        ], [
             'image.required' => 'Vui lòng chọn hình ảnh để tải lên',
             'image.mimes' => 'Vui lòng chọn hình ảnh có đuôi hợp lệ như .png, .jpeg. .jpg',
             'image.max' => 'Kích thước tối đa của hình là 5MB',
@@ -145,7 +127,7 @@ class BlogController extends Controller
         if (!$blog) {
             return redirect()->route('blogAdmin.index')->with('error', 'Blog not found');
         }
-        return view('blogShow', ['blog' => $blog]);  
+        return view('blogShow', ['blog' => $blog]);
     }
 
     /**
@@ -180,8 +162,6 @@ class BlogController extends Controller
         ]);
 
         $blog = Blog::where('slug', $slug)->first();
-
-        
 
         // Check if a new image is uploaded
         if ($request->hasFile('image')) {

@@ -26,8 +26,8 @@
             <div class="col-lg-4 col-md-5">
                 <div class="blog__sidebar">
                     <div class="blog__sidebar__search">
-                        <form action="#">
-                            <input type="text" placeholder="Search...">
+                        <form action="{{ route('blog.index') }}" method="GET">
+                            <input type="text" name="query" placeholder="Search..." value="{{ request()->input('query') }}">
                             <button type="submit"><span class="icon_search"></span></button>
                         </form>
                     </div>
@@ -55,31 +55,31 @@
             </div>
             <div class="col-lg-8 col-md-7">
                 <div class="row">
-                    @if(isset($data_blog) && $data_blog->count() > 0)
+                    <!-- Kiểm tra kết quả tìm kiếm hoặc danh sách bài viết -->
+                    @if($data_blog->isEmpty())
+                    <div class="col-12">
+                        <p>Không có kết quả nào cho từ khóa "{{ $searchTerm }}"</p>
+                    </div>
+                    @else
                     @foreach($data_blog as $blog)
                     <div class="col-lg-6 col-md-6 col-sm-6">
                         <div class="blog__item">
                             <div class="blog__item__pic">
-                                <img src="{{ asset('/img/blog/' .$blog->image) }}" alt="" class="big-img">
+                                <img src="{{ asset('/img/blog/' . $blog->image) }}" alt="" class="big-img">
                             </div>
                             <div class="blog__item__text">
                                 <ul>
                                     <li><i class="fa fa-calendar-o"></i> {{ $blog->created_at->format('d/m/Y') }}</li>
-                                    <li><i class="fa fa-comment-o"></i> 0</li>
+                                    <li><i class="fa fa-comment-o"></i> {{ $blog->comments->where('status', 1)->count() }}</li>
                                 </ul>
-                                <h5><a href="{{ route('blog.index', ['slug' => $blog->slug])}}">{{$blog->title}}</a></h5>
-                                <p>{{$blog->short_description}}</p>
-                                <a href="{{ route('blog.index', ['slug' => $blog->slug])}}" class="blog__btn">READ MORE <span class="arrow_right"></span></a>
+                                <h5><a href="{{ route('blog.index', ['slug' => $blog->slug]) }}">{{ $blog->title }}</a></h5>
+                                <p>{{ $blog->short_description }}</p>
+                                <a href="{{ route('blog.index', ['slug' => $blog->slug]) }}" class="blog__btn">READ MORE <span class="arrow_right"></span></a>
                             </div>
                         </div>
                     </div>
                     @endforeach
-                    @else
-                    <div class="col-12">
-                        <p>Không có bài viết nào.</p>
-                    </div>
                     @endif
-
                     @if($totalPages > 1)
                     <div class="col-lg-12">
                         <div class="product__pagination blog__pagination">
@@ -92,35 +92,25 @@
                             @php
                             $start = max(1, $currentPage - 2);
                             $end = min($totalPages, $start + 4);
-                            if($end - $start < 4) {
-                                $start=max(1, $end - 4);
-                                }
-                                @endphp
-
-                                @if($start> 1)
+                            if($end - $start < 4) { $start=max(1, $end - 4); } @endphp @if($start> 1)
                                 <a href="{{ request()->fullUrlWithQuery(['page' => 1]) }}">1</a>
                                 @if($start > 2)
                                 <span>...</span>
                                 @endif
                                 @endif
 
-                                @for($i = $start; $i <= $end; $i++)
-                                    @if($i==$currentPage)
-                                    <a href="{{ request()->fullUrlWithQuery(['page' => $i]) }}" class="active">{{ $i }}</a>
+                                @for($i = $start; $i <= $end; $i++) @if($i==$currentPage) <a href="{{ request()->fullUrlWithQuery(['page' => $i]) }}" class="active">{{ $i }}</a>
                                     @else
                                     <a href="{{ request()->fullUrlWithQuery(['page' => $i]) }}">{{ $i }}</a>
                                     @endif
                                     @endfor
 
-                                    @if($end < $totalPages)
-                                        @if($end < $totalPages - 1)
-                                        <span>...</span>
+                                    @if($end < $totalPages) @if($end < $totalPages - 1) <span>...</span>
                                         @endif
                                         <a href="{{ request()->fullUrlWithQuery(['page' => $totalPages]) }}">{{ $totalPages }}</a>
                                         @endif
 
-                                        @if($currentPage < $totalPages)
-                                            <a href="{{ request()->fullUrlWithQuery(['page' => $totalPages]) }}">
+                                        @if($currentPage < $totalPages) <a href="{{ request()->fullUrlWithQuery(['page' => $totalPages]) }}">
                                             <i class="fa fa-long-arrow-right"></i>
                                             </a>
                                             @endif

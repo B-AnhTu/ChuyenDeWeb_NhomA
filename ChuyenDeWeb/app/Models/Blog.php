@@ -31,12 +31,25 @@ class Blog extends Model
         return $this->belongsTo(User::class, 'user_id');
     }
 
-    // public function blogcomment(): HasOne{
-    //     return $this->hasOne(BlogComment::class);
-    // }
+    public function comments()
+    {
+        return $this->hasMany(BlogComment::class, 'blog_id');
+    }
 
     //Hàm func lấy tất cả blog
-    public static function getAllBlog(){
+    public static function getAllBlog()
+    {
         return self::all();
+    }
+    //Hàm tìm kiếm full text
+    public static function searchFullText($searchTerm)
+    {
+        $keywords = explode(' ', $searchTerm);
+        return self::where(function ($query) use ($keywords) {
+            foreach ($keywords as $keyword) {
+                $query->orWhere('title', 'LIKE', "%{$keyword}%")
+                    ->orWhere('content', 'LIKE', "%{$keyword}%");
+            }
+        });
     }
 }
