@@ -59,10 +59,6 @@
                                     <input type="radio" name="payment_method" value="cod" checked>
                                     Thanh toán khi nhận hàng (COD)
                                 </label>
-                                <label class="payment-method">
-                                    <input type="radio" name="payment_method" value="banking">
-                                    Chuyển khoản ngân hàng
-                                </label>
                             </div>
                             @error('payment_method')
                             <span class="text-danger">{{ $message }}</span>

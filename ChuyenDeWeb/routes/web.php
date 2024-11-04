@@ -74,6 +74,8 @@ Route::post('/cart/remove', [CartController::class, 'remove'])->name('cart.remov
 Route::middleware(['auth'])->group(function () {
     Route::get('/checkout', [CheckoutController::class, 'showCheckoutForm'])->name('checkout.show');
     Route::post('/checkout', [CheckoutController::class, 'processCheckout'])->name('checkout.process');
+    Route::put('/admin/update', [AdminController::class, 'update'])->name('admin.update');
+    Route::post('/admin/upload-profile-image', [AdminController::class, 'uploadProfileImage'])->name('admin.upload.profile.image');
 });
 // route thích và bỏ thích sản phẩm
 Route::post('/product-toggle-like', [ProductLikeController::class, 'toggleLike'])->middleware('auth');
@@ -200,21 +202,20 @@ Route::group(['middleware' => 'role:admin,editor'], function () {
     Route::delete('/blogDelete/{slug}', [BlogController::class, 'destroy'])->name('blogAdmin.delete');
 
     //Route sorting cho trang quản trị
-    Route::get('/sortProducts', [ProductController::class,'sortProducts'])->name('sortProducts');
-    Route::get('/sortCategories', [CategoryController::class,'sortCategories'])->name('sortCategories');
-    Route::get('/sortManufacturers', [ManufacturerController::class,'sortManufacturers'])->name('sortManufacturers');
-    Route::get('/sortBlogs', [BlogController::class,'sortBlogs'])->name('sortBlogs');
-    Route::get('/sortUsers', [UserController::class,'sortUsers'])->name('sortUsers');
-    Route::get('/sortAdmin', [UserController::class,'sortAdmin'])->name('sortAdmin');
+    Route::get('/sortProducts', [ProductController::class, 'sortProducts'])->name('sortProducts');
+    Route::get('/sortCategories', [CategoryController::class, 'sortCategories'])->name('sortCategories');
+    Route::get('/sortManufacturers', [ManufacturerController::class, 'sortManufacturers'])->name('sortManufacturers');
+    Route::get('/sortBlogs', [BlogController::class, 'sortBlogs'])->name('sortBlogs');
+    Route::get('/sortUsers', [UserController::class, 'sortUsers'])->name('sortUsers');
+    Route::get('/sortAdmin', [UserController::class, 'sortAdmin'])->name('sortAdmin');
 
     //Route tìm kiếm 
-    Route::get('/searchProducts', [ProductController::class,'searchProducts'])->name('searchProducts');
-    Route::get('/searchCategories', [CategoryController::class,'searchCategories'])->name('searchCategories');
-    Route::get('/searchManufacturers', [ManufacturerController::class,'searchManufacturers'])->name('searchManufacturers');
-    Route::get('/searchBlogs', [BlogController::class,'searchBlogs'])->name('searchBlogs');
-    Route::get('/searchUsers', [UserController::class,'searchUsers'])->name('searchUsers');
-    Route::get('/searchPage', [UserController::class,'searchPage'])->name('searchPage');
-
+    Route::get('/searchProducts', [ProductController::class, 'searchProducts'])->name('searchProducts');
+    Route::get('/searchCategories', [CategoryController::class, 'searchCategories'])->name('searchCategories');
+    Route::get('/searchManufacturers', [ManufacturerController::class, 'searchManufacturers'])->name('searchManufacturers');
+    Route::get('/searchBlogs', [BlogController::class, 'searchBlogs'])->name('searchBlogs');
+    Route::get('/searchUsers', [UserController::class, 'searchUsers'])->name('searchUsers');
+    Route::get('/searchPage', [UserController::class, 'searchPage'])->name('searchPage');
 });
 
 
