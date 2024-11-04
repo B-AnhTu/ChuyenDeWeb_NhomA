@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('product', function (Blueprint $table) {
             $table->increments('product_id');
             $table->string('product_name');
-            $table->string('description');
+            $table->text('description');
             $table->double('price');
             $table->integer('stock_quantity');
             $table->integer('category_id')->unsigned();
@@ -26,8 +26,12 @@ return new class extends Migration
             //Khóa ngoại 
             $table->foreign('category_id')->references('category_id')->on('category');
             $table->foreign('manufacturer_id')->references('manufacturer_id')->on('manufacturer');
-
+            $table->string('slug')->unique();
             $table->timestamps();
+
+
+            // Thêm fulltext index sau khi đã định nghĩa các cột
+            $table->fullText(['product_name', 'description']);
         });
     }
 
@@ -36,6 +40,12 @@ return new class extends Migration
      */
     public function down(): void
     {
+        Schema::table('product', function (Blueprint $table) {
+            $table->dropForeign(['category_id']);
+            $table->dropForeign(['manufacturer_id']);
+            $table->dropFullText(['product_name', 'description']);
+            $table->dropColumn('slug');
+        });
         Schema::dropIfExists('product');
     }
 };

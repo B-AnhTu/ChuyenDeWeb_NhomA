@@ -15,12 +15,14 @@ return new class extends Migration
             $table->increments('blog_id');
             $table->string('image')->nullable();
             $table->string('title');
+            $table->string('slug')->unique();
             $table->string('short_description')->nullable();
             $table->text('content');
             $table->integer('user_id')->unsigned();
             $table->timestamps();
 
             $table->foreign('user_id')->references('user_id')->on('users');
+            $table->fullText(['title', 'content']);
         });
     }
 

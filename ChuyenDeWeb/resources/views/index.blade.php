@@ -9,94 +9,39 @@
                     <div class="hero__categories">
                         <div class="hero__categories__all">
                             <i class="fa fa-bars"></i>
-                            <span>All departments</span>
+                            <span>Tất cả danh mục</span>
                         </div>
                         <ul>
-                            <li><a href="#">Fresh Meat</a></li>
-                            <li><a href="#">Vegetables</a></li>
-                            <li><a href="#">Fruit & Nut Gifts</a></li>
-                            <li><a href="#">Fresh Berries</a></li>
-                            <li><a href="#">Ocean Foods</a></li>
-                            <li><a href="#">Butter & Eggs</a></li>
-                            <li><a href="#">Fastfood</a></li>
-                            <li><a href="#">Fresh Onion</a></li>
-                            <li><a href="#">Papayaya & Crisps</a></li>
-                            <li><a href="#">Oatmeal</a></li>
-                            <li><a href="#">Fresh Bananas</a></li>
+                            @foreach ($manufacturers as $manufacturer)
+                                <li><a href="#" class="manufacturer-filter"
+                                        data-id="{{ $manufacturer->manufacturer_id }}">{{ $manufacturer->manufacturer_name }}</a>
+                                </li>
+                            @endforeach
                         </ul>
                     </div>
                 </div>
                 <div class="col-lg-9">
-                    <div class="hero__search">
-                        <div class="hero__search__form">
-                            <form action="#">
-                                <div class="hero__search__categories">
-                                    All Categories
-                                    <span class="arrow_carrot-down"></span>
-                                </div>
-                                <input type="text" placeholder="What do yo u need?">
-                                <button type="submit" class="site-btn">SEARCH</button>
-                            </form>
+                    <form id="search-form" class="d-flex align-items-center pb-5" action="#">
+                        <div class="hero__search__categories me-2">
+                            <select id="manufacturer-select" style="max-width: 150px;">
+                                <option value="">Tất cả danh mục</option>
+                                @foreach ($manufacturers->sortByDesc('created_at') as $manufacturer)
+                                    <option value="{{ $manufacturer->manufacturer_id }}">
+                                        {{ $manufacturer->manufacturer_name }}
+                                    </option>
+                                @endforeach
+                            </select>
                         </div>
-                        <div class="hero__search__phone">
-                            <div class="hero__search__phone__icon">
-                                <i class="fa fa-phone"></i>
-                            </div>
-                            <div class="hero__search__phone__text">
-                                <h5>+65 11.188.888</h5>
-                                <span>support 24/7 time</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="hero__item set-bg" data-setbg="img/hero/banner.jpg">
-                        <div class="hero__text">
-                            <span>FRUIT FRESH</span>
-                            <h2>Vegetable <br />100% Organic</h2>
-                            <p>Free Pickup and Delivery Available</p>
-                            <a href="#" class="primary-btn">SHOP NOW</a>
-                        </div>
+                        <input type="text" placeholder="Bạn cần gì?" id="search-input" class="form-control me-2 w-50">
+                        <button type="submit" class="btn btn-primary" id="search-btn" disabled><i
+                                class="fa-solid fa-magnifying-glass"></i></button>
+                    </form>
+                    <div class="hero__item set-bg" data-setbg="img/banners/banner0.gif">
                     </div>
                 </div>
             </div>
-        </div>
     </section>
     <!-- Hero Section End -->
-
-    <!-- Categories Section Begin -->
-    <section class="categories">
-        <div class="container">
-            <div class="row">
-                <div class="categories__slider owl-carousel">
-                    <div class="col-lg-3">
-                        <div class="categories__item set-bg" data-setbg="img/categories/cat-1.jpg">
-                            <h5><a href="#">Fresh Fruit</a></h5>
-                        </div>
-                    </div>
-                    <div class="col-lg-3">
-                        <div class="categories__item set-bg" data-setbg="img/categories/cat-2.jpg">
-                            <h5><a href="#">Dried Fruit</a></h5>
-                        </div>
-                    </div>
-                    <div class="col-lg-3">
-                        <div class="categories__item set-bg" data-setbg="img/categories/cat-3.jpg">
-                            <h5><a href="#">Vegetables</a></h5>
-                        </div>
-                    </div>
-                    <div class="col-lg-3">
-                        <div class="categories__item set-bg" data-setbg="img/categories/cat-4.jpg">
-                            <h5><a href="#">drink fruits</a></h5>
-                        </div>
-                    </div>
-                    <div class="col-lg-3">
-                        <div class="categories__item set-bg" data-setbg="img/categories/cat-5.jpg">
-                            <h5><a href="#">drink fruits</a></h5>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-    <!-- Categories Section End -->
 
     <!-- Featured Section Begin -->
     <section class="featured spad">
@@ -104,141 +49,77 @@
             <div class="row">
                 <div class="col-lg-12">
                     <div class="section-title">
-                        <h2>Featured Product</h2>
+                        <h2>Sản phẩm mới nhất</h2>
                     </div>
+                    {{-- lọc sản phẩm theo loại sản phẩm --}}
                     <div class="featured__controls">
                         <ul>
-                            <li class="active" data-filter="*">All</li>
-                            <li data-filter=".oranges">Oranges</li>
-                            <li data-filter=".fresh-meat">Fresh Meat</li>
-                            <li data-filter=".vegetables">Vegetables</li>
-                            <li data-filter=".fastfood">Fastfood</li>
+                            @foreach ($categories as $category)
+                                <li><a href="#" class="category-filter text-black"
+                                        data-id="{{ $category->category_id }}">{{ $category->category_name }}</a></li>
+                            @endforeach
+                        </ul>
+                    </div>
+                    {{-- sắp xếp theo tên , giá --}}
+                    <div class="featured__controls">
+                        <ul>
+                            <li>Sắp xếp</li>
+                            <li><a href="#" class="sort text-black" data-sort="name_asc">Tên A - Z</a></li>
+                            <li><a href="#" class="sort text-black" data-sort="name_desc">Tên Z - A</a></li>
+                            <li><a href="#" class="sort text-black" data-sort="price_desc">Giá cao đến thấp</a></li>
+                            <li><a href="#" class="sort text-black" data-sort="price_asc">Giá thấp đến cao</a></li>
                         </ul>
                     </div>
                 </div>
             </div>
-            <div class="row featured__filter">
-                <div class="col-lg-3 col-md-4 col-sm-6 mix oranges fresh-meat">
-                    <div class="featured__item">
-                        <div class="featured__item__pic set-bg" data-setbg="img/featured/feature-1.jpg">
-                            <ul class="featured__item__pic__hover">
-                                <li><a href="#"><i class="fa fa-heart"></i></a></li>
-                                <li><a href="#"><i class="fa fa-retweet"></i></a></li>
-                                <li><a href="#"><i class="fa fa-shopping-cart"></i></a></li>
-                            </ul>
+            @if ($products->isNotEmpty())
+                <div class="row featured__filter" id="product-list">
+                    @foreach ($products as $product)
+                        <div class="col-lg-3 col-md-4 col-sm-6 mix fastfood vegetables">
+                            <div class="featured__item">
+                                <div class="featured__item__pic set-bg"
+                                    data-setbg="{{ asset('img/products/' . $product->image) }}">
+                                    <ul class="featured__item__pic__hover">
+                                        <li><a href="#"><i
+                                                    class="fa fa-heart ffa-heart {{ in_array($product->product_id, $likedProductIds) ? 'liked' : '' }}"
+                                                    data-id="{{ $product->product_id }}"></i></a></li>
+                                        <li> <a href="#"><i class="fa fa-shopping-cart add-to-cart"
+                                                    data-id="{{ $product->product_id }}"></i></a>
+                                        </li>
+                                    </ul>
+                                </div>
+                                <div class="featured__item__text">
+                                    <h6><a
+                                            href="{{ url('/productDetail/' . $product->slug) }}">{{ $product->product_name }}</a>
+                                    </h6>
+                                    <p><i class="fa-solid fa-eye px-1"></i>{{ $product->product_view }}</p>
+                                    <h5>{{ number_format($product->price) }} vnđ</h5>
+                                </div>
+                            </div>
                         </div>
-                        <div class="featured__item__text">
-                            <h6><a href="#">Crab Pool Security</a></h6>
-                            <h5>$30.00</h5>
-                        </div>
-                    </div>
+                    @endforeach
                 </div>
-                <div class="col-lg-3 col-md-4 col-sm-6 mix vegetables fastfood">
-                    <div class="featured__item">
-                        <div class="featured__item__pic set-bg" data-setbg="img/featured/feature-2.jpg">
-                            <ul class="featured__item__pic__hover">
-                                <li><a href="#"><i class="fa fa-heart"></i></a></li>
-                                <li><a href="#"><i class="fa fa-retweet"></i></a></li>
-                                <li><a href="#"><i class="fa fa-shopping-cart"></i></a></li>
-                            </ul>
-                        </div>
-                        <div class="featured__item__text">
-                            <h6><a href="#">Crab Pool Security</a></h6>
-                            <h5>$30.00</h5>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-3 col-md-4 col-sm-6 mix vegetables fresh-meat">
-                    <div class="featured__item">
-                        <div class="featured__item__pic set-bg" data-setbg="img/featured/feature-3.jpg">
-                            <ul class="featured__item__pic__hover">
-                                <li><a href="#"><i class="fa fa-heart"></i></a></li>
-                                <li><a href="#"><i class="fa fa-retweet"></i></a></li>
-                                <li><a href="#"><i class="fa fa-shopping-cart"></i></a></li>
-                            </ul>
-                        </div>
-                        <div class="featured__item__text">
-                            <h6><a href="#">Crab Pool Security</a></h6>
-                            <h5>$30.00</h5>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-3 col-md-4 col-sm-6 mix fastfood oranges">
-                    <div class="featured__item">
-                        <div class="featured__item__pic set-bg" data-setbg="img/featured/feature-4.jpg">
-                            <ul class="featured__item__pic__hover">
-                                <li><a href="#"><i class="fa fa-heart"></i></a></li>
-                                <li><a href="#"><i class="fa fa-retweet"></i></a></li>
-                                <li><a href="#"><i class="fa fa-shopping-cart"></i></a></li>
-                            </ul>
-                        </div>
-                        <div class="featured__item__text">
-                            <h6><a href="#">Crab Pool Security</a></h6>
-                            <h5>$30.00</h5>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-3 col-md-4 col-sm-6 mix fresh-meat vegetables">
-                    <div class="featured__item">
-                        <div class="featured__item__pic set-bg" data-setbg="img/featured/feature-5.jpg">
-                            <ul class="featured__item__pic__hover">
-                                <li><a href="#"><i class="fa fa-heart"></i></a></li>
-                                <li><a href="#"><i class="fa fa-retweet"></i></a></li>
-                                <li><a href="#"><i class="fa fa-shopping-cart"></i></a></li>
-                            </ul>
-                        </div>
-                        <div class="featured__item__text">
-                            <h6><a href="#">Crab Pool Security</a></h6>
-                            <h5>$30.00</h5>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-3 col-md-4 col-sm-6 mix oranges fastfood">
-                    <div class="featured__item">
-                        <div class="featured__item__pic set-bg" data-setbg="img/featured/feature-6.jpg">
-                            <ul class="featured__item__pic__hover">
-                                <li><a href="#"><i class="fa fa-heart"></i></a></li>
-                                <li><a href="#"><i class="fa fa-retweet"></i></a></li>
-                                <li><a href="#"><i class="fa fa-shopping-cart"></i></a></li>
-                            </ul>
-                        </div>
-                        <div class="featured__item__text">
-                            <h6><a href="#">Crab Pool Security</a></h6>
-                            <h5>$30.00</h5>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-3 col-md-4 col-sm-6 mix fresh-meat vegetables">
-                    <div class="featured__item">
-                        <div class="featured__item__pic set-bg" data-setbg="img/featured/feature-7.jpg">
-                            <ul class="featured__item__pic__hover">
-                                <li><a href="#"><i class="fa fa-heart"></i></a></li>
-                                <li><a href="#"><i class="fa fa-retweet"></i></a></li>
-                                <li><a href="#"><i class="fa fa-shopping-cart"></i></a></li>
-                            </ul>
-                        </div>
-                        <div class="featured__item__text">
-                            <h6><a href="#">Crab Pool Security</a></h6>
-                            <h5>$30.00</h5>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-3 col-md-4 col-sm-6 mix fastfood vegetables">
-                    <div class="featured__item">
-                        <div class="featured__item__pic set-bg" data-setbg="img/featured/feature-8.jpg">
-                            <ul class="featured__item__pic__hover">
-                                <li><a href="#"><i class="fa fa-heart"></i></a></li>
-                                <li><a href="#"><i class="fa fa-retweet"></i></a></li>
-                                <li><a href="#"><i class="fa fa-shopping-cart"></i></a></li>
-                            </ul>
-                        </div>
-                        <div class="featured__item__text">
-                            <h6><a href="#">Crab Pool Security</a></h6>
-                            <h5>$30.00</h5>
-                        </div>
-                    </div>
-                </div>
-            </div>
+
+                <!-- Phân trang -->
+                <nav aria-label="Page navigation example" class="d-flex justify-content-center mt-4" id="pagination">
+                    <ul class="pagination">
+                        <li class="page-item {{ $products->onFirstPage() ? 'disabled' : '' }}">
+                            <a class="page-link" href="#" data-page="{{ $products->currentPage() - 1 }}">Previous</a>
+                        </li>
+                        @for ($i = 1; $i <= $products->lastPage(); $i++)
+                            <li class="page-item {{ $i == $products->currentPage() ? 'active' : '' }}">
+                                <a class="page-link" href="#"
+                                    data-page="{{ $i }}">{{ $i }}</a>
+                            </li>
+                        @endfor
+                        <li class="page-item {{ $products->hasMorePages() ? '' : 'disabled' }}">
+                            <a class="page-link" href="#" data-page="{{ $products->currentPage() + 1 }}">Next</a>
+                        </li>
+                    </ul>
+                </nav>
+            @else
+                <p>Không có sản phẩm nào để hiển thị.</p>
+            @endif
         </div>
     </section>
     <!-- Featured Section End -->
@@ -249,12 +130,12 @@
             <div class="row">
                 <div class="col-lg-6 col-md-6 col-sm-6">
                     <div class="banner__pic">
-                        <img src="img/banner/banner-1.jpg" alt="">
+                        <img src="{{ asset('img/banners/banner1.png') }}" alt="Banner">
                     </div>
                 </div>
                 <div class="col-lg-6 col-md-6 col-sm-6">
                     <div class="banner__pic">
-                        <img src="img/banner/banner-2.jpg" alt="">
+                        <img src="{{ asset('img/banners/banner2.png') }}" alt="Banner">
                     </div>
                 </div>
             </div>
@@ -262,269 +143,324 @@
     </div>
     <!-- Banner End -->
 
-    <!-- Latest Product Section Begin -->
-    <section class="latest-product spad">
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-4 col-md-6">
-                    <div class="latest-product__text">
-                        <h4>Latest Products</h4>
-                        <div class="latest-product__slider owl-carousel">
-                            <div class="latest-prdouct__slider__item">
-                                <a href="#" class="latest-product__item">
-                                    <div class="latest-product__item__pic">
-                                        <img src="img/latest-product/lp-1.jpg" alt="">
-                                    </div>
-                                    <div class="latest-product__item__text">
-                                        <h6>Crab Pool Security</h6>
-                                        <span>$30.00</span>
-                                    </div>
-                                </a>
-                                <a href="#" class="latest-product__item">
-                                    <div class="latest-product__item__pic">
-                                        <img src="img/latest-product/lp-2.jpg" alt="">
-                                    </div>
-                                    <div class="latest-product__item__text">
-                                        <h6>Crab Pool Security</h6>
-                                        <span>$30.00</span>
-                                    </div>
-                                </a>
-                                <a href="#" class="latest-product__item">
-                                    <div class="latest-product__item__pic">
-                                        <img src="img/latest-product/lp-3.jpg" alt="">
-                                    </div>
-                                    <div class="latest-product__item__text">
-                                        <h6>Crab Pool Security</h6>
-                                        <span>$30.00</span>
-                                    </div>
-                                </a>
-                            </div>
-                            <div class="latest-prdouct__slider__item">
-                                <a href="#" class="latest-product__item">
-                                    <div class="latest-product__item__pic">
-                                        <img src="img/latest-product/lp-1.jpg" alt="">
-                                    </div>
-                                    <div class="latest-product__item__text">
-                                        <h6>Crab Pool Security</h6>
-                                        <span>$30.00</span>
-                                    </div>
-                                </a>
-                                <a href="#" class="latest-product__item">
-                                    <div class="latest-product__item__pic">
-                                        <img src="img/latest-product/lp-2.jpg" alt="">
-                                    </div>
-                                    <div class="latest-product__item__text">
-                                        <h6>Crab Pool Security</h6>
-                                        <span>$30.00</span>
-                                    </div>
-                                </a>
-                                <a href="#" class="latest-product__item">
-                                    <div class="latest-product__item__pic">
-                                        <img src="img/latest-product/lp-3.jpg" alt="">
-                                    </div>
-                                    <div class="latest-product__item__text">
-                                        <h6>Crab Pool Security</h6>
-                                        <span>$30.00</span>
-                                    </div>
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-4 col-md-6">
-                    <div class="latest-product__text">
-                        <h4>Top Rated Products</h4>
-                        <div class="latest-product__slider owl-carousel">
-                            <div class="latest-prdouct__slider__item">
-                                <a href="#" class="latest-product__item">
-                                    <div class="latest-product__item__pic">
-                                        <img src="img/latest-product/lp-1.jpg" alt="">
-                                    </div>
-                                    <div class="latest-product__item__text">
-                                        <h6>Crab Pool Security</h6>
-                                        <span>$30.00</span>
-                                    </div>
-                                </a>
-                                <a href="#" class="latest-product__item">
-                                    <div class="latest-product__item__pic">
-                                        <img src="img/latest-product/lp-2.jpg" alt="">
-                                    </div>
-                                    <div class="latest-product__item__text">
-                                        <h6>Crab Pool Security</h6>
-                                        <span>$30.00</span>
-                                    </div>
-                                </a>
-                                <a href="#" class="latest-product__item">
-                                    <div class="latest-product__item__pic">
-                                        <img src="img/latest-product/lp-3.jpg" alt="">
-                                    </div>
-                                    <div class="latest-product__item__text">
-                                        <h6>Crab Pool Security</h6>
-                                        <span>$30.00</span>
-                                    </div>
-                                </a>
-                            </div>
-                            <div class="latest-prdouct__slider__item">
-                                <a href="#" class="latest-product__item">
-                                    <div class="latest-product__item__pic">
-                                        <img src="img/latest-product/lp-1.jpg" alt="">
-                                    </div>
-                                    <div class="latest-product__item__text">
-                                        <h6>Crab Pool Security</h6>
-                                        <span>$30.00</span>
-                                    </div>
-                                </a>
-                                <a href="#" class="latest-product__item">
-                                    <div class="latest-product__item__pic">
-                                        <img src="img/latest-product/lp-2.jpg" alt="">
-                                    </div>
-                                    <div class="latest-product__item__text">
-                                        <h6>Crab Pool Security</h6>
-                                        <span>$30.00</span>
-                                    </div>
-                                </a>
-                                <a href="#" class="latest-product__item">
-                                    <div class="latest-product__item__pic">
-                                        <img src="img/latest-product/lp-3.jpg" alt="">
-                                    </div>
-                                    <div class="latest-product__item__text">
-                                        <h6>Crab Pool Security</h6>
-                                        <span>$30.00</span>
-                                    </div>
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-4 col-md-6">
-                    <div class="latest-product__text">
-                        <h4>Review Products</h4>
-                        <div class="latest-product__slider owl-carousel">
-                            <div class="latest-prdouct__slider__item">
-                                <a href="#" class="latest-product__item">
-                                    <div class="latest-product__item__pic">
-                                        <img src="img/latest-product/lp-1.jpg" alt="">
-                                    </div>
-                                    <div class="latest-product__item__text">
-                                        <h6>Crab Pool Security</h6>
-                                        <span>$30.00</span>
-                                    </div>
-                                </a>
-                                <a href="#" class="latest-product__item">
-                                    <div class="latest-product__item__pic">
-                                        <img src="img/latest-product/lp-2.jpg" alt="">
-                                    </div>
-                                    <div class="latest-product__item__text">
-                                        <h6>Crab Pool Security</h6>
-                                        <span>$30.00</span>
-                                    </div>
-                                </a>
-                                <a href="#" class="latest-product__item">
-                                    <div class="latest-product__item__pic">
-                                        <img src="img/latest-product/lp-3.jpg" alt="">
-                                    </div>
-                                    <div class="latest-product__item__text">
-                                        <h6>Crab Pool Security</h6>
-                                        <span>$30.00</span>
-                                    </div>
-                                </a>
-                            </div>
-                            <div class="latest-prdouct__slider__item">
-                                <a href="#" class="latest-product__item">
-                                    <div class="latest-product__item__pic">
-                                        <img src="img/latest-product/lp-1.jpg" alt="">
-                                    </div>
-                                    <div class="latest-product__item__text">
-                                        <h6>Crab Pool Security</h6>
-                                        <span>$30.00</span>
-                                    </div>
-                                </a>
-                                <a href="#" class="latest-product__item">
-                                    <div class="latest-product__item__pic">
-                                        <img src="img/latest-product/lp-2.jpg" alt="">
-                                    </div>
-                                    <div class="latest-product__item__text">
-                                        <h6>Crab Pool Security</h6>
-                                        <span>$30.00</span>
-                                    </div>
-                                </a>
-                                <a href="#" class="latest-product__item">
-                                    <div class="latest-product__item__pic">
-                                        <img src="img/latest-product/lp-3.jpg" alt="">
-                                    </div>
-                                    <div class="latest-product__item__text">
-                                        <h6>Crab Pool Security</h6>
-                                        <span>$30.00</span>
-                                    </div>
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-    <!-- Latest Product Section End -->
-
     <!-- Blog Section Begin -->
     <section class="from-blog spad">
         <div class="container">
             <div class="row">
                 <div class="col-lg-12">
                     <div class="section-title from-blog__title">
-                        <h2>From The Blog</h2>
+                        <h2>Tin tức mới nhất</h2>
                     </div>
                 </div>
             </div>
             <div class="row">
-                <div class="col-lg-4 col-md-4 col-sm-6">
-                    <div class="blog__item">
-                        <div class="blog__item__pic">
-                            <img src="img/blog/blog-1.jpg" alt="">
+                @if (isset($posts))
+                    @foreach ($posts as $post)
+                        <div class="col-lg-4 col-md-4 col-sm-6">
+                            <div class="blog__item">
+                                <div class="blog__item__pic">
+                                    <img src="{{ asset('/img/blog/' . $post->image) }}" alt="" class="big-img">
+                                </div>
+                                <div class="blog__item__text">
+                                    <ul>
+                                        <li><i class="fa fa-calendar-o"></i>{{ $post->created_at }}</li>
+                                        <li><i class="fa fa-comment-o"></i> 0</li>
+                                    </ul>
+                                    <h5><a
+                                            href="{{ route('blog.index', ['slug' => $post->slug]) }}">{{ $post->title }}</a>
+                                    </h5>
+                                    <p>{{ $post->short_description }}</p>
+                                </div>
+                            </div>
                         </div>
-                        <div class="blog__item__text">
-                            <ul>
-                                <li><i class="fa fa-calendar-o"></i> May 4,2019</li>
-                                <li><i class="fa fa-comment-o"></i> 5</li>
-                            </ul>
-                            <h5><a href="#">Cooking tips make cooking simple</a></h5>
-                            <p>Sed quia non numquam modi tempora indunt ut labore et dolore magnam aliquam quaerat </p>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-4 col-md-4 col-sm-6">
-                    <div class="blog__item">
-                        <div class="blog__item__pic">
-                            <img src="img/blog/blog-2.jpg" alt="">
-                        </div>
-                        <div class="blog__item__text">
-                            <ul>
-                                <li><i class="fa fa-calendar-o"></i> May 4,2019</li>
-                                <li><i class="fa fa-comment-o"></i> 5</li>
-                            </ul>
-                            <h5><a href="#">6 ways to prepare breakfast for 30</a></h5>
-                            <p>Sed quia non numquam modi tempora indunt ut labore et dolore magnam aliquam quaerat </p>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-4 col-md-4 col-sm-6">
-                    <div class="blog__item">
-                        <div class="blog__item__pic">
-                            <img src="img/blog/blog-3.jpg" alt="">
-                        </div>
-                        <div class="blog__item__text">
-                            <ul>
-                                <li><i class="fa fa-calendar-o"></i> May 4,2019</li>
-                                <li><i class="fa fa-comment-o"></i> 5</li>
-                            </ul>
-                            <h5><a href="#">Visit the clean farm in the US</a></h5>
-                            <p>Sed quia non numquam modi tempora indunt ut labore et dolore magnam aliquam quaerat </p>
-                        </div>
-                    </div>
-                </div>
+                    @endforeach
+                @endif
             </div>
         </div>
     </section>
     <!-- Blog Section End -->
 
-    @endsection
+    <script>
+        var productImageBasePath = "{{ asset('img/products') }}/";
+        var isFilterActive = false;
+        var currentManufacturerId = null;
+        var currentCategoryId = null;
+        let likedProductIds = @json($likedProductIds);
+        let searchState = {
+            manufacturerId: '',
+            keyword: ''
+        };
+
+        $(document).ready(function() {
+            // Hàm so sánh để sắp xếp sản phẩm
+            function compareProducts(a, b, sortBy) {
+                switch (sortBy) {
+                    case 'name_asc':
+                        return $(a).find('h6 a').text().localeCompare($(b).find('h6 a').text());
+                    case 'name_desc':
+                        return $(b).find('h6 a').text().localeCompare($(a).find('h6 a').text());
+                    case 'price_asc':
+                        return parseFloat($(a).find('h5').text().replace(/[^\d]/g, '')) -
+                            parseFloat($(b).find('h5').text().replace(/[^\d]/g, ''));
+                    case 'price_desc':
+                        return parseFloat($(b).find('h5').text().replace(/[^\d]/g, '')) -
+                            parseFloat($(a).find('h5').text().replace(/[^\d]/g, ''));
+                    default:
+                        return 0;
+                }
+            }
+
+            // Hàm cập nhật danh sách sản phẩm
+            function updateProductList(response) {
+                $('#product-list').html('');
+                if (response.data.length === 0) {
+                    $('#product-list').append('<p>Không tìm thấy sản phẩm nào.</p>');
+                    return;
+                }
+
+                response.data.forEach(function(product) {
+                    let isLiked = likedProductIds.includes(product.product_id);
+                    $('#product-list').append(`
+                        <div class="col-lg-3 col-md-4 col-sm-6 mix fastfood vegetables">
+                            <div class="featured__item">
+                                <div class="featured__item__pic set-bg" style="background-image: url('${productImageBasePath}${product.image}');">
+                                    <ul class="featured__item__pic__hover">
+                                        <li><a href="#"><i class="fa fa-heart ffa-heart ${isLiked ? 'liked' : ''}" data-id="${product.product_id}"></i></a></li>
+                                        <li><a href="#"><i class="fa fa-shopping-cart add-to-cart" data-id="${product.product_id}"></i></a></li>
+                                    </ul>
+                                </div>
+                                <div class="featured__item__text">
+                                <h6><a href="/productDetail/${product.slug}">${product.product_name}</a></h6>
+                                    <h6><a href="#"></a></h6>
+                                    <p><i class="fa-solid fa-eye px-1"></i>${product.product_view}</p>
+                                    <h5>${numberFormat(product.price)} VNĐ</h5>
+                                </div>
+                            </div>
+                        </div>
+                    `);
+                });
+
+                // Sau khi cập nhật danh sách, áp dụng lại sắp xếp nếu có
+                const activeSort = $('.sort[style*="color: green"]');
+                if (activeSort.length) {
+                    const sortBy = activeSort.data('sort');
+                    const products = $('#product-list').children('.mix').get();
+                    products.sort(function(a, b) {
+                        return compareProducts(a, b, sortBy);
+                    });
+                    $.each(products, function(index, item) {
+                        $('#product-list').append(item);
+                    });
+                }
+
+                updatePagination(response.current_page, response.last_page);
+                if (typeof setBackgrounds === 'function') {
+                    setBackgrounds();
+                }
+            }
+
+            // Pagination for products (newest or filtered)
+            $(document).on('click', '#pagination .page-link', function(e) {
+                e.preventDefault();
+                var page = $(this).data('page');
+                // Kiểm tra xem có đang trong trạng thái tìm kiếm không
+                if(searchState.keyword || searchState.manufacturerId){
+                    searchProducts(searchState.manufacturerId, searchState.keyword, page);
+                }
+                else if (currentManufacturerId) {
+                    fetchProductsByManufacturer(currentManufacturerId, page);
+                } else if (currentCategoryId) {
+                    fetchProductsByCategory(currentCategoryId, page);
+                } else {
+                    fetchNewestProducts(page);
+                }
+            });
+
+            // Filter products by manufacturer
+            $('.manufacturer-filter').on('click', function(e) {
+                e.preventDefault();
+                $('.manufacturer-filter').removeClass('active');
+                $(this).addClass('active');
+                $(this).css('color', 'green');
+                $('.manufacturer-filter').not(this).css('color', '');
+
+                isFilterActive = true;
+                currentManufacturerId = $(this).data('id');
+                fetchProductsByManufacturer(currentManufacturerId, 1);
+
+                $('html, body').animate({
+                    scrollTop: $("#product-list").offset().top
+                }, 500);
+            });
+
+            // Sắp xếp sản phẩm trên trang hiện tại
+            $('.sort').on('click', function(e) {
+                e.preventDefault();
+                const sortBy = $(this).data('sort');
+
+                // Highlight nút sắp xếp được chọn
+                $('.sort').css('color', '');
+                $(this).css('color', 'green');
+
+                // Lấy tất cả các sản phẩm trên trang hiện tại
+                const productContainer = $('#product-list');
+                const products = productContainer.children('.mix').get();
+
+                // Sắp xếp mảng sản phẩm
+                products.sort(function(a, b) {
+                    return compareProducts(a, b, sortBy);
+                });
+
+                // Thêm lại các sản phẩm đã sắp xếp vào container
+                $.each(products, function(index, item) {
+                    productContainer.append(item);
+                });
+
+                // Scroll đến vị trí danh sách sản phẩm
+                $('html, body').animate({
+                    scrollTop: $("#product-list").offset().top
+                }, 500);
+            });
+
+            function fetchNewestProducts(page) {
+                $.ajax({
+                    url: "{{ route('products.index') }}",
+                    type: 'GET',
+                    data: {
+                        page: page
+                    },
+                    success: function(response) {
+                        updateProductList(response);
+                    },
+                    error: function(xhr) {
+                        console.error(xhr);
+                    }
+                });
+            }
+
+            function fetchProductsByManufacturer(manufacturerId, page) {
+                $.ajax({
+                    url: '/filterByManufacturer',
+                    type: 'GET',
+                    data: {
+                        manufacturer_id: manufacturerId,
+                        page: page
+                    },
+                    success: function(response) {
+                        updateProductList(response);
+                    },
+                    error: function(error) {
+                        console.log(error);
+                    }
+                });
+            }
+
+            function updatePagination(currentPage, lastPage) {
+                var pagination = '';
+                pagination += `<li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
+                    <a class="page-link" href="#" data-page="${currentPage - 1}">Previous</a>
+                </li>`;
+
+                for (var i = 1; i <= lastPage; i++) {
+                    pagination += `<li class="page-item ${i === currentPage ? 'active' : ''}">
+                        <a class="page-link" href="#" data-page="${i}">${i}</a>
+                    </li>`;
+                }
+
+                pagination += `<li class="page-item ${currentPage === lastPage ? 'disabled' : ''}">
+                    <a class="page-link" href="#" data-page="${currentPage + 1}">Next</a>
+                </li>`;
+
+                $('#pagination .pagination').html(pagination);
+            }
+
+            function numberFormat(number) {
+                return new Intl.NumberFormat('vi-VN').format(number);
+            }
+
+            // Tìm kiếm theo danh mục
+            $('#manufacturer-select, #search-input').on('input change', function() {
+                const selectedManufacturer = $('#manufacturer-select').val();
+                const searchInput = $('#search-input').val().trim();
+                $('#search-btn').prop('disabled', !(selectedManufacturer || searchInput));
+            });
+
+            $('#search-form').on('submit', function(e) {
+                e.preventDefault();
+                const manufacturerId = $('#manufacturer-select').val();
+                const keyword = $('#search-input').val().trim();
+
+                if (manufacturerId || keyword) {
+                    searchProducts(manufacturerId, keyword, 1);
+                }
+            });
+
+            function searchProducts(manufacturerId, keyword, page = 1) {
+                // Lưu trạng thái tìm kiếm hiện tại
+                searchState.manufacturerId = manufacturerId;
+                searchState.keyword = keyword;
+                $.ajax({
+                    url: '/search',
+                    type: 'GET',
+                    data: {
+                        manufacturer_id: manufacturerId,
+                        keyword: keyword,
+                        page: page
+                    },
+                    success: function(response) {
+                        updateProductList(response);
+                        $('html, body').animate({
+                            scrollTop: $("#product-list").offset().top
+                        }, 500);
+                    },
+                    error: function(xhr) {
+                        console.error(xhr);
+                    }
+                });
+            }
+
+            // Filter products by category
+            $('.category-filter').on('click', function(e) {
+                e.preventDefault();
+                $('.category-filter').removeClass('active');
+                $(this).addClass('active');
+                $(this).css('color', 'green');
+                $('.category-filter').not(this).css('color', '');
+
+                currentManufacturerId = null;
+                isFilterActive = true;
+                currentCategoryId = $(this).data('id');
+                fetchProductsByCategory(currentCategoryId, 1);
+
+                $('html, body').animate({
+                    scrollTop: $("#product-list").offset().top
+                }, 500);
+            });
+
+            function fetchProductsByCategory(categoryId, page) {
+                $.ajax({
+                    url: '/filterByCategory',
+                    type: 'GET',
+                    data: {
+                        category_id: categoryId,
+                        page: page
+                    },
+                    success: function(response) {
+                        if (response.data.length === 0) {
+                            $('#product-list').html('<p>Không tìm thấy sản phẩm nào.</p>');
+                            $('#pagination').hide();
+                        } else {
+                            updateProductList(response);
+                            $('#pagination').show();
+                        }
+                    },
+                    error: function(error) {
+                        console.log(error);
+                        $('#product-list').html('<p>Đã xảy ra lỗi khi tải sản phẩm.</p>');
+                        $('#pagination').hide();
+                    }
+                });
+            }
+        });
+    </script>
+@endsection
