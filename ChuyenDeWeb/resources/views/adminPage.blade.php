@@ -25,8 +25,9 @@
                 </form>
             </div>
             <div class="col-md-6 mx-auto">
-                <form class="d-flex">
-                    <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+                <form class="d-flex" action="{{ route('searchPage') }}" method="GET">
+                    @csrf
+                    <input name="query" class="form-control me-2" type="text" placeholder="Search" aria-label="Search">
                     <button class="btn btn-outline-success" type="submit">Search</button>
                 </form>
             </div>
@@ -55,7 +56,7 @@
                             style="width: 100px; height: 100px;">
                     </td>
                     <td>
-                        <form action="{{ route('userAdmin.updatePermissions', $user->user_id) }}" method="POST"
+                        <form action="{{ route('userAdmin.updatePermissions', $user->slug) }}" method="POST"
                             class="d-flex align-items-center">
                             @csrf
                             @method('PUT')

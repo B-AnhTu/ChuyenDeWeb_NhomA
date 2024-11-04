@@ -29,8 +29,9 @@
                         </form>
                     </div>
                     <div class="col-md-6 mx-auto">
-                        <form class="d-flex">
-                            <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+                        <form class="d-flex" action="{{ route('searchManufacturers') }}" method="GET">
+                            @csrf
+                            <input name="query" class="form-control me-2" type="text" placeholder="Search" aria-label="Search">
                             <button class="btn btn-outline-success" type="submit">Search</button>
                         </form>
                     </div>
@@ -58,11 +59,11 @@
                                         alt="{{ $manufacturer->manufacturer_name }}" width="50"></td>
                                 <td>
                                     <!-- Add action buttons here -->
-                                    <a href="{{ route('manufacturer.show', $manufacturer->manufacturer_id) }}"
+                                    <a href="{{ route('manufacturer.show', $manufacturer->slug) }}"
                                         class="btn btn-primary"><i class="fas fa-eye"></i></a>
-                                    <a href="{{ route('manufacturer.edit', $manufacturer->manufacturer_id) }}"
+                                    <a href="{{ route('manufacturer.edit', $manufacturer->slug) }}"
                                         class="btn btn-primary"><i class="fas fa-pencil-alt"></i></a>
-                                    <form action="{{ route('manufacturer.delete', $manufacturer->manufacturer_id) }}"
+                                    <form action="{{ route('manufacturer.delete', $manufacturer->slug) }}"
                                         method="POST" style="display:inline;">
                                         @csrf
                                         @method('DELETE')

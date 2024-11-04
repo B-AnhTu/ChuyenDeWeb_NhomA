@@ -31,8 +31,9 @@
                         </form>
                     </div>
                     <div class="col-md-6 mx-auto">
-                        <form class="d-flex">
-                            <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+                        <form class="d-flex" action="{{ route('searchBlogs') }}" method="GET">
+                            @csrf
+                            <input name="query" class="form-control me-2" type="text" placeholder="Search Blog" aria-label="Search">
                             <button class="btn btn-outline-success" type="submit">Search</button>
                         </form>
                     </div>
@@ -62,9 +63,9 @@
                         <td>{{ Str::limit($blog->content, 20) }}</td>
                         <td>{{ $blog->user ? $blog->user->fullname : 'Unknown Author' }}</td>
                         <td>
-                            <a href="{{ route('blogAdmin.show', $blog->blog_id) }}" class="btn btn-info"><i class="fas fa-eye"></i></a>
-                            <a href="{{ route('blogAdmin.edit', $blog->blog_id) }}" class="btn btn-primary"><i class="fas fa-pencil-alt"></i></a>
-                            <form action="{{ route('blogAdmin.delete', $blog->blog_id) }}" method="POST">
+                            <a href="{{ route('blogAdmin.show', $blog->slug) }}" class="btn btn-info"><i class="fas fa-eye"></i></a>
+                            <a href="{{ route('blogAdmin.edit', $blog->slug) }}" class="btn btn-primary"><i class="fas fa-pencil-alt"></i></a>
+                            <form action="{{ route('blogAdmin.delete', $blog->slug) }}" method="POST">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" class="btn btn-danger"><i class="fas fa-trash"></i></button>
