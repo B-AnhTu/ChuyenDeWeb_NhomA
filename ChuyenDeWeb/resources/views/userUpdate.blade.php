@@ -24,7 +24,7 @@
                         {{ session('error') }}
                     </div>
                 @endif
-                <form action="{{ route('userAdmin.update', $user->user_id) }}" method="post" enctype="multipart/form-data">
+                <form action="{{ route('userAdmin.update', $user->slug) }}" method="post" enctype="multipart/form-data">
                     @csrf
                     @method('PUT')
                     <input type="hidden" name="user_id" value="{{ $user->user_id }}">
