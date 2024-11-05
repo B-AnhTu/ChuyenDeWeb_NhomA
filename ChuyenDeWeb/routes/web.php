@@ -22,6 +22,8 @@ use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\IndexController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ProductReviewController;
+use App\Mail\NewsletterWelcome;
+use Illuminate\Support\Facades\Mail;
 
 // route đăng xuất
 Route::get('/logout', [LoginController::class, 'logout'])->name('logout');
@@ -120,9 +122,7 @@ Route::middleware(['auth'])->group(function () {
 //route mail
 // routes/web.php
 
-Route::post('/newsletter/subscribe', [NewsletterController::class, 'subscribe'])->name('newsletter.subscribe');
-Route::get('/newsletter/verify/{token}', [NewsletterController::class, 'verify'])->name('newsletter.verify');
-Route::get('/newsletter/unsubscribe/{email}', [NewsletterController::class, 'unsubscribe'])->name('newsletter.unsubscribe');
+Route::post('/newsletter/subscribe', [NewsletterController::class, 'subscribe']);
 
 // Admin routes
 Route::middleware(['auth', 'admin'])->group(function () {
