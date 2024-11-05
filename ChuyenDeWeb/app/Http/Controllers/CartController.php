@@ -56,7 +56,7 @@ class CartController extends Controller
             ->first();
 
         // Nếu giỏ hàng rỗng, gửi thông báo
-        $cartItems = $cart ? $cart->cartProducts : [];
+        $cartItems = $cart ? $cart->cartProducts : collect();
 
         return view('cart', compact('cartItems'));
     }
@@ -73,44 +73,43 @@ class CartController extends Controller
             'user' => Auth::id()
         ]);
 
-        
-            $request->validate([
-                'product_id' => 'required|exists:product,product_id',
-                'quantity' => 'required|integer|min:1'
-            ]);
 
-            $cart = Cart::where('user_id', Auth::id())->first();
+        $request->validate([
+            'product_id' => 'required|exists:product,product_id',
+            'quantity' => 'required|integer|min:1'
+        ]);
 
-            if (!$cart) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Giỏ hàng không tồn tại'
-                ], 404);
-            }
+        $cart = Cart::where('user_id', Auth::id())->first();
 
-            $cartProduct = CartProduct::where('cart_id', $cart->cart_id)
-                ->where('product_id', $request->product_id)
-                ->first();
-
-            if ($cartProduct) {
-                $cartProduct->update(['quantity' => $request->quantity]);
-
-                // Tính toán lại tổng tiền của sản phẩm và tổng giỏ hàng
-                $itemTotal = $cartProduct->quantity * $cartProduct->product->price;
-                $cartTotal = $cart->cartProducts->sum(fn($item) => $item->quantity * $item->product->price);
-
-                return response()->json([
-                    'success' => true,
-                    'message' => 'Cập nhật số lượng thành công',
-                    'itemTotal' => $itemTotal,
-                    'cartTotal' => $cartTotal,
-                ]);
-            }
+        if (!$cart) {
             return response()->json([
                 'success' => false,
-                'message' => 'Sản phẩm không tồn tại trong giỏ hàng'
+                'message' => 'Giỏ hàng không tồn tại'
             ], 404);
-        
+        }
+
+        $cartProduct = CartProduct::where('cart_id', $cart->cart_id)
+            ->where('product_id', $request->product_id)
+            ->first();
+
+        if ($cartProduct) {
+            $cartProduct->update(['quantity' => $request->quantity]);
+
+            // Tính toán lại tổng tiền của sản phẩm và tổng giỏ hàng
+            $itemTotal = $cartProduct->quantity * $cartProduct->product->price;
+            $cartTotal = $cart->cartProducts->sum(fn($item) => $item->quantity * $item->product->price);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Cập nhật số lượng thành công',
+                'itemTotal' => $itemTotal,
+                'cartTotal' => $cartTotal,
+            ]);
+        }
+        return response()->json([
+            'success' => false,
+            'message' => 'Sản phẩm không tồn tại trong giỏ hàng'
+        ], 404);
     }
 
 
