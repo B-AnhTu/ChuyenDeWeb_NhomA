@@ -10,7 +10,6 @@ use Illuminate\Support\Facades\Log;
 
 class LoginController extends Controller
 {
-    // Hiển thị form đăng nhập
     public function showLoginForm()
     {
         return view('login');
@@ -18,51 +17,56 @@ class LoginController extends Controller
 
     public function login(Request $request)
     {
-        // Kiểm tra các yêu cầu
+        // Validate input
         $validator = Validator::make($request->all(), [
             'email' => 'required|email|max:50',
             'password' => 'required|min:8|max:20',
         ], [
-            'email.required' => 'Vui lòng nhập email',
-            'email.email' => 'Sai định dạng email',
-            'email.max' => 'Email không dài quá 50 ký tự',
-            'password.required' => 'Vui lòng nhập mật khẩu',
-            'password.min' => 'Mật khẩu phải có ít nhất 8 ký tự',
-            'password.max' => 'Mật khẩu không quá 20 ký tự',
+            'email.required' => 'Please enter your email',
+            'email.email' => 'Invalid email format',
+            'email.max' => 'Email cannot be longer than 50 characters',
+            'password.required' => 'Please enter your password',
+            'password.min' => 'Password must be at least 8 characters',
+            'password.max' => 'Password cannot be longer than 20 characters',
         ]);
 
-        // Nếu có lỗi, trả về trang đăng nhập với thông báo lỗi
+        // If validation fails, return to login page with errors
         if ($validator->fails()) {
             return redirect()->back()->withErrors($validator)->withInput();
         }
 
-        // Kiểm tra thông tin đăng nhập
+        // Attempt to log in the user
         if (Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
-            // Cập nhật trạng thái is_online khi người dùng đăng nhập
             $user = Auth::user();
+
+            // Update the user's online status
             $user->is_online = true;
             $user->save();
 
-            // Chuyển hướng đến trang chủ
-            return redirect()->route('index');
+            // Redirect based on user role (case-insensitive)
+            if (strtolower($user->role) === 'admin') {
+                return redirect()->route('admin.index');
+            } else {
+                return redirect()->route('index');
+            }
         }
 
-        // Nếu đăng nhập không thành công, trả về với thông báo lỗi
-        return redirect()->back()->withErrors(['email' => 'Email hoặc mật khẩu không đúng'])->withInput();
+        // If login fails, return to login page with error
+        return redirect()->back()->withErrors(['email' => 'Invalid email or password'])->withInput();
     }
 
     public function logout()
     {
         Log::info('User logging out');
         $user = Auth::user();
+
+        // Update the user's online status
         if ($user) {
             $user->is_online = false;
             $user->save();
         }
 
         Auth::logout();
-
-        // Dọn dẹp phiên
         session()->invalidate();
         session()->regenerateToken();
 

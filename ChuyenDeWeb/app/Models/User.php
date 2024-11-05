@@ -21,6 +21,7 @@ class User extends Authenticatable
         'is_online',
         'address', 
         'image',
+        'slug'
     ];
 
     protected $hidden = [

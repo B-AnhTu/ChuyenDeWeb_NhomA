@@ -16,6 +16,7 @@ class Category extends Model
     protected $fillable = [
         'category_name',
         'image', 
+        'slug',
     ];
 
     // Phương thức lấy tất cả category

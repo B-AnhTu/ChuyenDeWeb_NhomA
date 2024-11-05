@@ -49,7 +49,7 @@
                                                     <div class="latest-product__item__text">
                                                         <h6>{{ $product->product_name }}
                                                         </h6>
-                                                        <span>{{ number_format($product->price) }} vnđ</span>
+                                                        <span>{{ number_format($product->price) }} VNĐ</span>
                                                     </div>
                                                 </a>
                                             </div>
@@ -108,7 +108,7 @@
                                                     </h5>
                                                     <p><i class="fa-solid fa-eye px-1"></i>{{ $product->product_view }}</p>
                                                     <div class="product__item__price">{{ number_format($product->price) }}
-                                                        vnđ</div>
+                                                        VNĐ</div>
                                                 </div>
                                             </div>
                                         </div>
@@ -154,7 +154,7 @@
                                                     href="{{ url('/productDetail/' . $product->slug) }}">{{ $product->product_name }}</a>
                                             </h6>
                                             <p><i class="fa-solid fa-eye px-1"></i>{{ $product->product_view }}</p>
-                                            <h5>{{ number_format($product->price) }}</h5>
+                                            <h5>{{ number_format($product->price) }} VNĐ</h5>
                                         </div>
                                     </div>
                                 </div>
@@ -192,6 +192,10 @@
         var isFilterActive = false;
         var currentManufacturerId = null;
         let likedProductIds = @json($likedProductIds);
+        let searchState = {
+            manufacturerId: '',
+            keyword: ''
+        };
 
         $(document).ready(function() {
             // Hàm so sánh để sắp xếp sản phẩm
@@ -271,7 +275,10 @@
             $(document).on('click', '#pagination .page-link', function(e) {
                 e.preventDefault();
                 var page = $(this).data('page');
-                if (isFilterActive) {
+                if(searchState.keyword || searchState.manufacturerId) {
+                    searchProducts(searchState.manufacturerId, searchState.keyword, page);
+                }
+                else if (isFilterActive) {
                     fetchProductsByManufacturer(currentManufacturerId, page);
                 } else {
                     fetchNewestProducts(page);
@@ -318,7 +325,7 @@
 
             function fetchNewestProducts(page) {
                 $.ajax({
-                    url: '{{ route('products.index') }}',
+                    url: '{{ route('products.product') }}',
                     type: 'GET',
                     data: {
                         page: page
@@ -334,7 +341,7 @@
 
             function fetchProductsByManufacturer(manufacturerId, page) {
                 $.ajax({
-                    url: '/filterByManufacturer',
+                    url: '/filterByManufacturers',
                     type: 'GET',
                     data: {
                         manufacturer_id: manufacturerId,
@@ -385,17 +392,21 @@
                 const keyword = $('#search-input').val().trim();
 
                 if (manufacturerId || keyword) {
-                    searchProducts(manufacturerId, keyword);
+                    searchProducts(manufacturerId, keyword, 1);
                 }
             });
 
-            function searchProducts(manufacturerId, keyword) {
+            function searchProducts(manufacturerId, keyword, page = 1) {
+                // Lưu trạng thái tìm kiếm hiện tại
+                searchState.manufacturerId = manufacturerId;
+                searchState.keyword = keyword;
                 $.ajax({
-                    url: '/search',
+                    url: '/searchProduct',
                     type: 'GET',
                     data: {
                         manufacturer_id: manufacturerId,
-                        keyword: keyword
+                        keyword: keyword,
+                        page: page
                     },
                     success: function(response) {
                         updateProductList(response);

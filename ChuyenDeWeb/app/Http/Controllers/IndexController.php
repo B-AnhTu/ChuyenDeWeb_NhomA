@@ -6,6 +6,7 @@ use App\Models\Blog;
 use App\Models\Category;
 use App\Models\Manufacturer;
 use App\Models\Product;
+use App\Models\ProductLike;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -27,13 +28,13 @@ class IndexController extends Controller
 
         // Kiểm tra xem người dùng đã thích sản phẩm nào
         $likedProductIds = Auth::check()
-            ? Product::where('user_id', Auth::id())->pluck('product_id')->toArray()
+            ? ProductLike::where('user_id', Auth::id())->pluck('product_id')->toArray()
             : [];
 
         $posts = Blog::orderBy('created_at', 'desc')
             ->take(3)
             ->get();
-        return view('index', compact('products', 'manufacturers', 'categories', 'posts' , 'likedProductIds'));
+        return view('index', compact('products', 'manufacturers', 'categories', 'posts', 'likedProductIds'));
     }
 
 
@@ -62,22 +63,24 @@ class IndexController extends Controller
     // lọc sản phẩm theo loại sản phẩm
     public function filterByCategory(Request $request)
     {
-        // Kiểm tra xem category_id có được gửi từ request hay không
         if ($request->has('category_id')) {
             $products = Product::where('category_id', $request->category_id)
                 ->orderBy('created_at', 'desc')
-                ->paginate(8); // Phân trang với 8 sản phẩm một lần
+                ->paginate(8);
 
-            // Trả về JSON chứa sản phẩm và thông tin phân trang
             return response()->json([
-                'data' => $products->items(),  // Trả về danh sách sản phẩm
+                'data' => $products->items(),
                 'current_page' => $products->currentPage(),
-                'last_page' => $products->lastPage()
+                'last_page' => $products->lastPage(),
+                'total' => $products->total()
             ]);
         }
 
         return response()->json([
-            'data' => []  // Trả về mảng rỗng nếu không có sản phẩm
+            'data' => [],
+            'current_page' => 1,
+            'last_page' => 1,
+            'total' => 0
         ]);
     }
 
@@ -87,13 +90,45 @@ class IndexController extends Controller
     {
         $query = Product::query();
 
+        // Xử lý tìm kiếm full-text
+        if ($request->has('keyword') && $request->keyword) {
+            $searchTerm = $request->keyword;
+
+            // Chuẩn bị từ khóa tìm kiếm
+            $searchWords = explode(' ', $searchTerm);
+            $searchWords = array_filter($searchWords, function ($word) {
+                return strlen($word) >= 2;
+            });
+
+            if (!empty($searchWords)) {
+                $searchQuery = '+' . implode('* +', $searchWords) . '*';
+
+                $query->whereRaw("MATCH(product_name, description) AGAINST(? IN BOOLEAN MODE)", [$searchQuery]);
+            }
+        }
+
+        // Lọc theo nhà sản xuất
         if ($request->has('manufacturer_id') && $request->manufacturer_id) {
             $query->where('manufacturer_id', $request->manufacturer_id);
         }
 
-        if ($request->has('keyword') && $request->keyword) {
-            $query->where('product_name', 'like', '%' . $request->keyword . '%');
-        }
+        // Sắp xếp kết quả theo độ phù hợp và thêm các thông tin liên quan
+        $query->select('product.*')
+            ->with(['category', 'manufacturer'])
+            ->when($request->has('keyword') && $request->keyword, function ($q) use ($request) {
+                $searchTerm = $request->keyword;
+                $searchWords = explode(' ', $searchTerm);
+                $searchWords = array_filter($searchWords, function ($word) {
+                    return strlen($word) >= 2;
+                });
+                if (!empty($searchWords)) {
+                    $searchQuery = '+' . implode('* +', $searchWords) . '*';
+                    $q->selectRaw("MATCH(product_name, description) AGAINST(? IN BOOLEAN MODE) as relevance", [$searchQuery]);
+                    $q->orderBy('relevance', 'desc');
+                }
+            })
+            ->orderBy('product_view', 'desc') // Sắp xếp thêm theo lượt xem
+            ->orderBy('sold_quantity', 'desc'); // Và theo số lượng đã bán
 
         $products = $query->paginate(8);
 
@@ -105,6 +140,7 @@ class IndexController extends Controller
                 'message' => $products->isEmpty() ? 'Không tìm thấy sản phẩm nào.' : null
             ]);
         }
+
         return view('index', compact('products', 'manufacturers'));
     }
 
@@ -176,5 +212,4 @@ class IndexController extends Controller
         // Trả về view chi tiết sản phẩm và truyền dữ liệu sản phẩm
         return view('productDetail', compact('product'));
     }
-
 }

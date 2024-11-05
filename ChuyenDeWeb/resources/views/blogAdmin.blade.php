@@ -15,6 +15,30 @@
                     {{ session('error') }}
                 </div>
             @endif
+            <div class="col-md-12 mt-3">
+                <div class="row mb-3 d-flex align-items-center">
+                    <div class="col-md-3">
+                        <form action="{{ route('sortBlogs') }}" method="get">
+                            <select class="form-control me-2" name="sort_by" onchange="this.form.submit()">
+                                <option value="" disabled selected>Sắp xếp theo</option>
+                                <option value="name_asc" {{ request('sort_by') == 'name_asc' ? 'selected' : '' }}>Tên (Từ A - Z)</option>
+                                <option value="name_desc" {{ request('sort_by') == 'name_desc' ? 'selected' : '' }}>Tên (Từ Z - A)</option>
+                                <option value="description_asc" {{ request('sort_by') == 'description_asc' ? 'selected' : '' }}>Mô tả (Từ A - Z)</option>
+                                <option value="description_desc" {{ request('sort_by') == 'description_desc' ? 'selected' : '' }}>Mô tả (Từ Z - A)</option>
+                                <option value="created_at_asc" {{ request('sort_by') == 'created_at_asc' ? 'selected' : '' }}>Ngày tạo (Tăng dần)</option>
+                                <option value="created_at_desc" {{ request('sort_by') == 'created_at_desc' ? 'selected' : '' }}>Ngày tạo (Giảm dần)</option>
+                            </select>
+                        </form>
+                    </div>
+                    <div class="col-md-6 mx-auto">
+                        <form class="d-flex" action="{{ route('searchBlogs') }}" method="GET">
+                            @csrf
+                            <input name="query" class="form-control me-2" type="text" placeholder="Search Blog" aria-label="Search">
+                            <button class="btn btn-outline-success" type="submit">Search</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
             <div class="col-md-12 d-flex justify-content-end my-3">
                 <a href="{{ route('blogAdmin.create') }}" class="btn btn-success">Create Blog</a>
             </div>
@@ -22,7 +46,7 @@
             <table class="table table-bordered table-striped">
                 <thead>
                     <tr>
-                        <th>ID</th>
+                        <th>#</th>
                         <th>Title</th>
                         <th>Short Description</th>
                         <th>Content</th>
@@ -33,15 +57,15 @@
                 <tbody>
                     @foreach ($data_blog as $blog)
                     <tr>
-                        <td>{{ $blog->blog_id }}</td>
+                        <td>{{ $loop->iteration + ($data_blog->currentPage() - 1) * $data_blog->perPage() }}</td> <!-- Sequential number -->
                         <td>{{ $blog->title }}</td>
                         <td>{{ Str::limit($blog->short_description, 15) }}</td>
                         <td>{{ Str::limit($blog->content, 20) }}</td>
                         <td>{{ $blog->user ? $blog->user->fullname : 'Unknown Author' }}</td>
                         <td>
-                            <a href="{{ route('blogAdmin.show', $blog->blog_id) }}" class="btn btn-info"><i class="fas fa-eye"></i></a>
-                            <a href="{{ route('blogAdmin.edit', $blog->blog_id) }}" class="btn btn-primary"><i class="fas fa-pencil-alt"></i></a>
-                            <form action="{{ route('blogAdmin.delete', $blog->blog_id) }}" method="POST">
+                            <a href="{{ route('blogAdmin.show', $blog->slug) }}" class="btn btn-info"><i class="fas fa-eye"></i></a>
+                            <a href="{{ route('blogAdmin.edit', $blog->slug) }}" class="btn btn-primary"><i class="fas fa-pencil-alt"></i></a>
+                            <form action="{{ route('blogAdmin.delete', $blog->slug) }}" method="POST">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" class="btn btn-danger"><i class="fas fa-trash"></i></button>

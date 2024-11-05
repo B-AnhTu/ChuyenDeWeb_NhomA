@@ -78,31 +78,42 @@
                         </ul>
                     </div>
                 </li>
-                <li class="nav-section">
+                <!--<li class="nav-section">
                     <span class="sidebar-mini-icon">
                         <i class="fa fa-ellipsis-h"></i>
                     </span>
                     <h4 class="text-section">Components</h4>
-                </li>
-                <li class="nav-item">
+                </li> -->
+
+                 <li class="nav-item">
                     <a data-bs-toggle="collapse" href="#base">
                         <i class="fas fa-layer-group"></i>
-                        <p>Base</p>
+                        <p>Comments</p>
                         <span class="caret"></span>
                     </a>
                     <div class="collapse" id="base">
                         <ul class="nav nav-collapse">
                             <li>
-                                <a href="{{ asset('admin/components/avatars.html') }}">
-                                    <span class="sub-item">Avatars</span>
+                                <a href="{{ route('comments.manage') }}">
+                                    <span class="sub-item">Comments Management</span>
                                 </a>
                             </li>
                             <li>
-                                <a href="{{ asset('admin/components/buttons.html') }}">
-                                    <span class="sub-item">Buttons</span>
+                                <a href="{{ route('comments.unapproved') }}">
+                                    <span class="sub-item">Unapproved Comments</span>
                                 </a>
                             </li>
                             <li>
+                                <a href="{{ route('reviews.approved') }}">
+                                    <span class="sub-item">Review Management</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{{ route('reviews.pending') }}">
+                                    <span class="sub-item">Unapproved Review</span>
+                                </a>
+                            </li>
+                            <!-- <li>
                                 <a href="{{ asset('admin/components/gridsystem.html') }}">
                                     <span class="sub-item">Grid System</span>
                                 </a>
@@ -136,11 +147,11 @@
                                 <a href="{{ asset('admin/components/typography.html') }}">
                                     <span class="sub-item">Typography</span>
                                 </a>
-                            </li>
+                            </li> -->
                         </ul>
                     </div>
                 </li>
-                <li class="nav-item">
+                <!--<li class="nav-item">
                     <a data-bs-toggle="collapse" href="#sidebarLayouts">
                         <i class="fas fa-th-list"></i>
                         <p>Sidebar Layouts</p>
@@ -297,7 +308,7 @@
                             </li>
                         </ul>
                     </div>
-                </li>
+                </li> -->
             </ul>
         </div>
     </div>

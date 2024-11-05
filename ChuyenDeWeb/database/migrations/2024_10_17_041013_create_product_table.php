@@ -28,6 +28,10 @@ return new class extends Migration
             $table->foreign('manufacturer_id')->references('manufacturer_id')->on('manufacturer');
             $table->string('slug')->unique();
             $table->timestamps();
+
+
+            // Thêm fulltext index sau khi đã định nghĩa các cột
+            $table->fullText(['product_name', 'description']);
         });
     }
 
@@ -39,6 +43,7 @@ return new class extends Migration
         Schema::table('product', function (Blueprint $table) {
             $table->dropForeign(['category_id']);
             $table->dropForeign(['manufacturer_id']);
+            $table->dropFullText(['product_name', 'description']);
             $table->dropColumn('slug');
         });
         Schema::dropIfExists('product');

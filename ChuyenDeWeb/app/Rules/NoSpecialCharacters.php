@@ -15,8 +15,8 @@ class NoSpecialCharacters implements Rule
      */
     public function passes($attribute, $value)
     {
-        // Kiểm tra xem chuỗi có chứa ký tự đặc biệt không
-        return !preg_match('/[^a-zA-Z0-9\s]/', $value);
+        // Kiểm tra xem chuỗi có chỉ chứa chữ cái tiếng Việt, chữ số và một khoảng trắng không
+        return preg_match('/^[\p{L}\d\s]+$/u', $value);
     }
 
     /**

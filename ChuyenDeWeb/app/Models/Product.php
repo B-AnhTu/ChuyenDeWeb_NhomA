@@ -32,7 +32,7 @@ class Product extends Model
         $this->attributes['product_name'] = $value;
         $this->attributes['slug'] = Str::slug($value);
     }
-    
+
 
     // Quan hệ với bảng Category
     public function category()
@@ -58,4 +58,12 @@ class Product extends Model
         return $this->hasMany(ProductLike::class, 'product_id');
     }
 
+    public function reviews()
+    {
+        return $this->hasMany(ProductReview::class, 'product_id');
+    }
+    public function carts()
+    {
+        return $this->hasMany(Cart::class, 'product_id');
+    }
 }
