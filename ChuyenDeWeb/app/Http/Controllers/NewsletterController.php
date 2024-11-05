@@ -2,86 +2,111 @@
 
 namespace App\Http\Controllers;
 
-use App\Mail\NewsletterMail;
-use App\Mail\NewsletterNotification;
-use App\Mail\NewsletterVerification;
-use App\Mail\SubscriptionConfirmation;
-use App\Models\Subscriber;
+use App\Mail\NewsletterWelcome;
+use App\Models\NewsletterSubscriber;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Log;
 
 class NewsletterController extends Controller
 {
     public function subscribe(Request $request)
     {
-        $request->validate([
-            'email' => 'required|email|unique:subscribers,email',
-            'name' => 'nullable|string|max:255'
+        Log::info('Newsletter subscription request received', [
+            'email' => $request->email,
+            'name' => $request->name
         ]);
 
         try {
-            $subscriber = Subscriber::create([
-                'email' => $request->email,
+            $validator = Validator::make($request->all(), [
+                'email' => 'required|email|unique:newsletter_subscribers,email',
+                'name' => 'nullable|string|max:255',
+            ], [
+                'email.required' => 'Vui lòng nhập email của bạn.',
+                'email.email' => 'Email không đúng định dạng.',
+                'email.unique' => 'Email này đã được đăng ký.',
+                'name.string' => 'Tên không hợp lệ.',
+                'name.max' => 'Tên không được vượt quá 255 ký tự.'
+            ]);
+
+            if ($validator->fails()) {
+                Log::warning('Newsletter validation failed', [
+                    'errors' => $validator->errors()->toArray()
+                ]);
+                return response()->json([
+                    'status' => 'error',
+                    'message' => $validator->errors()->first()
+                ], 422);
+            }
+
+            // Lưu subscriber vào database
+            $subscriber = NewsletterSubscriber::create([
                 'name' => $request->name,
-                'verification_token' => Str::random(32),
-                'is_active' => false
+                'email' => $request->email,
+                'is_active' => true
             ]);
 
-            // Gửi email xác nhận
-            $verificationUrl = route('newsletter.verify', [
-                'token' => $subscriber->verification_token
-            ]);
+            Log::info('Subscriber created successfully', ['id' => $subscriber->id]);
 
-            Mail::to($subscriber->email)
-                ->queue(new NewsletterVerification($subscriber, $verificationUrl));
+            // Gửi email trong try-catch riêng
+            try {
+                Log::info('Attempting to send welcome email', [
+                    'to' => $request->email,
+                    'name' => $request->name
+                ]);
 
-            return response()->json([
-                'status' => 'success',
-                'message' => 'Vui lòng kiểm tra email để xác nhận đăng ký!'
-            ]);
+                Mail::to($request->email)
+                    ->send(new NewsletterWelcome($request->name, $request->email));
+
+                Log::info('Welcome email sent successfully');
+
+                return response()->json([
+                    'status' => 'success',
+                    'message' => 'Cảm ơn bạn đã đăng ký nhận bản tin! Vui lòng kiểm tra email của bạn.'
+                ]);
+            } catch (\Exception $mailError) {
+                Log::error('Error sending welcome email', [
+                    'error' => $mailError->getMessage(),
+                    'trace' => $mailError->getTraceAsString()
+                ]);
+
+                // Vẫn trả về success vì đã lưu được vào database
+                return response()->json([
+                    'status' => 'partial_success',
+                    'message' => 'Đăng ký thành công! Tuy nhiên có lỗi khi gửi email xác nhận.'
+                ]);
+            }
         } catch (\Exception $e) {
+            Log::error('Newsletter subscription error', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
             return response()->json([
                 'status' => 'error',
-                'message' => 'Có lỗi xảy ra, vui lòng thử lại sau.'
+                'message' => 'Có lỗi xảy ra khi xử lý yêu cầu của bạn.'
             ], 500);
         }
     }
 
-    public function verify($token)
-    {
-        $subscriber = Subscriber::where('verification_token', $token)->first();
+    // // Thêm route test riêng trong controller
+    // public function testMail()
+    // {
+    //     try {
+    //         $testEmail = 'mypyker@gmail.com'; // Email test của bạn
 
-        if (!$subscriber) {
-            return redirect('/')->with('error', 'Link xác nhận không hợp lệ.');
-        }
+    //         Log::info('Testing mail sending to: ' . $testEmail);
 
-        $subscriber->update([
-            'verified_at' => now(),
-            'verification_token' => null,
-            'is_active' => true
-        ]);
+    //         Mail::to($testEmail)
+    //             ->send(new NewsletterWelcome('Test User', $testEmail));
 
-        return redirect('/')->with('success', 'Xác nhận đăng ký thành công!');
-    }
+    //         Log::info('Test email sent successfully');
 
-    public function sendNotification(Request $request)
-    {
-        $request->validate([
-            'subject' => 'required|string',
-            'content' => 'required|string'
-        ]);
-
-        $subscribers = Subscriber::where('is_active', true)->get();
-
-        foreach ($subscribers as $subscriber) {
-            Mail::to($subscriber->email)
-                ->queue(new NewsletterNotification($request->content));
-        }
-
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Đã gửi thông báo thành công!'
-        ]);
-    }
+    //         return 'Email sent successfully! Please check your inbox and spam folder.';
+    //     } catch (\Exception $e) {
+    //         Log::error('Test mail error: ' . $e->getMessage());
+    //         return 'Error sending email: ' . $e->getMessage();
+    //     }
+    // }
 }
