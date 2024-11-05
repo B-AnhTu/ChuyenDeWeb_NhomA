@@ -98,7 +98,7 @@ return [
     */
 
     'from' => [
-        'address' => 'mypyker@gmail.com',
+        'address' => '22211tt3673@mail.tdc.edu.vn',
         'name' => 'Web bán hàng',
     ],
 

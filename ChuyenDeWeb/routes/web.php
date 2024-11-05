@@ -19,6 +19,7 @@ use App\Http\Controllers\CartProductController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\BlogCommentController;
 use App\Http\Controllers\CheckoutController;
+use App\Http\Controllers\ContactController;
 use App\Http\Controllers\IndexController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ProductReviewController;
@@ -123,6 +124,7 @@ Route::middleware(['auth'])->group(function () {
 // routes/web.php
 
 Route::post('/newsletter/subscribe', [NewsletterController::class, 'subscribe']);
+Route::post('/send-contact', [ContactController::class, 'sendMail'])->name('send.contact');
 
 // Admin routes
 Route::middleware(['auth', 'admin'])->group(function () {
