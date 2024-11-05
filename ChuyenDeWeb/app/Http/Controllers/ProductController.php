@@ -402,9 +402,10 @@ class ProductController extends Controller
 
         return view('productAdmin', compact('products'));
     }
-    
-    public function searchProducts(Request $request)
-    {
+
+	
+    public function searchProducts(Request $request) {
+
         $query = $request->input('query');
 
         // Tìm kiếm theo thứ tự ưu tiên: product_name trước, sau đó là description
