@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Order;
 use App\Models\OrderDetail;
 use App\Models\Cart;
+use App\Rules\NoSpace;
+use App\Rules\NoSpecialCharacters;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
@@ -37,7 +39,7 @@ class CheckoutController extends Controller
         $validated = $request->validate([
             'shipping_name' => 'required|string|max:255',
             'shipping_email' => 'required|email',
-            'shipping_phone' => 'required|string|max:20',
+            'shipping_phone' => ['required', 'digits:10', 'regex:/^0[0-9]{9}$/', new NoSpecialCharacters, new NoSpace],
             'shipping_address' => 'required|string',
             'payment_method' => 'required|in:cod,banking',
             'note' => 'nullable|string'
