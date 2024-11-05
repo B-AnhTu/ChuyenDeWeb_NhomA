@@ -401,8 +401,8 @@ class ProductController extends Controller
         $products = $query->paginate(5); // Phân trang
 
         return view('productAdmin', compact('products'));
-    	}
-	}
+    }
+	
     public function searchProducts(Request $request) {
         $query = $request->input('query');
 
