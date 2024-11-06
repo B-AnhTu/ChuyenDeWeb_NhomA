@@ -135,7 +135,7 @@ Route::middleware(['auth', 'admin'])->group(function () {
 Route::group(['middleware' => 'role:admin,editor'], function () {
     // Route for admin dashboard
     Route::get('/adminPage', [UserController::class, 'listRole'])->name('admin.index');
-    Route::put('/userAdmin/{slug}/update-permissions', [UserController::class, 'updatePermissions'])->name('userAdmin.updatePermissions');
+    Route::put('/userAdmin/{slug}/update-permissions', [AdminDashboardController::class, 'updatePermissions'])->name('userAdmin.updatePermissions');
 
     //route manufacturer
     Route::get('/manufacturerAdmin', [ManufacturerController::class, 'index'])->name('manufacturer.index');

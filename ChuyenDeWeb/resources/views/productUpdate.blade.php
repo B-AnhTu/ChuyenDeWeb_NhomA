@@ -4,7 +4,7 @@
     <div class="container">
         <div class="row justify-content-center">
             <div class="col-md-12">
-                <h2 class="text-center">Create Product</h2>
+                <h2 class="text-center">Update Product</h2>
                 @if ($errors->any())
                     <div class="alert alert-danger">
                         <ul>
