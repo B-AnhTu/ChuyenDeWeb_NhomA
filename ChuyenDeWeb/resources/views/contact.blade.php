@@ -101,4 +101,5 @@
         </div>
     </div>
     <!-- Contact Form End -->
+    <script src="{{ asset('js/send-email.js') }}"></script>
 @endsection
