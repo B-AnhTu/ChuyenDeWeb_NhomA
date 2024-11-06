@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
+
 
 class ProfileUserController extends Controller
 {
@@ -45,6 +47,7 @@ class ProfileUserController extends Controller
         $user->fullname = $request->fullname;
         $user->email = $request->email;
         $user->phone = $request->phone;
+        $user->slug = Str::slug($request->fullname);
         $user->address = $request->address;
 
         // Lưu thay đổi
