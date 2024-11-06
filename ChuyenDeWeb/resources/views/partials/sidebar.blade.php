@@ -42,7 +42,7 @@
                         <ul class="nav nav-collapse">
                             <li>
                                 <a href="{{ route('admin.index') }}">
-                                    <span class="sub-item">Role Management</span>
+                                    <span class="sub-item">Manage User Permissions</span>
                                 </a>
                             </li>
                             <li>
@@ -113,41 +113,7 @@
                                     <span class="sub-item">Unapproved Review</span>
                                 </a>
                             </li>
-                            <!-- <li>
-                                <a href="{{ asset('admin/components/gridsystem.html') }}">
-                                    <span class="sub-item">Grid System</span>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="{{ asset('admin/components/panels.html') }}">
-                                    <span class="sub-item">Panels</span>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="{{ asset('admin/components/notifications.html') }}">
-                                    <span class="sub-item">Notifications</span>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="{{ asset('admin/components/sweetalert.html') }}">
-                                    <span class="sub-item">Sweet Alert</span>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="{{ asset('admin/components/font-awesome-icons.html') }}">
-                                    <span class="sub-item">Font Awesome Icons</span>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="{{ asset('admin/components/simple-line-icons.html') }}">
-                                    <span class="sub-item">Simple Line Icons</span>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="{{ asset('admin/components/typography.html') }}">
-                                    <span class="sub-item">Typography</span>
-                                </a>
-                            </li> -->
+                            
                         </ul>
                     </div>
                 </li>

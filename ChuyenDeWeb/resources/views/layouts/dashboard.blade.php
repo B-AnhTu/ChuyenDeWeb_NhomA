@@ -27,11 +27,14 @@
 
             <!-- Main Content -->
             @yield('content')
+
+            <!-- Footer -->
+            @include('partials.footer')
         </div>
     </div>
-
+    
     <!-- Import JS -->
-     <!-- Fonts and icons -->
+    <!-- Fonts and icons -->
     <script src="{{ asset('admin/assets/js/plugin/webfont/webfont.min.js') }}"></script>
     <script>
         WebFont.load({

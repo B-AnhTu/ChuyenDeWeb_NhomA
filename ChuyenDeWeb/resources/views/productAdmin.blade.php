@@ -44,11 +44,12 @@
                             <button class="btn btn-outline-success" type="submit">Search</button>
                         </form>
                     </div>
+                    <div class="col-md-3 d-flex justify-content-end">
+                        <a href="{{ route('product.create') }}" class="btn btn-primary my-3">Add Product</a>
+                    </div>
                 </div>
             </div>
-            <div class="col-md-12 d-flex justify-content-end">
-                <a href="{{ route('product.create') }}" class="btn btn-primary my-3">Add Product</a>
-            </div>
+
             <div class="col-md-12 justify-content-center mx-auto">
                 <table class="table table-bordered table-striped">
                     <thead>
@@ -75,7 +76,7 @@
                                 <td>{{ Str::limit($product->description, 10) }}</td>
                                 <td>{{ $product->sold_quantity }}</td>
                                 <td><img src="{{ asset('img/products/' . $product->image) }}"
-                                        alt="{{ $product->product_name }}" width="50"></td>
+                                        alt="{{ $product->product_name }}" width="100"></td>
                                 <td>
                                     <!-- Add action buttons here -->
                                     <a href="{{ route('product.show', $product->slug) }}"
