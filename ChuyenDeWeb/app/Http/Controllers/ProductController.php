@@ -225,6 +225,7 @@ class ProductController extends Controller
 
         $data = $request->all();
 
+        //Tạo slug từ tên sản phẩm
         $data['slug'] = $this->slugify($data['product_name']); // Sử dụng hàm slugify để tạo slug
 
         if ($request->hasFile('image')) {
@@ -315,7 +316,7 @@ class ProductController extends Controller
             $product->image = $filename;
         }
 
-        // Update other fields
+        // Cập nhật các trường dữ liệu của product
         $product->product_name = $request->input('product_name');
         $product->price = $request->input('price');
         $product->description = $request->input('description');
@@ -349,6 +350,7 @@ class ProductController extends Controller
             return redirect()->route('product.index')->with('error', 'Xóa sản phẩm không thành công.');
         }
     }
+    // Sắp xếp theo tên, ngày cập nhật
     public function sortProducts(Request $request)
     {
         $query = Product::query();
@@ -403,7 +405,7 @@ class ProductController extends Controller
         return view('productAdmin', compact('products'));
     }
 
-	
+	// Tìm kiếm sản phẩm theo tên, chi tiết
     public function searchProducts(Request $request) {
 
         $query = $request->input('query');
@@ -416,7 +418,7 @@ class ProductController extends Controller
 
         return view('productAdmin', compact('products'));
     }
-    // Hàm để tạo slug từ title
+    // Hàm để tạo slug
     private function slugify($text)
     {
         // Chuyển đổi ký tự có dấu thành không dấu

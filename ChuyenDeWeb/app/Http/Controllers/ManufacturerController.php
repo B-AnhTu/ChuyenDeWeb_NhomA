@@ -10,12 +10,6 @@ use App\Rules\SingleSpaceOnly;
 
 class ManufacturerController extends Controller
 {
-    // public function __construct(){
-    //     $this->middleware('auth');
-    // }
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
         $manufacturers = Manufacturer::paginate(5);
@@ -23,11 +17,11 @@ class ManufacturerController extends Controller
     }
 
     /**
-     * Show the form for creating a new resource.
+     * Hiển thị trang thêm nhà sản xuất
      */
     public function create()
     {
-        //Chuyển đến trang thêm nhà sản xuất
+        // Chuyển đến trang thêm nhà sản xuất
         return view('manufacturerCreate');
     }
 
@@ -49,7 +43,7 @@ class ManufacturerController extends Controller
 
         $data = $request->all();
 
-        // Tạo slug từ title
+        // Tạo slug từ tên nhà sản xuất
         $data['slug'] = $this->slugify($data['manufacturer_name']); // Sử dụng hàm slugify để tạo slug
 
         if ($request->hasFile('image')) {
@@ -72,7 +66,7 @@ class ManufacturerController extends Controller
     }
     
     /**
-     * Display the specified resource.
+     * Hiển thị trang chi tiết nhà sản xuất
      */
     public function show($slug)
     {
@@ -84,7 +78,7 @@ class ManufacturerController extends Controller
     }
 
     /**
-     * Show the form for editing the specified resource.
+     * Hiển thị trang cập nhật
      */
     public function edit($slug)
     {
@@ -100,7 +94,7 @@ class ManufacturerController extends Controller
     }
 
     /**
-     * Update the specified resource in storage.
+     * Cập nhật nhà sản xuất
      */
     public function update(Request $request, $slug)
     {
@@ -145,10 +139,8 @@ class ManufacturerController extends Controller
      */
     public function destroy($slug)
     {
-        // $slug = $request->get('s$slug');
-
-        // Kiểm tra xem nhà sản xuất có tồn tại không
         $manufacturer = Manufacturer::where('slug', $slug)->first();
+        // Kiểm tra xem nhà sản xuất có tồn tại không
         if (!$manufacturer) {
             return redirect()->route('manufacturer.index')->with('error', 'Nhà sản xuất không tồn tại.');
         }
@@ -165,7 +157,7 @@ class ManufacturerController extends Controller
             return redirect()->route('manufacturer.index')->with('error', 'Xóa nhà sản xuất không thành công.');
         }
     }
-    // Sắp xếp theo tên, ngày cập nhật (quan ly user)
+    // Sắp xếp theo tên, ngày cập nhật
     public function sortManufacturers(Request $request)
     {
         $query = Manufacturer::query();
@@ -195,15 +187,15 @@ class ManufacturerController extends Controller
 
         return view('manufacturerAdmin', compact('manufacturers'));
     }
+    // Tìm kiếm nhà sản xuất theo tên
     public function searchManufacturers(Request $request){
         $query = $request->input('query');
 
-        // Tìm kiếm bằng Full Text
         $manufacturers = Manufacturer::where('manufacturer_name', 'like', '%' . $query . '%')->paginate(5);
 
         return view('manufacturerAdmin', compact('manufacturers'));
     }
-    // Hàm để tạo slug từ title
+    // Hàm để tạo slug
     private function slugify($text)
     {
         // Chuyển đổi ký tự có dấu thành không dấu

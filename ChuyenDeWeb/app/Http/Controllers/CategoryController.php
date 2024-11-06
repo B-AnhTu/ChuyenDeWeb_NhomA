@@ -24,7 +24,7 @@ class CategoryController extends Controller
     }
 
     /**
-     * Show the form for creating a new resource.
+     * Hiển thị trang tạo danh mục
      */
     public function create()
     {
@@ -32,7 +32,7 @@ class CategoryController extends Controller
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Tạo danh mục mới
      */
     public function store(Request $request)
     {
@@ -71,7 +71,7 @@ class CategoryController extends Controller
     }
 
     /**
-     * Display the specified resource.
+     * Hiển thị chi tiết danh mục
      */
     public function show($slug)
     {
@@ -84,7 +84,7 @@ class CategoryController extends Controller
     }
 
     /**
-     * Show the form for editing the specified resource.
+     * Hiển thị form cập nhật
      */
     public function edit($slug)
     {
@@ -99,7 +99,7 @@ class CategoryController extends Controller
     }
 
     /**
-     * Update the specified resource in storage.
+     * Cập nhật danh mục
      */
     public function update(Request $request, $slug)
     {
@@ -141,7 +141,7 @@ class CategoryController extends Controller
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Xóa 1 danh mục khỏi database
      */
     public function destroy($slug)
     {
@@ -163,7 +163,7 @@ class CategoryController extends Controller
             return redirect()->route('category.index')->with('error', 'Xóa danh mục không thành công.');
         }
     }
-    // Sắp xếp theo tên, ngày cập nhật (quan ly user)
+    // Sắp xếp theo tên, ngày cập nhật
     public function sortCategories(Request $request)
     {
         $query = Category::query();
@@ -193,7 +193,7 @@ class CategoryController extends Controller
 
         return view('categoryAdmin', compact('categories'));
     }
-    // Tìm kiếm 
+    // Tìm kiếm danh mục theo tên
     public function searchCategories(Request $request)
     {
         $query = $request->input('query');
@@ -203,7 +203,7 @@ class CategoryController extends Controller
 
         return view('categoryAdmin', compact('categories'));
     }
-    // Hàm để tạo slug từ title
+    // Hàm để tạo slug
     private function slugify($text)
     {
         // Chuyển đổi ký tự có dấu thành không dấu
