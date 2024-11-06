@@ -70,7 +70,7 @@ class UserController extends Controller
 
         $data = $request->all();
 
-        // Tạo slug từ title
+        // Tạo slug từ fullname
         $data['slug'] = $this->slugify($data['fullname']); // Sử dụng hàm slugify để tạo slug
 
         if ($request->hasFile('image')) {
