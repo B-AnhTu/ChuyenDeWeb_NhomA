@@ -24,13 +24,21 @@
                     </select>
                 </form>
             </div>
-            <div class="col-md-6 mx-auto">
+            <div class="col-md-6 mx-center">
                 <form class="d-flex" action="{{ route('searchPage') }}" method="GET">
                     @csrf
                     <input name="query" class="form-control me-2" type="text" placeholder="Search" aria-label="Search">
                     <button class="btn btn-outline-success" type="submit">Search</button>
                 </form>
             </div>
+            <div class="col-md-3 d-flex justify-content-end">
+                <a href="{{ route('userAdmin.create') }}" class="btn btn-primary">Add User</a>
+            </div>
+        </div>
+        <div class="col-md-12">
+            <div class="col ">
+            </div>
+
         </div>
     </div>
     <div id="alert-container" class="my-3"></div> <!-- Container for alerts -->
@@ -42,6 +50,7 @@
                 <th>Email</th>
                 <th>Image</th>
                 <th>Role</th>
+                <th>Action</th>
             </tr>
         </thead>
         <tbody>
@@ -71,6 +80,19 @@
                             <button onclick="return confirm('Bạn có chắc chắn muốn cập nhật quyền hạn cho người dùng này?')"
                                 type="submit" class="btn btn-primary update-permissions"
                                 data-user-id="{{ $user->user_id }}">Update</button>
+                        </form>
+                    </td>
+                    <td>
+                        <!-- Add action buttons here -->
+                        <a href="{{ route('userAdmin.show', $user->slug) }}" class="btn btn-primary"><i
+                                class="fas fa-eye"></i></a>
+                        <a href="{{ route('userAdmin.edit', $user->slug) }}" class="btn btn-primary"><i
+                                class="fas fa-pencil-alt"></i></a>
+                        <form action="{{ route('userAdmin.delete', $user->slug) }}" method="POST" style="display:inline;">
+                            @csrf
+                            @method('DELETE')
+                            <button onclick="return confirm('Are you sure you want to delete this user?')" type="submit"
+                                class="btn btn-danger"><i class="fas fa-trash"></i></button>
                         </form>
                     </td>
                 </tr>

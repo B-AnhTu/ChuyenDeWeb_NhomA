@@ -244,14 +244,14 @@ class UserController extends Controller
         } elseif ($currentUserRole == 'editor') {
             // Kiểm tra xem nếu người dùng tự đổi quyền của bản thân là admin
             if ($user->role == 'admin') {
-                return response()->json(['success' => false, 'message' => 'Bạn không thể thay đổi cài đặt hệ thống.']);
+                return response()->json(['success' => false, 'message' => 'Bạn không thể thay đổi quyền của quản trị viên.']);
             }
             // Kiểm tra xem vai trò mới của người dùng có hợp lệ không
             if ($newRoleLevel <= $targetUserRoleLevel + 1 && $newRoleLevel <= $currentUserRoleLevel) {
                 $user->role = $request->input('role');
                 $user->permission = $defaultPermissions[$user->role];
             } else {
-                return response()->json(['success' => false, 'message' => 'Bạn không thể thay đổi quyền của người dùng có cấp độ quyền cao hơn bạn.']);
+                return response()->json(['success' => false, 'message' => 'Bạn không thể thay đổi vai trò của người dùng có quyền cao hơn bản thân.']);
             }
         } else {
             return response()->json(['success' => false, 'message' => 'Bạn không có quyền cập nhật quyền hạn của người dùng.']);
