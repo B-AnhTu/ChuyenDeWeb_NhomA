@@ -15,7 +15,7 @@
                     {{ session('error') }}
                 </div>
             @endif
-            <div class="col-md-12 mt-3">
+            <div class="col-md-12 my-3">
                 <div class="row mb-3 d-flex align-items-center">
                     <div class="col-md-3">
                         <form action="{{ route('sortBlogs') }}" method="get">
@@ -37,17 +37,19 @@
                             <button class="btn btn-outline-success" type="submit">Search</button>
                         </form>
                     </div>
+                    <div class="col-md-3 d-flex justify-content-end">
+                        <a href="{{ route('blogAdmin.create') }}" class="btn btn-primary">Create Blog</a>
+                    </div>
                 </div>
             </div>
-            <div class="col-md-12 d-flex justify-content-end my-3">
-                <a href="{{ route('blogAdmin.create') }}" class="btn btn-success">Create Blog</a>
-            </div>
+            
             <div class="col-md-12 justify-content-center mx-auto">
             <table class="table table-bordered table-striped">
                 <thead>
                     <tr>
                         <th>#</th>
                         <th>Title</th>
+                        <th>Image</th>
                         <th>Short Description</th>
                         <th>Content</th>
                         <th>Author</th>
@@ -59,6 +61,8 @@
                     <tr>
                         <td>{{ $loop->iteration + ($data_blog->currentPage() - 1) * $data_blog->perPage() }}</td> <!-- Sequential number -->
                         <td>{{ $blog->title }}</td>
+                        <td><img src="{{ asset('img/blog/'. $blog->image) }}"
+                                        alt="{{ $blog->title }}" width="100"></td>
                         <td>{{ Str::limit($blog->short_description, 15) }}</td>
                         <td>{{ Str::limit($blog->content, 20) }}</td>
                         <td>{{ $blog->user ? $blog->user->fullname : 'Unknown Author' }}</td>

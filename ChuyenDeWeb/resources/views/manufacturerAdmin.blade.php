@@ -35,10 +35,10 @@
                             <button class="btn btn-outline-success" type="submit">Search</button>
                         </form>
                     </div>
+                    <div class="col-md-3 d-flex justify-content-end">
+                        <a href="{{ route('manufacturer.create') }}" class="btn btn-primary my-3">Add Manufacturer</a>
+                    </div>
                 </div>
-            </div>
-            <div class="col-md-12 d-flex justify-content-end">
-                <a href="{{ route('manufacturer.create') }}" class="btn btn-primary my-3">Add Manufacturer</a>
             </div>
             <div class="col-md-12 justify-content-center mx-auto">
                 <table class="table table-bordered table-striped">
@@ -56,7 +56,7 @@
                                 <td>{{ $loop->iteration + ($manufacturers->currentPage() - 1) * $manufacturers->perPage() }}</td> <!-- Sequential number -->
                                 <td>{{ $manufacturer->manufacturer_name }}</td>
                                 <td><img src="{{ asset('img/manufacturer/' . $manufacturer->image) }}"
-                                        alt="{{ $manufacturer->manufacturer_name }}" width="50"></td>
+                                        alt="{{ $manufacturer->manufacturer_name }}" width="100"></td>
                                 <td>
                                     <!-- Add action buttons here -->
                                     <a href="{{ route('manufacturer.show', $manufacturer->slug) }}"

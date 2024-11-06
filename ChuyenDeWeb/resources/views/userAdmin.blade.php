@@ -74,7 +74,7 @@
                                 <td>{{ $user->email }}</td>
                                 <td>{{ $user->phone }}</td>
                                 <td><img src="{{ asset('img/profile-picture/' . $user->image) }}"
-                                        alt="{{ $user->fullname }}" width="50"></td>
+                                        alt="{{ $user->fullname }}" width="100"></td>
                                 <td>
                                     <!-- Add action buttons here -->
                                     <a href="{{ route('userAdmin.show', $user->slug) }}"
