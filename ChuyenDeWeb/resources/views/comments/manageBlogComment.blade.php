@@ -37,7 +37,7 @@
                                 <td>
                                     <form action="{{ route('comments.disapprove', $comment->comment_id) }}" method="POST" style="display:inline;">
                                         @csrf
-                                        <button type="submit" class="btn btn-warning">Disapprove</button>
+                                        <button type="submit" class="btn btn-warning">Bỏ duyệt</button>
                                     </form>
                                     <form action="{{ route('comments.destroy', $comment->comment_id) }}" method="POST" style="display:inline;">
                                         @csrf

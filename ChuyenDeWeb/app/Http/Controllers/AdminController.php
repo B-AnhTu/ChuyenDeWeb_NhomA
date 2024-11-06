@@ -30,7 +30,7 @@ class AdminController extends Controller
 
         return redirect()->back()->with('success', 'Cập nhật thông tin cá nhân thành công!');
     }
-
+    // Cập nhật hình ảnh trang profile
     public function uploadProfileImage(Request $request)
     {
         $request->validate([

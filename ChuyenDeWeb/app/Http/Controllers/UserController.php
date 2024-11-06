@@ -96,7 +96,7 @@ class UserController extends Controller
     }
 
     /**
-     * Display the specified resource.
+     * Hiển thị chi tiết user
      */
     public function show(Request $request, $slug)
     {
@@ -108,11 +108,11 @@ class UserController extends Controller
     }
 
     /**
-     * Show the form for editing the specified resource.
+     * Form cập nhật user
      */
     public function edit(Request $request, $slug)
     {
-        $user = User::where('slug', $slug);
+        $user = User::where('slug', $slug)->first();
         if (!$user) {
             return redirect()->route('userAdmin.index')->with('error', 'Người dùng không tồn tại');
         }
@@ -120,7 +120,7 @@ class UserController extends Controller
     }
 
     /**
-     * Update the specified resource in storage.
+     * Cập nhật user
      */
     public function update(Request $request, $slug)
     {
@@ -180,13 +180,24 @@ class UserController extends Controller
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Xóa dữ liệu user
      */
     public function destroy($slug)
     {
         $user = User::where('slug', $slug)->first();
+
+        // Kiểm tra nếu người dùng không tồn tại
         if(!$user) {
             return redirect()->route('userAdmin.index')->with('error', 'Người dùng không tồn tại');
+        }
+        $currentUser = auth()->user();
+
+        // Kiểm tra quyền xóa dựa trên vai trò
+        if ($currentUser->role === 'editor') {
+            // Editor có thể xóa người dùng user và editor nhưng không được phép xóa người dùng admin
+            if ($user->role === 'admin' || $user->role === 'editor' && $user->id !== $currentUser->id) {
+                return redirect()->route('userAdmin.index')->with('error', 'Bạn không có quyền xóa người dùng này');
+            }
         }
         // Delete image if exists
         if ($user->image && file_exists(public_path('img/profile-picture/' . $user->image))) {
@@ -206,61 +217,7 @@ class UserController extends Controller
         $users = User::paginate(5);
         return view('adminPage', compact('users'));
     }
-    // Cập nhật quyền hạn user
-    public function updatePermissions(Request $request, $id)
-    {
-        $roleHierarchy = [
-            'user' => 1,
-            'editor' => 2,
-            'admin' => 3,
-        ];
-
-        $defaultPermissions = [
-            'user' => 'viewer',
-            'editor' => 'editor',
-            'admin' => 'full_access',
-        ];
-
-        $request->validate([
-            'role' => 'required|in:user,editor,admin',
-        ],[
-            'role.required' => 'Vui lòng chọn vai trò người dùng',
-            'role.in' => 'Vai trò không hợp lệ',
-        ]);
-
-        $user = User::findOrFail($id);
-        if (!$user) {
-            return response()->json(['success' => false, 'message' => 'Người dùng không tồn tại']);
-        }
-
-        $currentUserRole = Auth::user()->role;
-        $currentUserRoleLevel = $roleHierarchy[$currentUserRole];
-        $targetUserRoleLevel = $roleHierarchy[$user->role];
-        $newRoleLevel = $roleHierarchy[$request->input('role')];
-
-        if ($currentUserRole == 'admin') {
-            $user->role = $request->input('role');
-            $user->permission = $defaultPermissions[$user->role];
-        } elseif ($currentUserRole == 'editor') {
-            // Kiểm tra xem nếu người dùng tự đổi quyền của bản thân là admin
-            if ($user->role == 'admin') {
-                return response()->json(['success' => false, 'message' => 'Bạn không thể thay đổi quyền của quản trị viên.']);
-            }
-            // Kiểm tra xem vai trò mới của người dùng có hợp lệ không
-            if ($newRoleLevel <= $targetUserRoleLevel + 1 && $newRoleLevel <= $currentUserRoleLevel) {
-                $user->role = $request->input('role');
-                $user->permission = $defaultPermissions[$user->role];
-            } else {
-                return response()->json(['success' => false, 'message' => 'Bạn không thể thay đổi vai trò của người dùng có quyền cao hơn bản thân.']);
-            }
-        } else {
-            return response()->json(['success' => false, 'message' => 'Bạn không có quyền cập nhật quyền hạn của người dùng.']);
-        }
-
-        $user->save();
-
-        return response()->json(['success' => true, 'message' => 'Cập nhật quyền người dùng thành công']);
-    }
+    
     // Sắp xếp theo tên, quyền, ngày cập nhật (quan ly quyen)
     public function sortAdmin(Request $request)
     {
@@ -349,7 +306,7 @@ class UserController extends Controller
 
         return view('adminPage', compact('users'));
     }
-    // Hàm để tạo slug từ title
+    // Hàm để tạo slug
     private function slugify($text)
     {
         // Chuyển đổi ký tự có dấu thành không dấu
