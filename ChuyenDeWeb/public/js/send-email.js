@@ -1,54 +1,69 @@
-document.getElementById('subscribeBtn').addEventListener('click', function() {
-    const form = document.getElementById('newsletterForm');
-    const messageDiv = document.getElementById('newsletterMessage');
-    const submitBtn = this;
-    const btnText = submitBtn.querySelector('.btn-text');
-    const spinner = submitBtn.querySelector('.spinner-border');
-    
-    // Show loading state
-    form.classList.add('loading');
-    btnText.textContent = 'Đang xử lý...';
-    spinner.classList.remove('d-none');
-    
-    const formData = new FormData(form);
-    
-    fetch('/newsletter/subscribe', {
-        method: 'POST',
-        headers: {
-            'X-CSRF-TOKEN': document.querySelector('input[name="_token"]').value,
-            'Accept': 'application/json',
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-            name: formData.get('name'),
-            email: formData.get('email')
-        })
-    })
-    .then(response => response.json())
-    .then(data => {
-        // Create alert message
-        const alertClass = data.status === 'success' ? 'alert-success' : 'alert-danger';
-        messageDiv.innerHTML = `<div class="alert ${alertClass}">${data.message}</div>`;
-        
-        if(data.status === 'success') {
-            form.reset();
+// public/js/send-email.js
+
+$(document).ready(function () {
+    $("form").on("submit", function (e) {
+        e.preventDefault();
+
+        // Disable nút submit để tránh gửi nhiều lần
+        const submitButton = $(this).find("button.contact-submit-btn");
+        submitButton.prop("disabled", true);
+
+        // Thêm loading state
+        submitButton.html("<span>Đang gửi...</span>");
+
+        let formData = {
+            name: $('input[placeholder="Họ và tên"]').val().trim(),
+            email: $('input[placeholder="Email của bạn"]').val().trim(),
+            message: $("textarea").val().trim(),
+            _token: $('meta[name="csrf-token"]').attr("content"),
+        };
+
+        // Kiểm tra dữ liệu trước khi gửi
+        if (!formData.name || !formData.email || !formData.message) {
+            alert("Vui lòng điền đầy đủ thông tin");
+            submitButton.prop("disabled", false);
+            submitButton.html("Gửi tin nhắn");
+            return;
         }
-    })
-    .catch(error => {
-        messageDiv.innerHTML = `
-            <div class="alert alert-danger">
-                Có lỗi xảy ra, vui lòng thử lại sau.
-            </div>`;
-    })
-    .finally(() => {
-        // Reset loading state
-        form.classList.remove('loading');
-        btnText.textContent = 'Đăng ký';
-        spinner.classList.add('d-none');
-        
-        // Auto hide message after 5 seconds
-        setTimeout(() => {
-            messageDiv.innerHTML = '';
-        }, 5000);
+
+        $.ajax({
+            type: "POST",
+            url: "/send-contact",
+            data: formData,
+            success: function (response) {
+                if (response.success) {
+                    alert(response.message);
+                    $("form")[0].reset();
+                } else {
+                    alert(
+                        response.message ||
+                            "Có lỗi xảy ra, vui lòng thử lại sau."
+                    );
+                }
+            },
+            error: function (xhr) {
+                console.error("Error:", xhr);
+
+                if (xhr.status === 422) {
+                    // Lỗi validation
+                    let errors = xhr.responseJSON.errors;
+                    let errorMessage = "";
+                    $.each(errors, function (key, value) {
+                        errorMessage += value[0] + "\n";
+                    });
+                    alert(errorMessage);
+                } else {
+                    // Lỗi server hoặc lỗi khác
+                    alert(
+                        "Có lỗi xảy ra khi gửi tin nhắn. Mã lỗi: " + xhr.status
+                    );
+                }
+            },
+            complete: function () {
+                // Reset trạng thái nút submit
+                submitButton.prop("disabled", false);
+                submitButton.html("Gửi tin nhắn");
+            },
+        });
     });
 });

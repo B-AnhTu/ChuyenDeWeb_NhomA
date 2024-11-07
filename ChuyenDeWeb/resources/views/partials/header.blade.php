@@ -1,16 +1,6 @@
 <nav class="navbar navbar-header navbar-header-transparent navbar-expand-lg border-bottom">
     <div class="container-fluid">
-        <nav class="navbar navbar-header-left navbar-expand-lg navbar-form nav-search p-0 d-none d-lg-flex">
-            <div class="input-group">
-                <div class="input-group-prepend">
-                    <button type="submit" class="btn btn-search pe-1">
-                        <i class="fa fa-search search-icon"></i>
-                    </button>
-                </div>
-                <input type="text" placeholder="Search ..." class="form-control" />
-            </div>
-        </nav>
-
+        
         <ul class="navbar-nav topbar-nav ms-md-auto align-items-center">
             <li class="nav-item topbar-icon dropdown hidden-caret d-flex d-lg-none">
                 <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button"
@@ -225,7 +215,7 @@
             <li class="nav-item topbar-user dropdown hidden-caret">
                 <a class="dropdown-toggle profile-pic" data-bs-toggle="dropdown" href="#" aria-expanded="false">
                     <div class="avatar-sm">
-                        <img src="{{ asset('admin/assets/img/profile.jpg') }}" alt="..." class="avatar-img rounded-circle" />
+                        <img src="{{ asset('img/profile-picture/' . Auth::user()->image) }}" alt="..." class="avatar-img rounded-circle" />
                     </div>
                     <span class="profile-username">
                         <!-- điền tên user vào đây -->
@@ -236,23 +226,20 @@
                         <li>
                             <div class="user-box">
                                 <div class="avatar-lg">
-                                    <img src="{{ asset('admin/assets/img/profile.jpg') }}" alt="image profile" class="avatar-img rounded" />
+                                    <img src="{{ asset('img/profile-picture/' . Auth::user()->image) }}" alt="image profile" class="avatar-img rounded" />
                                 </div>
                                 <div class="u-text">
-                                    <h4>Hizrian</h4>
-                                    <p class="text-muted">hello@example.com</p>
-                                    <a href="#" class="btn btn-xs btn-secondary btn-sm">View Profile</a>
+                                    <h4>{{ Auth::user()->fullname }}</h4>
+                                    <p class="text-muted">{{ Auth::user()->email }}</p>
+                                    <a href="{{ url('Profile-admin') }}" class="btn btn-xs btn-secondary btn-sm">View Profile</a>
                                 </div>
                             </div>
                         </li>
                         <li>
                             <div class="dropdown-divider"></div>
-                            <a class="dropdown-item" href="#">My Profile</a>
-                            <a class="dropdown-item" href="#">My Blog</a>
+                            <a class="dropdown-item" href="{{ url('Profile-admin') }}">My Profile</a>
                             <div class="dropdown-divider"></div>
-                            <a class="dropdown-item" href="#">Account Setting</a>
-                            <div class="dropdown-divider"></div>
-                            <a class="dropdown-item" href="#">Logout</a>
+                            <a class="dropdown-item" href="{{ route('logout') }}">Logout</a>
                         </li>
                     </div>
                 </ul>

@@ -4,7 +4,7 @@
     <div class="container">
         <div class="row justify-content-center">
             <div class="col-md-12">
-                <h2 class="text-center">Create Product</h2>
+                <h2 class="text-center">Update Product</h2>
                 @if ($errors->any())
                     <div class="alert alert-danger">
                         <ul>
@@ -24,7 +24,7 @@
                         {{ session('error') }}
                     </div>
                 @endif
-                <form action="{{ route('product.update', $product->product_id) }}" method="post" enctype="multipart/form-data">
+                <form action="{{ route('product.update', $product->slug) }}" method="post" enctype="multipart/form-data">
                     @csrf
                     @method('PUT')
                     <input type="hidden" name="product_id" value="{{ $product->product_id }}">

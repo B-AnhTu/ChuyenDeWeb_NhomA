@@ -24,6 +24,8 @@ return new class extends Migration
             $table->boolean('is_online')->default(false);
             $table->rememberToken();
             $table->timestamps();
+
+            $table->string('slug')->unique();
         });
     }
 

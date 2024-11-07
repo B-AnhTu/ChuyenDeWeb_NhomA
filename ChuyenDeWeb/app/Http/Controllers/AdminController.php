@@ -4,62 +4,54 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Models\User;
+use Illuminate\Support\Facades\Auth;
 
 class AdminController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function update(Request $request)
     {
-        //
-    }
+        $request->validate([
+            'fullname' => 'required|string|max:255',
+            'email' => 'required|email|max:255',
+            'address' => 'nullable|string|max:255',
+            'phone' => 'nullable|string|max:15',
+        ]);
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
+        $user = Auth::user();
+        $user->fullname = $request->fullname;
+        $user->email = $request->email;
+        $user->address = $request->address;
+        $user->phone = $request->phone;
+        $user->save();
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
+        return redirect()->back()->with('success', 'Cập nhật thông tin cá nhân thành công!');
     }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
+    // Cập nhật hình ảnh trang profile
+    public function uploadProfileImage(Request $request)
     {
-        //
-    }
+        $request->validate([
+            'profileImage' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+        ]);
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
-    }
+        $user = Auth::user();
+        $imageName = time() . '.' . $request->profileImage->extension();
+        $request->profileImage->move(public_path('img/profile-picture'), $imageName);
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
+        // Xóa ảnh cũ nếu có
+        if ($user->image) {
+            $oldImagePath = public_path('img/profile-picture/' . $user->image);
+            if (file_exists($oldImagePath)) {
+                unlink($oldImagePath);
+            }
+        }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
+        $user->image = $imageName;
+        $user->save();
+
+        return response()->json(['success' => true, 'newImageUrl' => asset('img/profile-picture/' . $imageName)]);
     }
 }

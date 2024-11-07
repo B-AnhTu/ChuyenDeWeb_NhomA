@@ -80,7 +80,9 @@
                                 <div class="featured__item__pic set-bg"
                                     data-setbg="{{ asset('img/products/' . $product->image) }}">
                                     <ul class="featured__item__pic__hover">
-                                        <li><a href="#"><i class="fa fa-heart ffa-heart {{ in_array($product->product_id, $likedProductIds) ? 'liked' : '' }}" data-id="{{ $product->product_id }}"></i></a></li>
+                                        <li><a href="#"><i
+                                                    class="fa fa-heart ffa-heart {{ in_array($product->product_id, $likedProductIds) ? 'liked' : '' }}"
+                                                    data-id="{{ $product->product_id }}"></i></a></li>
                                         <li> <a href="#"><i class="fa fa-shopping-cart add-to-cart"
                                                     data-id="{{ $product->product_id }}"></i></a>
                                         </li>
@@ -141,102 +143,6 @@
     </div>
     <!-- Banner End -->
 
-    <!-- Latest Product Section Begin -->
-    <section class="latest-product spad">
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-4 col-md-6">
-                    <div class="latest-product__text">
-                        <h4>Latest Products</h4>
-                        <div class="latest-product__slider owl-carousel">
-                            <div class="latest-prdouct__slider__item">
-                                <a href="#" class="latest-product__item">
-                                    <div class="latest-product__item__pic">
-                                        <img src="" alt="">
-                                    </div>
-                                    <div class="latest-product__item__text">
-                                        <h6>Crab Pool Security</h6>
-                                        <span>$30.00</span>
-                                    </div>
-                                </a>
-                            </div>
-                            <div class="latest-prdouct__slider__item">
-                                <a href="#" class="latest-product__item">
-                                    <div class="latest-product__item__pic">
-                                        <img src="" alt="">
-                                    </div>
-                                    <div class="latest-product__item__text">
-                                        <h6>Crab Pool Security</h6>
-                                        <span>$30.00</span>
-                                    </div>
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-4 col-md-6">
-                    <div class="latest-product__text">
-                        <h4>Top Rated Products</h4>
-                        <div class="latest-product__slider owl-carousel">
-                            <div class="latest-prdouct__slider__item">
-                                <a href="#" class="latest-product__item">
-                                    <div class="latest-product__item__pic">
-                                        <img src="" alt="">
-                                    </div>
-                                    <div class="latest-product__item__text">
-                                        <h6>Crab Pool Security</h6>
-                                        <span>$30.00</span>
-                                    </div>
-                                </a>
-                            </div>
-                            <div class="latest-prdouct__slider__item">
-                                <a href="#" class="latest-product__item">
-                                    <div class="latest-product__item__pic">
-                                        <img src="" alt="">
-                                    </div>
-                                    <div class="latest-product__item__text">
-                                        <h6>Crab Pool Security</h6>
-                                        <span>$30.00</span>
-                                    </div>
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-4 col-md-6">
-                    <div class="latest-product__text">
-                        <h4>Review Products</h4>
-                        <div class="latest-product__slider owl-carousel">
-                            <div class="latest-prdouct__slider__item">
-                                <a href="#" class="latest-product__item">
-                                    <div class="latest-product__item__pic">
-                                        <img src="" alt="">
-                                    </div>
-                                    <div class="latest-product__item__text">
-                                        <h6>Crab Pool Security</h6>
-                                        <span>$30.00</span>
-                                    </div>
-                                </a>
-                            </div>
-                            <div class="latest-prdouct__slider__item">
-                                <a href="#" class="latest-product__item">
-                                    <div class="latest-product__item__pic">
-                                        <img src="" alt="">
-                                    </div>
-                                    <div class="latest-product__item__text">
-                                        <h6>Crab Pool Security</h6>
-                                        <span>$30.00</span>
-                                    </div>
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-    <!-- Latest Product Section End -->
-
     <!-- Blog Section Begin -->
     <section class="from-blog spad">
         <div class="container">
@@ -278,7 +184,12 @@
         var productImageBasePath = "{{ asset('img/products') }}/";
         var isFilterActive = false;
         var currentManufacturerId = null;
+        var currentCategoryId = null;
         let likedProductIds = @json($likedProductIds);
+        let searchState = {
+            manufacturerId: '',
+            keyword: ''
+        };
 
         $(document).ready(function() {
             // Hàm so sánh để sắp xếp sản phẩm
@@ -308,7 +219,7 @@
                 }
 
                 response.data.forEach(function(product) {
-                    let isLiked = likedProductIds.includes(product.product_id); 
+                    let isLiked = likedProductIds.includes(product.product_id);
                     $('#product-list').append(`
                         <div class="col-lg-3 col-md-4 col-sm-6 mix fastfood vegetables">
                             <div class="featured__item">
@@ -352,8 +263,14 @@
             $(document).on('click', '#pagination .page-link', function(e) {
                 e.preventDefault();
                 var page = $(this).data('page');
-                if (isFilterActive) {
+                // Kiểm tra xem có đang trong trạng thái tìm kiếm không
+                if(searchState.keyword || searchState.manufacturerId){
+                    searchProducts(searchState.manufacturerId, searchState.keyword, page);
+                }
+                else if (currentManufacturerId) {
                     fetchProductsByManufacturer(currentManufacturerId, page);
+                } else if (currentCategoryId) {
+                    fetchProductsByCategory(currentCategoryId, page);
                 } else {
                     fetchNewestProducts(page);
                 }
@@ -407,7 +324,7 @@
 
             function fetchNewestProducts(page) {
                 $.ajax({
-                    url: '{{ route('products.index') }}',
+                    url: "{{ route('products.index') }}",
                     type: 'GET',
                     data: {
                         page: page
@@ -474,17 +391,21 @@
                 const keyword = $('#search-input').val().trim();
 
                 if (manufacturerId || keyword) {
-                    searchProducts(manufacturerId, keyword);
+                    searchProducts(manufacturerId, keyword, 1);
                 }
             });
 
-            function searchProducts(manufacturerId, keyword) {
+            function searchProducts(manufacturerId, keyword, page = 1) {
+                // Lưu trạng thái tìm kiếm hiện tại
+                searchState.manufacturerId = manufacturerId;
+                searchState.keyword = keyword;
                 $.ajax({
                     url: '/search',
                     type: 'GET',
                     data: {
                         manufacturer_id: manufacturerId,
-                        keyword: keyword
+                        keyword: keyword,
+                        page: page
                     },
                     success: function(response) {
                         updateProductList(response);
@@ -506,6 +427,7 @@
                 $(this).css('color', 'green');
                 $('.category-filter').not(this).css('color', '');
 
+                currentManufacturerId = null;
                 isFilterActive = true;
                 currentCategoryId = $(this).data('id');
                 fetchProductsByCategory(currentCategoryId, 1);
@@ -524,10 +446,18 @@
                         page: page
                     },
                     success: function(response) {
-                        updateProductList(response);
+                        if (response.data.length === 0) {
+                            $('#product-list').html('<p>Không tìm thấy sản phẩm nào.</p>');
+                            $('#pagination').hide();
+                        } else {
+                            updateProductList(response);
+                            $('#pagination').show();
+                        }
                     },
                     error: function(error) {
                         console.log(error);
+                        $('#product-list').html('<p>Đã xảy ra lỗi khi tải sản phẩm.</p>');
+                        $('#pagination').hide();
                     }
                 });
             }
