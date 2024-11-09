@@ -3,9 +3,8 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Relations\HasOne;
-use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Foundation\Auth\User as Authenticatable;
 use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
@@ -13,12 +12,7 @@ class User extends Authenticatable
     use HasApiTokens, HasFactory, Notifiable;
 
     protected $primaryKey = 'user_id';
-    
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
+
     protected $fillable = [
         'fullname',
         'email',
@@ -27,35 +21,42 @@ class User extends Authenticatable
         'is_online',
         'address', 
         'image',
+        'slug'
     ];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var array<int, string>
-     */
     protected $hidden = [
         'password',
         'remember_token',
     ];
 
-    /**
-     * The attributes that should be cast.
-     *
-     * @var array<string, string>
-     */
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
 
     protected $table = 'users';
 
-    // Các mối quan hệ
-    public function blog() {
+    // Quan hệ với bảng Blog
+    public function blog()
+    {
         return $this->hasOne(Blog::class);
     }
 
-    public function blogcomment() {
+    // Quan hệ với bảng BlogComment
+    public function blogcomments()
+    {
         return $this->hasMany(BlogComment::class);
     }
+
+    // Quan hệ với bảng Cart
+    public function cart()
+    {
+        return $this->hasOne(Cart::class, 'user_id');
+    }
+
+    // Quan hệ với bảng ProductLike
+    public function productLikes()
+    {
+        return $this->hasMany(ProductLike::class, 'user_id');
+    }
+    
 }

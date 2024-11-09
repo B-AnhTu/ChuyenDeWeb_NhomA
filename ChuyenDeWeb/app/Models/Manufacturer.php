@@ -13,6 +13,7 @@ class Manufacturer extends Model
     protected $fillable = [
         'manufacturer_name',
         'image',
+        'slug'
     ];
 
     protected $table = 'manufacturer';

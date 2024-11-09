@@ -5,15 +5,9 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Admin extends Model
+class NewsletterSubscriber extends Model
 {
     use HasFactory;
 
-    protected $fillable = [
-        'email',
-        'password',
-    ];
-
-    protected $table = 'admin';
-
+    protected $fillable = ['name', 'email', 'is_active'];
 }

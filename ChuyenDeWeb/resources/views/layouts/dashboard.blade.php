@@ -12,6 +12,7 @@
     <link rel="stylesheet" href="{{ asset('admin/assets/css/bootstrap.min.css') }}" />
     <link rel="stylesheet" href="{{ asset('admin/assets/css/plugins.min.css') }}" />
     <link rel="stylesheet" href="{{ asset('admin/assets/css/kaiadmin.min.css') }}" />
+    <link rel="stylesheet" href="{{ asset('css/style.css') }}" />
 </head>
 
 <body>
@@ -26,11 +27,14 @@
 
             <!-- Main Content -->
             @yield('content')
+
+            <!-- Footer -->
+            @include('partials.footer')
         </div>
     </div>
-
+    
     <!-- Import JS -->
-     <!-- Fonts and icons -->
+    <!-- Fonts and icons -->
     <script src="{{ asset('admin/assets/js/plugin/webfont/webfont.min.js') }}"></script>
     <script>
         WebFont.load({

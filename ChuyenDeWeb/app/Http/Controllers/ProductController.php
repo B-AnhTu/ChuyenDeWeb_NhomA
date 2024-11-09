@@ -3,13 +3,15 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Models\Blog;
 use Illuminate\Http\Request;
 use App\Models\Product;
 use App\Models\Manufacturer;
 use App\Models\Category;
+use App\Models\ProductLike;
 use App\Rules\SingleSpaceOnly;
 use App\Rules\NoSpecialCharacters;
-
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 
 class ProductController extends Controller
@@ -18,6 +20,7 @@ class ProductController extends Controller
     {
         $products = Product::orderBy('created_at', 'desc')->paginate(6);
         $manufacturers = Manufacturer::all();
+        $categories = Category::all();
 
         if ($request->ajax()) {
             return response()->json([
@@ -27,7 +30,15 @@ class ProductController extends Controller
             ]);
         }
 
-        return view('index', compact('products', 'manufacturers'));
+        // Kiểm tra xem người dùng đã thích sản phẩm nào
+        $likedProductIds = Auth::check()
+            ? ProductLike::where('user_id', Auth::id())->pluck('product_id')->toArray()
+            : [];
+
+        $posts = Blog::orderBy('created_at', 'desc')
+            ->take(3)
+            ->get();
+        return view('product', compact('products', 'manufacturers', 'posts', 'likedProductIds'));
     }
 
 
@@ -53,18 +64,51 @@ class ProductController extends Controller
         ]);
     }
 
+
     // tìm kiếm sản phẩm theo nhà sản xuất
     public function search(Request $request)
     {
         $query = Product::query();
 
+        // Xử lý tìm kiếm full-text
+        if ($request->has('keyword') && $request->keyword) {
+            $searchTerm = $request->keyword;
+
+            // Chuẩn bị từ khóa tìm kiếm
+            $searchWords = explode(' ', $searchTerm);
+            $searchWords = array_filter($searchWords, function ($word) {
+                return strlen($word) >= 2;
+            });
+
+            if (!empty($searchWords)) {
+                $searchQuery = '+' . implode('* +', $searchWords) . '*';
+
+                $query->whereRaw("MATCH(product_name, description) AGAINST(? IN BOOLEAN MODE)", [$searchQuery]);
+            }
+        }
+
+        // Lọc theo nhà sản xuất
         if ($request->has('manufacturer_id') && $request->manufacturer_id) {
             $query->where('manufacturer_id', $request->manufacturer_id);
         }
 
-        if ($request->has('keyword') && $request->keyword) {
-            $query->where('product_name', 'like', '%' . $request->keyword . '%');
-        }
+        // Sắp xếp kết quả theo độ phù hợp và thêm các thông tin liên quan
+        $query->select('product.*')
+            ->with(['category', 'manufacturer'])
+            ->when($request->has('keyword') && $request->keyword, function ($q) use ($request) {
+                $searchTerm = $request->keyword;
+                $searchWords = explode(' ', $searchTerm);
+                $searchWords = array_filter($searchWords, function ($word) {
+                    return strlen($word) >= 2;
+                });
+                if (!empty($searchWords)) {
+                    $searchQuery = '+' . implode('* +', $searchWords) . '*';
+                    $q->selectRaw("MATCH(product_name, description) AGAINST(? IN BOOLEAN MODE) as relevance", [$searchQuery]);
+                    $q->orderBy('relevance', 'desc');
+                }
+            })
+            ->orderBy('product_view', 'desc') // Sắp xếp thêm theo lượt xem
+            ->orderBy('sold_quantity', 'desc'); // Và theo số lượng đã bán
 
         $products = $query->paginate(6);
 
@@ -76,12 +120,70 @@ class ProductController extends Controller
                 'message' => $products->isEmpty() ? 'Không tìm thấy sản phẩm nào.' : null
             ]);
         }
+
         return view('index', compact('products', 'manufacturers'));
     }
+
+
+    // sắp xếp
+    public function sort(Request $request)
+    {
+        // Khởi tạo truy vấn sản phẩm
+        $query = Product::query();
+
+        // Lọc theo nhà sản xuất nếu có
+        if ($request->has('manufacturer_id') && $request->manufacturer_id) {
+            $query->where('manufacturer_id', $request->manufacturer_id);
+        }
+
+        // Lọc theo từ khóa nếu có
+        if ($request->has('keyword') && $request->keyword) {
+            $query->where('product_name', 'like', '%' . $request->keyword . '%');
+        }
+
+        // Sắp xếp sản phẩm dựa trên yêu cầu
+        if ($request->has('sort_by')) {
+            switch ($request->sort_by) {
+                case 'name_asc':
+                    $query->orderBy('product_name', 'asc');
+                    break;
+                case 'name_desc':
+                    $query->orderBy('product_name', 'desc');
+                    break;
+                case 'price_desc':
+                    $query->orderBy('price', 'desc');
+                    break;
+                case 'price_asc':
+                    $query->orderBy('price', 'asc');
+                    break;
+                default:
+                    // Mặc định không sắp xếp
+                    break;
+            }
+        } else {
+            // Nếu không có yêu cầu sắp xếp, sắp xếp theo ngày tạo
+            $query->orderBy('created_at', 'desc');
+        }
+
+        // Phân trang kết quả
+        $products = $query->paginate(8);
+
+        if ($request->ajax()) {
+            return response()->json([
+                'data' => $products->items(),
+                'current_page' => $products->currentPage(),
+                'last_page' => $products->lastPage(),
+                'message' => $products->isEmpty() ? 'Không tìm thấy sản phẩm nào.' : null
+            ]);
+        }
+
+        return view('product', compact('products', 'manufacturers', 'categories'));
+    }
+
     // Hiển thị danh sách sản phẩm trong admin
     public function list()
     {
-        $products = Product::orderBy('created_at', 'asc')->paginate(5);
+        $products = Product::paginate(5);
         return view('productAdmin', compact('products'));
     }
     // Hiển thị form tạo sản phẩm trong admin
@@ -95,14 +197,14 @@ class ProductController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'product_name' => ['required', 'string', 'max:50', new SingleSpaceOnly, new NoSpecialCharacters],
+            'product_name' => ['required', 'string', 'max:50', new NoSpecialCharacters, new SingleSpaceOnly],
             'price' => 'required|numeric|min:0',
             'image' => 'required|mimes:jpeg,jpg,png,gif|max:5120',
-            'description' => 'required|string',
+            'description' => ['required', new NoSpecialCharacters, new SingleSpaceOnly],
             'stock_quantity' => 'required|integer|min:0',
             'manufacturer_id' => 'required',
             'category_id' => 'required',
-        ],[
+        ], [
             'product_name.required' => 'Tên sản phẩm không được để trống',
             'product_name.max' => 'Tên sản phẩm không được quá 50 ký tự',
             'price.required' => 'Giá sản phẩm không được để trống',
@@ -123,6 +225,9 @@ class ProductController extends Controller
 
         $data = $request->all();
 
+        //Tạo slug từ tên sản phẩm
+        $data['slug'] = $this->slugify($data['product_name']); // Sử dụng hàm slugify để tạo slug
+
         if ($request->hasFile('image')) {
             $file = $request->file('image');
             $filename = time() . '_' . $file->getClientOriginalName();
@@ -140,31 +245,45 @@ class ProductController extends Controller
             'stock_quantity' => $data['stock_quantity'],
             'manufacturer_id' => $data['manufacturer_id'],
             'category_id' => $data['category_id'],
+            'slug' => $data['slug'],
         ]);
         $product->save();
 
         return redirect()->route('product.index')->with('success', 'Sản phẩm đã được tạo thành công');
     }
-    // Hiển thị form cập nhật sản phẩm trong admin
-    public function edit($product_id)
+    // Hiển thị chi tiết sản phẩm
+    public function show($slug)
     {
-        $product = Product::find($product_id);
+        $product = Product::where('slug', $slug)->first();
+        if (!$product) {
+            return redirect()->route('product.index')->with('error', 'Sản phẩm không tồn tại');
+        }
+        return view('productShow', compact('product'));
+    }
+    // Hiển thị form cập nhật sản phẩm trong admin
+    public function edit($slug)
+    {
+        $product = Product::where('slug', $slug)->first();
+
+        if (!$product) {
+            return redirect()->route('product.index')->with('error', 'Sản phẩm không tồn tại');
+        }
         $manufacturers = Manufacturer::all();
         $categories = Category::all();
         return view('productUpdate', compact('product', 'manufacturers', 'categories'));
     }
     // Cập nhật sản phẩm trong database
-    public function update(Request $request, $product_id)
+    public function update(Request $request, $slug)
     {
         $request->validate([
-            'product_name' => ['required', 'string', 'max:50', new SingleSpaceOnly, new NoSpecialCharacters],
+            'product_name' => ['required', 'string', 'max:50', new NoSpecialCharacters, new SingleSpaceOnly],
             'price' => 'required|numeric|min:0',
             'image' => 'nullable|mimes:jpeg,jpg,png,gif|max:5120',
-            'description' => 'required|string',
+            'description' => ['required', new NoSpecialCharacters, new SingleSpaceOnly],
             'stock_quantity' => 'required|integer|min:0',
             'manufacturer_id' => 'required',
             'category_id' => 'required',
-        ],[
+        ], [
             'product_name.required' => 'Vui lòng nhập tên sản phẩm',
             'product_name.max' => 'Tên sản phẩm không được quá 50 ký tự',
             'price.required' => 'Vui lòng nhập giá sản phẩm',
@@ -180,11 +299,7 @@ class ProductController extends Controller
             'category_id.required' => 'Danh mục không được để trống',
         ]);
 
-        $product = Product::find($product_id);
-
-        if(!$product){
-            return redirect()->route('product.index')->with('error', 'Sản phẩm không tồn tại.');
-        }
+        $product = Product::where('slug', $slug)->first();
 
         // Check if a new image is uploaded
         if ($request->hasFile('image')) {
@@ -201,26 +316,31 @@ class ProductController extends Controller
             $product->image = $filename;
         }
 
-        // Update other fields
+        // Cập nhật các trường dữ liệu của product
         $product->product_name = $request->input('product_name');
         $product->price = $request->input('price');
         $product->description = $request->input('description');
         $product->stock_quantity = $request->input('stock_quantity');
         $product->manufacturer_id = $request->input('manufacturer_id');
         $product->category_id = $request->input('category_id');
+        // Tạo slug mới nếu tên sản phẩm thay đổi
+        $product->slug = $this->slugify($request->input('product_name')); // Sử dụng hàm slugify để tạo slug
         $product->save();
 
         return redirect()->route('product.index')->with('success', 'Sản phẩm đã được cập nhật thành công');
     }
     // Xóa sản phẩm trong database
-    public function destroy($product_id)
+    public function destroy($slug)
     {
         // Kiểm tra xem sản phẩm có tồn tại không
-        $product = Product::findOrFail($product_id);
+        $product = Product::where('slug', $slug)->first();
         if (!$product) {
             return redirect()->route('product.index')->with('error', 'Sản phẩm không tồn tại.');
         }
-
+        // Delete image if exists
+        if ($product->image && file_exists(public_path('img/products/' . $product->image))) {
+            unlink(public_path('img/products/' . $product->image));
+        }
         // Thực hiện xóa sản phẩm
         try {
             $product->delete();
@@ -230,5 +350,228 @@ class ProductController extends Controller
             return redirect()->route('product.index')->with('error', 'Xóa sản phẩm không thành công.');
         }
     }
-}
+    // Sắp xếp theo tên, ngày cập nhật
+    public function sortProducts(Request $request)
+    {
+        $query = Product::query();
 
+        // Sắp xếp theo yêu cầu
+        if ($request->has('sort_by')) {
+            switch ($request->sort_by) {
+                case 'name_asc':
+                    $query->orderBy('product_name', 'asc');
+                    break;
+                case 'name_desc':
+                    $query->orderBy('product_name', 'desc');
+                    break;
+                case 'price_asc':
+                    $query->orderBy('price', 'asc');
+                    break;
+                case 'price_desc':
+                    $query->orderBy('price', 'desc');
+                    break;
+                case 'views_asc':
+                    $query->orderBy('product_view', 'asc');
+                    break;
+                case 'views_desc':
+                    $query->orderBy('product_view', 'desc');
+                    break;
+                case 'purchases_asc':
+                    $query->orderBy('sold_quantity', 'asc');
+                    break;
+                case 'purchases_desc':
+                    $query->orderBy('sold_quantity', 'desc');
+                    break;
+                case 'stock_asc':
+                    $query->orderBy('stock_quantity', 'asc');
+                    break;
+                case 'stock_desc':
+                    $query->orderBy('stock_quantity', 'desc');
+                    break;
+                case 'updated_at_asc':
+                    $query->orderBy('updated_at', 'asc');
+                    break;
+                case 'updated_at_desc':
+                    $query->orderBy('updated_at', 'desc');
+                    break;
+                default:
+                    // Mặc định không sắp xếp
+                    break;
+            }
+        }
+
+        $products = $query->paginate(5); // Phân trang
+
+        return view('productAdmin', compact('products'));
+    }
+
+	// Tìm kiếm sản phẩm theo tên, chi tiết
+    public function searchProducts(Request $request) {
+
+        $query = $request->input('query');
+
+        // Tìm kiếm theo thứ tự ưu tiên: product_name trước, sau đó là description
+        $products = Product::where('product_name', 'LIKE', '%' . $query . '%')
+            ->orWhere('description', 'LIKE', '%' . $query . '%')
+            ->orderByRaw("CASE WHEN product_name LIKE '%$query%' THEN 1 ELSE 2 END") // Ưu tiên product_name
+            ->paginate(5);
+
+        return view('productAdmin', compact('products'));
+    }
+    // Hàm để tạo slug
+    private function slugify($text)
+    {
+        // Chuyển đổi ký tự có dấu thành không dấu
+        $text = $this->removeVietnameseAccent($text);
+
+        // Thay thế nhiều khoảng trắng thành một khoảng trắng
+        $text = preg_replace('/\s+/', ' ', $text);
+        $text = trim($text); // Xóa khoảng trắng ở đầu và cuối
+        $text = strtolower($text); // Chuyển thành chữ thường
+        $text = str_replace(' ', '-', $text); // Thay dấu khoảng trắng bằng dấu gạch nối
+
+        return $text;
+    }
+
+    // Hàm để loại bỏ dấu tiếng Việt
+    private function removeVietnameseAccent($string)
+    {
+        $unicode = [
+            'à' => 'a',
+            'á' => 'a',
+            'ả' => 'a',
+            'ã' => 'a',
+            'ạ' => 'a',
+            'ă' => 'a',
+            'ằ' => 'a',
+            'ắ' => 'a',
+            'ẳ' => 'a',
+            'ẵ' => 'a',
+            'ặ' => 'a',
+            'â' => 'a',
+            'ầ' => 'a',
+            'ấ' => 'a',
+            'ẩ' => 'a',
+            'ẫ' => 'a',
+            'ậ' => 'a',
+            'è' => 'e',
+            'é' => 'e',
+            'ẻ' => 'e',
+            'ẽ' => 'e',
+            'ẹ' => 'e',
+            'ê' => 'e',
+            'ề' => 'e',
+            'ế' => 'e',
+            'ể' => 'e',
+            'ễ' => 'e',
+            'ệ' => 'e',
+            'ì' => 'i',
+            'í' => 'i',
+            'ỉ' => 'i',
+            'ĩ' => 'i',
+            'ị' => 'i',
+            'ò' => 'o',
+            'ó' => 'o',
+            'ỏ' => 'o',
+            'õ' => 'o',
+            'ọ' => 'o',
+            'ô' => 'o',
+            'ồ' => 'o',
+            'ố' => 'o',
+            'ổ' => 'o',
+            'ỗ' => 'o',
+            'ộ' => 'o',
+            'ơ' => 'o',
+            'ờ' => 'o',
+            'ớ' => 'o',
+            'ở' => 'o',
+            'ỡ' => 'o',
+            'ợ' => 'o',
+            'ù' => 'u',
+            'ú' => 'u',
+            'ủ' => 'u',
+            'ũ' => 'u',
+            'ụ' => 'u',
+            'ư' => 'u',
+            'ừ' => 'u',
+            'ứ' => 'u',
+            'ử' => 'u',
+            'ữ' => 'u',
+            'ự' => 'u',
+            'ỳ' => 'y',
+            'ý' => 'y',
+            'ỷ' => 'y',
+            'ỹ' => 'y',
+            'ỵ' => 'y',
+            'đ' => 'd',
+            'À' => 'A',
+            'Á' => 'A',
+            'Ả' => 'A',
+            'Ã' => 'A',
+            'Ạ' => 'A',
+            'Ă' => 'A',
+            'Ằ' => 'A',
+            'Ắ' => 'A',
+            'Ẳ' => 'A',
+            'Ẵ' => 'A',
+            'Ặ' => 'A',
+            'Â' => 'A',
+            'Ầ' => 'A',
+            'Ấ' => 'A',
+            'Ẩ' => 'A',
+            'Ẫ' => 'A',
+            'Ậ' => 'A',
+            'È' => 'E',
+            'É' => 'E',
+            'Ẻ' => 'E',
+            'Ẽ' => 'E',
+            'Ẹ' => 'E',
+            'Ê' => 'E',
+            'Ề' => 'E',
+            'Ế' => 'E',
+            'Ể' => 'E',
+            'Ễ' => 'E',
+            'Ệ' => 'E',
+            'Ì' => 'I',
+            'Í' => 'I',
+            'Ỉ' => 'I',
+            'Ĩ' => 'I',
+            'Ị' => 'I',
+            'Ò' => 'O',
+            'Ó' => 'O',
+            'Ỏ' => 'O',
+            'Õ' => 'O',
+            'Ọ' => 'O',
+            'Ô' => 'O',
+            'Ồ' => 'O',
+            'Ố' => 'O',
+            'Ổ' => 'O',
+            'Ỗ' => 'O',
+            'Ộ' => 'O',
+            'Ơ' => 'O',
+            'Ờ' => 'O',
+            'Ớ' => 'O',
+            'Ở' => 'O',
+            'Ỡ' => 'O',
+            'Ợ' => 'O',
+            'Ù' => 'U',
+            'Ú' => 'U',
+            'Ủ' => 'U',
+            'Ũ' => 'U',
+            'Ụ' => 'U',
+            'Ư' => 'U',
+            'Ừ' => 'U',
+            'Ứ' => 'U',
+            'Ử' => 'U',
+            'Ữ' => 'U',
+            'Ự' => 'U',
+            'Ỳ' => 'Y',
+            'Ý' => 'Y',
+            'Ỷ' => 'Y',
+            'Ỹ' => 'Y',
+            'Ỵ' => 'Y',
+            'Đ' => 'D',
+        ];
+        return strtr($string, $unicode);
+    }
+}
