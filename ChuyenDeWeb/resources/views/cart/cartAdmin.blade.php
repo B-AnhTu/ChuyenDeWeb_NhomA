@@ -20,6 +20,7 @@
                     <thead>
                         <tr>
                             <th>ID</th>
+                            <th>Image</th>
                             <th>User</th>
                             <th>Product</th>
                             <th>Quantity</th>
@@ -31,6 +32,8 @@
                         @foreach($cart->cartProducts as $cartProduct)
                         <tr>
                             <td>{{ $cart->cart_id }}</td> 
+                            <td><img src="{{ asset('img/products/' . $cartProduct->product->image) }}"
+                            alt="{{$cartProduct->product->product_name}}" width="100"></td>
                             <td>{{ $cart->user->fullname }}</td>
                             <td>{{ $cartProduct->product->product_name }}</td>
                             <td>{{ $cartProduct->quantity }}</td>

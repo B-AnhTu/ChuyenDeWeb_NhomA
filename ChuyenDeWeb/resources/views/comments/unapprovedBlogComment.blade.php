@@ -33,11 +33,11 @@
                                 <td>{{ $comment->user->fullname }}</td> <!-- Hiển thị fullname của user -->
                                 <td>{{ $comment->user->email }}</td> <!-- Hiển thị email của user -->
                                 <td>{{ $comment->content }}</td>
-                                <td>{{ $comment->status == 0 ? 'Waiting for approval' : 'Approved' }}</td>
+                                <td>{{ $comment->status}}</td>
                                 <td>
                                     <form action="{{ route('comments.approve', $comment->comment_id) }}" method="POST" style="display:inline;">
                                         @csrf
-                                        <button type="submit" class="btn btn-success">Approve</button>
+                                        <button type="submit" class="btn btn-success">Duyệt</button>
                                     </form>
                                     <form action="{{ route('comments.destroy', $comment->comment_id) }}" method="POST" style="display:inline;">
                                         @csrf

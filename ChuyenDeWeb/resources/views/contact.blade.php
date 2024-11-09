@@ -94,11 +94,12 @@
                     </div>
                     <div class="col-lg-12 text-center">
                         <textarea placeholder="Nhập tin nhắn"></textarea>
-                        <button type="submit" class="site-btn">Gửi tin nhắn</button>
+                        <button type="submit" class="site-btn contact-submit-btn">Gửi tin nhắn</button>
                     </div>
                 </div>
             </form>
         </div>
     </div>
     <!-- Contact Form End -->
+    <script src="{{ asset('js/send-email.js') }}"></script>
 @endsection
