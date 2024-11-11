@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id(); // Đây sẽ là kiểu unsignedBigInteger
             $table->foreignId('order_id')->constrained()->onDelete('cascade');
             $table->unsignedInteger('product_id'); // Thay đổi thành unsignedInteger để phù hợp với product_id
-            $table->foreign('product_id')->references('product_id')->on('product'); // Thiết lập khóa ngoại
+            $table->foreign('product_id')->references('product_id')->on('product')->onDelete('cascade'); // Thiết lập khóa ngoại
             $table->integer('quantity');
             $table->decimal('price', 12, 2);
             $table->timestamps();

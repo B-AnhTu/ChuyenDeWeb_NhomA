@@ -8,10 +8,17 @@ use Illuminate\Support\Facades\Validator;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
+use App\Services\SlugService;
 
 
 class RegisterController extends Controller
 {
+    protected $slugService; // Khai báo thuộc tính slugService
+
+    public function __construct(SlugService $slugService) // Constructor
+    {
+        $this->slugService = $slugService; // Khởi tạo slugService
+    }
     public function showRegistrationForm()
     {
         return view('register');
@@ -49,7 +56,7 @@ class RegisterController extends Controller
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'fullname' => $request->fullname,
-            'slug' => Str::slug($request->fullname),
+            'slug' => $this->slugService->slugify($request->fullname),
             'phone' => $request->phone,
         ]);
 
