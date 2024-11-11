@@ -174,8 +174,13 @@ Route::group(['middleware' => 'role:admin,editor'], function () {
     Route::get('/productUpdate/{slug}', [ProductController::class, 'edit'])->name('product.edit');
     Route::put('/productUpdate/{slug}', [ProductController::class, 'update'])->name('product.update');
 
+    //Route delete
     Route::delete('/productDelete/{slug}', [ProductController::class, 'destroy'])->name('product.delete');
 
+    Route::get('/products/trashed', [ProductController::class, 'trashed'])->name('product.trashed');
+    Route::put('/products/{id}/restore', [ProductController::class, 'restore'])->name('product.restore');
+    Route::delete('/products/{id}/forceDelete', [ProductController::class, 'forceDelete'])->name('product.forceDelete');
+    
     //route user
     Route::get('/userAdmin', [UserController::class, 'list'])->name('userAdmin.index');
 

@@ -15,8 +15,8 @@ class SingleSpaceOnly implements Rule
      */
     public function passes($attribute, $value)
     {
-        // Kiểm tra xem chuỗi có chỉ chứa chữ cái và một khoảng trắng giữa các từ không
-        return preg_match('/^[\p{L}]+(?: [\p{L}]+)*$/u', trim($value));
+        // Kiểm tra xem chuỗi chỉ chứa một khoảng trắng giữa các từ
+        return preg_match('/^(?:\S+ ?)+\S+$/u', trim($value));   
     }
 
     /**
@@ -26,6 +26,6 @@ class SingleSpaceOnly implements Rule
      */
     public function message()
     {
-        return 'Trường :attribute chỉ được phép chứa chữ cái và một khoảng trắng giữa các từ.';
+        return 'Trường :attribute chỉ được phép có một khoảng trắng giữa các từ.';
     }
 }

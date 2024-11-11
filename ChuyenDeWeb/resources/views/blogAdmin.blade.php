@@ -72,7 +72,7 @@
                             <form action="{{ route('blogAdmin.delete', $blog->slug) }}" method="POST">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit" class="btn btn-danger"><i class="fas fa-trash"></i></button>
+                                <button onclick="return confirm('Are you sure you want to delete this blog?')" type="submit" class="btn btn-danger"><i class="fas fa-trash"></i></button>
                             </form>
                         </td>
                     </tr>
