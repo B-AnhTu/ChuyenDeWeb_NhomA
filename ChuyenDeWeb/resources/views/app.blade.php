@@ -138,6 +138,11 @@
                                         </button>
                                         <ul class="dropdown-menu">
                                             <li><a class="dropdown-item" href="{{ url('Profile-user') }}"><i class="fa-solid fa-user"></i>Thông tin cá nhân</a></li>
+                                            <li>@auth
+                                                <a class="dropdown-item" href="{{ route('orders.my-orders') }}">Đơn hàng của tôi</a>
+                                                @endauth
+                                            </li>
+                                            <li><a class="dropdown-item" href="{{ route('orders.track-form') }}">Tra cứu đơn hàng</a></li>
                                             <li><a class="dropdown-item" href="{{ url('change-password') }}"><i class="fa fa-lock"></i> Đổi mật khẩu</a></li>
                                             <li><a class="dropdown-item" href="{{ route('logout') }}"><i class="fa-solid fa-right-from-bracket"></i> Đăng xuất</a></li>
                                         </ul>

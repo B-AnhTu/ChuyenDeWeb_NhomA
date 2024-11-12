@@ -23,7 +23,8 @@
     <div class="container">
         @if (session('success'))
         <div class="alert alert-success">
-            {{ session('success') }}
+            {{ session('success') }}                                                
+            <a href="{{ route('orders.my-orders') }}">Đơn hàng của tôi</a>
         </div>
         @endif
         @if (session('error'))

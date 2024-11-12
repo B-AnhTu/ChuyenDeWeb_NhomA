@@ -17,7 +17,7 @@ class CheckoutController extends Controller
     {
         // Lấy giỏ hàng của người dùng
         $cart = Cart::where('user_id', Auth::id())
-            ->with('cartProducts.product') // Lấy sản phẩm thông qua cartProducts
+            ->with('cartProducts.product')
             ->first();
 
         if (!$cart || $cart->cartProducts->isEmpty()) {
@@ -27,11 +27,15 @@ class CheckoutController extends Controller
 
         // Tính tổng tiền
         $total = $cart->cartProducts->sum(function ($item) {
-            return optional($item->product)->price * $item->quantity; // Sử dụng optional để tránh lỗi null
+            return optional($item->product)->price * $item->quantity;
         });
 
-        return view('checkout', compact('cart', 'total'));
+        // Lấy thông tin người dùng hiện tại
+        $user = Auth::user();
+
+        return view('checkout', compact('cart', 'total', 'user'));
     }
+
 
     public function processCheckout(Request $request)
     {
@@ -100,5 +104,94 @@ class CheckoutController extends Controller
             DB::rollBack();
             return back()->with('error', 'Có lỗi xảy ra: ' . $e->getMessage());
         }
+    }
+
+    public function showTrackingForm()
+    {
+        return view('order.tracking-form');
+    }
+
+    public function myOrders()
+    {
+        $orders = Order::where('user_id', Auth::id())
+            ->orderBy('created_at', 'desc')
+            ->paginate(10);
+
+        return view('order.my-orders', compact('orders'));
+    }
+
+    // Xem chi tiết đơn hàng
+    public function orderDetail($id)
+    {
+        $order = Order::with(['orderDetails.product'])
+            ->where('id', $id)
+            ->where('user_id', Auth::id())
+            ->firstOrFail();
+
+        return view('order.detail', compact('order'));
+    }
+
+    // Tra cứu đơn hàng bằng mã đơn và email
+    public function trackOrder(Request $request)
+    {
+        $validated = $request->validate([
+            'order_id' => 'required|numeric',
+            'email' => 'required|email'
+        ]);
+
+        $order = Order::with(['orderDetails.product'])
+            ->where('id', $validated['order_id'])
+            ->where('shipping_email', $validated['email'])
+            ->first();
+
+        if (!$order) {
+            return back()->with('error', 'Không tìm thấy đơn hàng với thông tin đã nhập');
+        }
+
+        return view('order.tracking-result', compact('order'));
+    }
+
+    // Hủy đơn hàng
+    public function cancelOrder(Request $request, $id)
+    {
+        $order = Order::where('id', $id)
+            ->where('user_id', Auth::id())
+            ->where('status', 'pending')
+            ->firstOrFail();
+
+        try {
+            DB::beginTransaction();
+
+            // Cập nhật trạng thái đơn hàng
+            $order->status = 'cancelled';
+            $order->save();
+
+            // Hoàn lại số lượng tồn kho
+            foreach ($order->orderDetails as $detail) {
+                $product = $detail->product;
+                $product->increment('stock_quantity', $detail->quantity);
+                $product->decrement('sold_quantity', $detail->quantity);
+            }
+
+            DB::commit();
+            return back()->with('success', 'Đơn hàng đã được hủy thành công');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->with('error', 'Có lỗi xảy ra khi hủy đơn hàng');
+        }
+    }
+
+    // Xác nhận đã nhận hàng
+    public function confirmReceived($id)
+    {
+        $order = Order::where('id', $id)
+            ->where('user_id', Auth::id())
+            ->where('status', 'shipping')
+            ->firstOrFail();
+
+        $order->status = 'completed';
+        $order->save();
+
+        return back()->with('success', 'Cảm ơn bạn đã xác nhận nhận hàng');
     }
 }
