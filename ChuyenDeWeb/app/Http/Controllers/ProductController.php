@@ -12,10 +12,18 @@ use App\Models\ProductLike;
 use App\Rules\SingleSpaceOnly;
 use App\Rules\NoSpecialCharacters;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
+use App\Services\SlugService;
+
 
 class ProductController extends Controller
 {
+    protected $slugService; // Khai báo thuộc tính slugService
+
+    public function __construct(SlugService $slugService) // Constructor
+    {
+        $this->slugService = $slugService; // Khởi tạo slugService
+    }
     public function index(Request $request)
     {
         $products = Product::orderBy('created_at', 'desc')->paginate(6);
@@ -226,7 +234,7 @@ class ProductController extends Controller
         $data = $request->all();
 
         //Tạo slug từ tên sản phẩm
-        $data['slug'] = $this->slugify($data['product_name']); // Sử dụng hàm slugify để tạo slug
+        $data['slug'] = $this->slugService->slugify($data['product_name']); // Sử dụng hàm slugify để tạo slug
 
         if ($request->hasFile('image')) {
             $file = $request->file('image');
@@ -324,7 +332,7 @@ class ProductController extends Controller
         $product->manufacturer_id = $request->input('manufacturer_id');
         $product->category_id = $request->input('category_id');
         // Tạo slug mới nếu tên sản phẩm thay đổi
-        $product->slug = $this->slugify($request->input('product_name')); // Sử dụng hàm slugify để tạo slug
+        $product->slug = $this->slugService->slugify($request->input('product_name')); // Sử dụng hàm slugify để tạo slug
         $product->save();
 
         return redirect()->route('product.index')->with('success', 'Sản phẩm đã được cập nhật thành công');
@@ -336,10 +344,6 @@ class ProductController extends Controller
         $product = Product::where('slug', $slug)->first();
         if (!$product) {
             return redirect()->route('product.index')->with('error', 'Sản phẩm không tồn tại.');
-        }
-        // Delete image if exists
-        if ($product->image && file_exists(public_path('img/products/' . $product->image))) {
-            unlink(public_path('img/products/' . $product->image));
         }
         // Thực hiện xóa sản phẩm
         try {
@@ -405,173 +409,71 @@ class ProductController extends Controller
         return view('productAdmin', compact('products'));
     }
 
-	// Tìm kiếm sản phẩm theo tên, chi tiết
-    public function searchProducts(Request $request) {
+    // Tìm kiếm sản phẩm theo tên, chi tiết theo fulltext search
+    public function searchProducts(Request $request)
+    {
+        $query = Product::query();
+        $searchTerm = $request->input('query');
 
-        $query = $request->input('query');
+        // Tìm kiếm full-text ưu tiên theo product_name trước, sau đó là description
+        if ($searchTerm) {
+            $searchWords = explode(' ', $searchTerm);
+            $searchWords = array_filter($searchWords, function ($word) {
+                return strlen($word) >= 2;
+            });
 
-        // Tìm kiếm theo thứ tự ưu tiên: product_name trước, sau đó là description
-        $products = Product::where('product_name', 'LIKE', '%' . $query . '%')
-            ->orWhere('description', 'LIKE', '%' . $query . '%')
-            ->orderByRaw("CASE WHEN product_name LIKE '%$query%' THEN 1 ELSE 2 END") // Ưu tiên product_name
+            if (!empty($searchWords)) {
+                // Tạo truy vấn fulltext
+                $searchQuery = '+' . implode('* +', $searchWords) . '*';
+                $query->whereRaw("MATCH(product_name, description) AGAINST(? IN BOOLEAN MODE)", [$searchQuery]);
+            }
+        }
+
+        // Sắp xếp theo thứ tự ưu tiên và phân trang
+        $products = $query->orderByRaw("CASE WHEN product_name LIKE ? THEN 1 ELSE 2 END", ["%$searchTerm%"])
             ->paginate(5);
 
-        return view('productAdmin', compact('products'));
+        // Truyền dữ liệu tìm kiếm vào view
+        return view('productAdmin', [
+            'products' => $products,
+            'searchTerm' => $searchTerm,
+        ]);
     }
-    // Hàm để tạo slug
-    private function slugify($text)
+    // Xóa tạm thời sản phẩm khỏi database
+    public function trashed()
     {
-        // Chuyển đổi ký tự có dấu thành không dấu
-        $text = $this->removeVietnameseAccent($text);
+        // Lấy danh sách các sản phẩm đã xóa tạm thời
+        $trashedProducts = Product::onlyTrashed()->paginate(5);
 
-        // Thay thế nhiều khoảng trắng thành một khoảng trắng
-        $text = preg_replace('/\s+/', ' ', $text);
-        $text = trim($text); // Xóa khoảng trắng ở đầu và cuối
-        $text = strtolower($text); // Chuyển thành chữ thường
-        $text = str_replace(' ', '-', $text); // Thay dấu khoảng trắng bằng dấu gạch nối
-
-        return $text;
+        return view('trashed', compact('trashedProducts'));
     }
-
-    // Hàm để loại bỏ dấu tiếng Việt
-    private function removeVietnameseAccent($string)
+    // Khôi phục sản phẩm đã xóa
+    public function restore($id)
     {
-        $unicode = [
-            'à' => 'a',
-            'á' => 'a',
-            'ả' => 'a',
-            'ã' => 'a',
-            'ạ' => 'a',
-            'ă' => 'a',
-            'ằ' => 'a',
-            'ắ' => 'a',
-            'ẳ' => 'a',
-            'ẵ' => 'a',
-            'ặ' => 'a',
-            'â' => 'a',
-            'ầ' => 'a',
-            'ấ' => 'a',
-            'ẩ' => 'a',
-            'ẫ' => 'a',
-            'ậ' => 'a',
-            'è' => 'e',
-            'é' => 'e',
-            'ẻ' => 'e',
-            'ẽ' => 'e',
-            'ẹ' => 'e',
-            'ê' => 'e',
-            'ề' => 'e',
-            'ế' => 'e',
-            'ể' => 'e',
-            'ễ' => 'e',
-            'ệ' => 'e',
-            'ì' => 'i',
-            'í' => 'i',
-            'ỉ' => 'i',
-            'ĩ' => 'i',
-            'ị' => 'i',
-            'ò' => 'o',
-            'ó' => 'o',
-            'ỏ' => 'o',
-            'õ' => 'o',
-            'ọ' => 'o',
-            'ô' => 'o',
-            'ồ' => 'o',
-            'ố' => 'o',
-            'ổ' => 'o',
-            'ỗ' => 'o',
-            'ộ' => 'o',
-            'ơ' => 'o',
-            'ờ' => 'o',
-            'ớ' => 'o',
-            'ở' => 'o',
-            'ỡ' => 'o',
-            'ợ' => 'o',
-            'ù' => 'u',
-            'ú' => 'u',
-            'ủ' => 'u',
-            'ũ' => 'u',
-            'ụ' => 'u',
-            'ư' => 'u',
-            'ừ' => 'u',
-            'ứ' => 'u',
-            'ử' => 'u',
-            'ữ' => 'u',
-            'ự' => 'u',
-            'ỳ' => 'y',
-            'ý' => 'y',
-            'ỷ' => 'y',
-            'ỹ' => 'y',
-            'ỵ' => 'y',
-            'đ' => 'd',
-            'À' => 'A',
-            'Á' => 'A',
-            'Ả' => 'A',
-            'Ã' => 'A',
-            'Ạ' => 'A',
-            'Ă' => 'A',
-            'Ằ' => 'A',
-            'Ắ' => 'A',
-            'Ẳ' => 'A',
-            'Ẵ' => 'A',
-            'Ặ' => 'A',
-            'Â' => 'A',
-            'Ầ' => 'A',
-            'Ấ' => 'A',
-            'Ẩ' => 'A',
-            'Ẫ' => 'A',
-            'Ậ' => 'A',
-            'È' => 'E',
-            'É' => 'E',
-            'Ẻ' => 'E',
-            'Ẽ' => 'E',
-            'Ẹ' => 'E',
-            'Ê' => 'E',
-            'Ề' => 'E',
-            'Ế' => 'E',
-            'Ể' => 'E',
-            'Ễ' => 'E',
-            'Ệ' => 'E',
-            'Ì' => 'I',
-            'Í' => 'I',
-            'Ỉ' => 'I',
-            'Ĩ' => 'I',
-            'Ị' => 'I',
-            'Ò' => 'O',
-            'Ó' => 'O',
-            'Ỏ' => 'O',
-            'Õ' => 'O',
-            'Ọ' => 'O',
-            'Ô' => 'O',
-            'Ồ' => 'O',
-            'Ố' => 'O',
-            'Ổ' => 'O',
-            'Ỗ' => 'O',
-            'Ộ' => 'O',
-            'Ơ' => 'O',
-            'Ờ' => 'O',
-            'Ớ' => 'O',
-            'Ở' => 'O',
-            'Ỡ' => 'O',
-            'Ợ' => 'O',
-            'Ù' => 'U',
-            'Ú' => 'U',
-            'Ủ' => 'U',
-            'Ũ' => 'U',
-            'Ụ' => 'U',
-            'Ư' => 'U',
-            'Ừ' => 'U',
-            'Ứ' => 'U',
-            'Ử' => 'U',
-            'Ữ' => 'U',
-            'Ự' => 'U',
-            'Ỳ' => 'Y',
-            'Ý' => 'Y',
-            'Ỷ' => 'Y',
-            'Ỹ' => 'Y',
-            'Ỵ' => 'Y',
-            'Đ' => 'D',
-        ];
-        return strtr($string, $unicode);
+        $product = Product::onlyTrashed()->find($id);
+        if ($product) {
+            $product->restore();
+            return redirect()->route('product.trashed')->with('success', 'Sản phẩm đã được khôi phục.');
+        }
+
+        return redirect()->route('product.trashed')->with('error', 'Sản phẩm không tồn tại.');
     }
+
+    // Xóa vĩnh viễn sản phẩm
+    public function forceDelete($id)
+    {
+        $product = Product::onlyTrashed()->find($id);
+        if ($product) {
+            // Delete image if exists
+            if ($product->image && file_exists(public_path('img/products/' . $product->image))) {
+                unlink(public_path('img/products/' . $product->image));
+            }
+            // Xóa sản phẩm trong database
+            $product->forceDelete();
+            return redirect()->route('product.trashed')->with('success', 'Sản phẩm đã được xóa vĩnh viễn.');
+        }
+
+        return redirect()->route('product.trashed')->with('error', 'Sản phẩm không tồn tại.');
+    }
+    
 }

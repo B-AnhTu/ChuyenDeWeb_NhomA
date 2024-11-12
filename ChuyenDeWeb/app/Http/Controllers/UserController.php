@@ -10,9 +10,17 @@ use App\Rules\SingleSpaceOnly;
 use App\Rules\GmailOnly;
 use App\Rules\NoSpace;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
+use App\Services\SlugService;
+
 class UserController extends Controller
 {
+    protected $slugService; // Khai báo thuộc tính slugService
+
+    public function __construct(SlugService $slugService) // Constructor
+    {
+        $this->slugService = $slugService; // Khởi tạo slugService
+    }
     /**
      * Display a listing of the resource.
      */
@@ -71,7 +79,7 @@ class UserController extends Controller
         $data = $request->all();
 
         // Tạo slug từ fullname
-        $data['slug'] = $this->slugify($data['fullname']); // Sử dụng hàm slugify để tạo slug
+        $data['slug'] = $this->slugService->slugify($data['fullname']) . '-' . Str::random(6); // Sử dụng hàm slugify để tạo slug
 
         if ($request->hasFile('image')) {
             $file = $request->file('image');
@@ -124,10 +132,12 @@ class UserController extends Controller
      */
     public function update(Request $request, $slug)
     {
+        $user = User::where('slug', $slug)->first();
+
         $request->validate([
             'fullname' => ['required', 'string', 'max:50', new SingleSpaceOnly, new NoSpecialCharacters],
-            'image' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:5120',
-            'email' => ['required', 'email', 'max:50', 'unique:users,email', new GmailOnly, new NoSpace],
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:5120',
+            'email' => ['required', 'email', 'max:50','unique:users,email,' . $user->user_id . ',user_id', new GmailOnly, new NoSpace],
             'password' => ['required', 'min:8', 'max:20', new NoSpace],
             'phone' => ['required', 'digits:10', 'regex:/^0[0-9]{9}$/', new NoSpecialCharacters, new NoSpace],
             'address' => ['required', 'string', 'max:255', new NoSpecialCharacters],
@@ -148,9 +158,6 @@ class UserController extends Controller
             'phone.regex' => 'Số điện thoại không đúng định dạng',
             'address.max' => 'Địa chỉ không được quá 255 ký tự',
         ]);
-
-        $user = User::where('slug', $slug)->first();
-
         
         if ($request->hasFile('image')) {
             $file = $request->file('image');
@@ -172,7 +179,7 @@ class UserController extends Controller
         $user->phone = $request->input('phone');
         $user->address = $request->input('address');
         // Tạo slug từ fullname
-        $user->slug = $this->slugify($request->input('fullname')); // Sử dụng hàm slugify để tạo slug
+        $user->slug = $this->slugService->slugify($request->input('fullname')); // Sử dụng hàm slugify để tạo slug
         $user->updated_at = now();
         $user->save();
 
@@ -305,53 +312,5 @@ class UserController extends Controller
         $users = User::where('fullname','LIKE', '%' . $query . '%')->paginate(5);
 
         return view('adminPage', compact('users'));
-    }
-    // Hàm để tạo slug
-    private function slugify($text)
-    {
-        // Chuyển đổi ký tự có dấu thành không dấu
-        $text = $this->removeVietnameseAccent($text);
-        
-        // Thay thế nhiều khoảng trắng thành một khoảng trắng
-        $text = preg_replace('/\s+/', ' ', $text);
-        $text = trim($text); // Xóa khoảng trắng ở đầu và cuối
-        $text = strtolower($text); // Chuyển thành chữ thường
-        $text = str_replace(' ', '-', $text); // Thay dấu khoảng trắng bằng dấu gạch nối
-
-        return $text;
-    }
-
-    // Hàm để loại bỏ dấu tiếng Việt
-    private function removeVietnameseAccent($string)
-    {
-        $unicode = [
-            'à' => 'a', 'á' => 'a', 'ả' => 'a', 'ã' => 'a', 'ạ' => 'a',
-            'ă' => 'a', 'ằ' => 'a', 'ắ' => 'a', 'ẳ' => 'a', 'ẵ' => 'a', 'ặ' => 'a',
-            'â' => 'a', 'ầ' => 'a', 'ấ' => 'a', 'ẩ' => 'a', 'ẫ' => 'a', 'ậ' => 'a',
-            'è' => 'e', 'é' => 'e', 'ẻ' => 'e', 'ẽ' => 'e', 'ẹ' => 'e',
-            'ê' => 'e', 'ề' => 'e', 'ế' => 'e', 'ể' => 'e', 'ễ' => 'e', 'ệ' => 'e',
-            'ì' => 'i', 'í' => 'i', 'ỉ' => 'i', 'ĩ' => 'i', 'ị' => 'i',
-            'ò' => 'o', 'ó' => 'o', 'ỏ' => 'o', 'õ' => 'o', 'ọ' => 'o',
-            'ô' => 'o', 'ồ' => 'o', 'ố' => 'o', 'ổ' => 'o', 'ỗ' => 'o', 'ộ' => 'o',
-            'ơ' => 'o', 'ờ' => 'o', 'ớ' => 'o', 'ở' => 'o', 'ỡ' => 'o', 'ợ' => 'o',
-            'ù' => 'u', 'ú' => 'u', 'ủ' => 'u', 'ũ' => 'u', 'ụ' => 'u',
-            'ư' => 'u', 'ừ' => 'u', 'ứ' => 'u', 'ử' => 'u', 'ữ' => 'u', 'ự' => 'u',
-            'ỳ' => 'y', 'ý' => 'y', 'ỷ' => 'y', 'ỹ' => 'y', 'ỵ' => 'y',
-            'đ' => 'd',
-            'À' => 'A', 'Á' => 'A', 'Ả' => 'A', 'Ã' => 'A', 'Ạ' => 'A',
-            'Ă' => 'A', 'Ằ' => 'A', 'Ắ' => 'A', 'Ẳ' => 'A', 'Ẵ' => 'A', 'Ặ' => 'A',
-            'Â' => 'A', 'Ầ' => 'A', 'Ấ' => 'A', 'Ẩ' => 'A', 'Ẫ' => 'A', 'Ậ' => 'A',
-            'È' => 'E', 'É' => 'E', 'Ẻ' => 'E', 'Ẽ' => 'E', 'Ẹ' => 'E',
-            'Ê' => 'E', 'Ề' => 'E', 'Ế' => 'E', 'Ể' => 'E', 'Ễ' => 'E', 'Ệ' => 'E',
-            'Ì' => 'I', 'Í' => 'I', 'Ỉ' => 'I', 'Ĩ' => 'I', 'Ị' => 'I',
-            'Ò' => 'O', 'Ó' => 'O', 'Ỏ' => 'O', 'Õ' => 'O', 'Ọ' => 'O',
-            'Ô' => 'O', 'Ồ' => 'O', 'Ố' => 'O', 'Ổ' => 'O', 'Ỗ' => 'O', 'Ộ' => 'O',
-            'Ơ' => 'O', 'Ờ' => 'O', 'Ớ' => 'O', 'Ở' => 'O', 'Ỡ' => 'O', 'Ợ' => 'O',
-            'Ù' => 'U', 'Ú' => 'U', 'Ủ' => 'U', 'Ũ' => 'U', 'Ụ' => 'U',
-            'Ư' => 'U', 'Ừ' => 'U', 'Ứ' => 'U', 'Ử' => 'U', 'Ữ' => 'U', 'Ự' => 'U',
-            'Ỳ' => 'Y', 'Ý' => 'Y', 'Ỷ' => 'Y', 'Ỹ' => 'Y', 'Ỵ' => 'Y',
-            'Đ' => 'D',
-        ];
-        return strtr($string, $unicode);
     }
 }

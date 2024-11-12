@@ -19,8 +19,8 @@ return new class extends Migration
             $table->timestamps();
             $table->tinyInteger('status')->default(0);
 
-            $table->foreign('product_id')->references('product_id')->on('product');
-            $table->foreign('user_id')->references('user_id')->on('users');
+            $table->foreign('product_id')->references('product_id')->on('product')->onDelete('cascade');
+            $table->foreign('user_id')->references('user_id')->on('users')->onDelete('cascade');
         });
     }
 

@@ -21,8 +21,8 @@ return new class extends Migration
             $table->string('email')->nullable();
             $table->string('name')->nullable();
 
-            $table->foreign('blog_id')->references('blog_id')->on('blog');
-            $table->foreign('user_id')->references('user_id')->on('users');
+            $table->foreign('blog_id')->references('blog_id')->on('blog')->onDelete('cascade');
+            $table->foreign('user_id')->references('user_id')->on('users')->onDelete('cascade');
         });
     }
 
