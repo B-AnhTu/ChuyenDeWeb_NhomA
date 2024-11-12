@@ -5,11 +5,11 @@
     <div class="container">
         <div class="checkout__form">
             <h4>Chi tiết thanh toán</h4>
-            @if (session('error'))
+            <!-- @if (session('error'))
             <div class="alert alert-danger">
                 {{ session('error') }}
             </div>
-            @endif
+            @endif -->
             <form action="{{ route('checkout.process') }}" method="POST">
                 @csrf
                 <div class="row">

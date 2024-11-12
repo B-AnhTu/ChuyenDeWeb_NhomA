@@ -66,8 +66,12 @@ class CheckoutController extends Controller
                 return optional($item->product)->price * $item->quantity;
             });
 
+            // Tạo mã đơn hàng ngẫu nhiên dựa trên thời gian và số ngẫu nhiên
+            $orderId = 'ORD-' . strtoupper(uniqid());
+
             // Tạo đơn hàng mới
             $order = Order::create([
+                'order_id' => $orderId, // Mã đơn hàng ngẫu nhiên dạng số
                 'user_id' => Auth::id(),
                 'total_amount' => $total,
                 'shipping_name' => $validated['shipping_name'],
@@ -78,17 +82,23 @@ class CheckoutController extends Controller
                 'note' => $validated['note'] ?? null,
                 'status' => 'pending'
             ]);
+
             foreach ($cart->cartProducts as $item) {
+                // Kiểm tra số lượng tồn kho
+                $product = $item->product;
+                if ($product->stock_quantity < $item->quantity) {
+                    return back()->with('error', 'Số lượng trong kho không đủ cho sản phẩm: ' . $product->product_name);
+                }
+
                 // Tạo chi tiết đơn hàng
                 OrderDetail::create([
-                    'order_id' => $order->id,
+                    'order_id' => $order->id, // Cập nhật theo ID của đơn hàng mới tạo
                     'product_id' => $item->product->product_id,
                     'quantity' => $item->quantity,
                     'price' => $item->product->price
                 ]);
 
                 // Giảm số lượng tồn kho và tăng số lượng đã bán
-                $product = $item->product;
                 $product->decrement('stock_quantity', $item->quantity);
                 $product->increment('sold_quantity', $item->quantity);
             }
@@ -99,7 +109,7 @@ class CheckoutController extends Controller
 
             DB::commit();
 
-            return redirect()->route('cart.view')->with('success', 'Đặt hàng thành công!');
+            return redirect()->route('cart.view')->with('success', 'Đặt hàng thành công! Mã đơn hàng của bạn là: ' . $orderId);
         } catch (\Exception $e) {
             DB::rollBack();
             return back()->with('error', 'Có lỗi xảy ra: ' . $e->getMessage());
@@ -124,7 +134,7 @@ class CheckoutController extends Controller
     public function orderDetail($id)
     {
         $order = Order::with(['orderDetails.product'])
-            ->where('id', $id)
+            ->where('order_id', $id)
             ->where('user_id', Auth::id())
             ->firstOrFail();
 
@@ -135,12 +145,12 @@ class CheckoutController extends Controller
     public function trackOrder(Request $request)
     {
         $validated = $request->validate([
-            'order_id' => 'required|numeric',
+            'order_id' => 'required|string|max:20',
             'email' => 'required|email'
         ]);
 
         $order = Order::with(['orderDetails.product'])
-            ->where('id', $validated['order_id'])
+            ->where('order_id', $validated['order_id'])
             ->where('shipping_email', $validated['email'])
             ->first();
 

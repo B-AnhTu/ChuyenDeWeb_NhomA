@@ -27,14 +27,14 @@
             <a href="{{ route('orders.my-orders') }}">Đơn hàng của tôi</a>
         </div>
         @endif
-        @if (session('error'))
+        <!-- @if (session('error'))
         <div class="alert alert-danger">
             {{ session('error') }}
         </div>
-        @endif
+        @endif-->
         @if ($cartItems->isEmpty())
         <p>Bạn chưa thêm sản phẩm nào vào giỏ hàng.</p>
-        @else
+        @else 
         <!-- Hiển thị thông báo -->
 
         <div class="row">

@@ -11,7 +11,7 @@
                         @csrf
                         <div class="form-group">
                             <label>Mã đơn hàng</label>
-                            <input type="number" name="order_id" class="form-control" required>
+                            <input type="text" name="order_id" class="form-control" required>
                         </div>
                         <div class="form-group">
                             <label>Email đặt hàng</label>

@@ -19,7 +19,7 @@
             <tbody>
                 @foreach($orders as $order)
                 <tr>
-                    <td>#{{ $order->id }}</td>
+                    <td>#{{ $order->order_id }}</td>
                     <td>{{ $order->created_at->format('d/m/Y H:i') }}</td>
                     <td>{{ number_format($order->total_amount) }} vnđ</td>
                     <td>
@@ -42,7 +42,7 @@
                         @endswitch
                     </td>
                     <td>
-                        <a href="{{ route('orders.detail', $order->id) }}" class="btn btn-sm btn-info">Chi tiết</a>
+                        <a href="{{ route('orders.detail', $order->order_id) }}" class="btn btn-sm btn-info">Chi tiết</a>
                         @if($order->status == 'pending')
                         <form action="{{ route('orders.cancel', $order->id) }}" method="POST" class="d-inline">
                             @csrf

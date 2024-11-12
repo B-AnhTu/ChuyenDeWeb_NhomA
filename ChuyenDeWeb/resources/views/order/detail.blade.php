@@ -2,7 +2,7 @@
 @extends('app')
 @section('content')
 <div class="container">
-    <h2>Chi tiết đơn hàng #{{ $order->id }}</h2>
+    <h2>Chi tiết đơn hàng #{{ $order->order_id }}</h2>
     <div class="row">
         <div class="col-md-6">
             <h4>Thông tin đơn hàng</h4>
