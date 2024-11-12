@@ -5,7 +5,7 @@
         <div class="col-md-10">
             <div class="card">
                 <div class="card-header">
-                    <h3>Thông tin đơn hàng #{{ $order->id }}</h3>
+                    <h3>Thông tin đơn hàng #{{ $order->order_id }}</h3>
                 </div>
                 <div class="card-body">
                     <!-- Hiển thị tiến trình đơn hàng -->
