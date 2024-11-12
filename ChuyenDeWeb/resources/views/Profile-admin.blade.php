@@ -76,7 +76,7 @@
                     @endif
 
                     <!-- Form cập nhật thông tin cá nhân -->
-                    <form action="{{ route('admin.update') }}" method="POST" enctype="multipart/form-data">
+                    <form action="{{ route('user.update') }}" method="POST" enctype="multipart/form-data">
                         @csrf
                         @method('PUT')
 
