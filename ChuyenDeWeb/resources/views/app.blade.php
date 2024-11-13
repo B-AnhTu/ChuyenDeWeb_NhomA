@@ -17,8 +17,7 @@
         <!-- Google Font -->
         <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@200;300;400;600;900&display=swap" rel="stylesheet">
 
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
-            integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
         <!-- Css Styles -->
         <link rel="stylesheet" href="{{ asset('css/bootstrap.min.css') }}" type="text/css">
         <link rel="stylesheet" href="{{ asset('css/font-awesome.min.css') }}" type="text/css">
@@ -63,17 +62,14 @@
                     @else
                     <!-- Dropdown khi người dùng đã đăng nhập -->
                     <div class="dropdown-center">
-                        <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown"
-                            aria-expanded="false">
+                        <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                             {{ auth()->user()->fullname }}
                         </button>
                         <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="{{ url('Profile-user') }}"><i
-                                        class="fa-solid fa-user"></i>Thông tin cá nhân</a></li>
+                            <li><a class="dropdown-item" href="{{ url('Profile-user') }}"><i class="fa-solid fa-user"></i>Thông tin cá nhân</a></li>
                             <li><a class="dropdown-item" href="{{ url('change-password') }}"><i class="fa fa-lock"></i> Đổi
                                     mật khẩu</a></li>
-                            <li><a class="dropdown-item" href="{{ route('logout') }}"><i
-                                        class="fa-solid fa-right-from-bracket"></i> Đăng xuất</a></li>
+                            <li><a class="dropdown-item" href="{{ route('logout') }}"><i class="fa-solid fa-right-from-bracket"></i> Đăng xuất</a></li>
                         </ul>
                     </div>
                     @endguest
@@ -81,10 +77,18 @@
             </div>
             <nav class="humberger__menu__nav mobile-menu">
                 <ul>
-                    <li class="active"><a href="{{ '/' }}">Trang chủ</a></li>
-                    <li><a href="{{url('product')}}">Sản phẩm</a></li>
-                    <li><a href="{{ url('/blog') }}">Tin tức</a></li>
-                    <li><a href="{{ url('/contact') }}">Liên hệ</a></li>
+                    <li class="{{ request()->is('/') ? 'active' : '' }}">
+                        <a href="{{ '/' }}">Trang chủ</a>
+                    </li>
+                    <li class="{{ request()->is('product*') ? 'active' : '' }}">
+                        <a href="{{ url('product') }}">Sản phẩm</a>
+                    </li>
+                    <li class="{{ request()->is('blog*') ? 'active' : '' }}">
+                        <a href="{{ url('/blog') }}">Tin tức</a>
+                    </li>
+                    <li class="{{ request()->is('contact') ? 'active' : '' }}">
+                        <a href="{{ url('/contact') }}">Liên hệ</a>
+                    </li>
                 </ul>
             </nav>
             <div id="mobile-menu-wrap"></div>
@@ -129,17 +133,13 @@
                                     @else
                                     <!-- Dropdown khi người dùng đã đăng nhập -->
                                     <div class="dropdown-center">
-                                        <button class="btn btn-secondary dropdown-toggle" type="button"
-                                            data-bs-toggle="dropdown" aria-expanded="false">
+                                        <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                                             {{ auth()->user()->fullname }}
                                         </button>
                                         <ul class="dropdown-menu">
-                                            <li><a class="dropdown-item" href="{{ url('Profile-user') }}"><i
-                                                        class="fa-solid fa-user"></i>Thông tin cá nhân</a></li>
-                                            <li><a class="dropdown-item" href="{{ url('change-password') }}"><i
-                                                        class="fa fa-lock"></i> Đổi mật khẩu</a></li>
-                                            <li><a class="dropdown-item" href="{{ route('logout') }}"><i
-                                                        class="fa-solid fa-right-from-bracket"></i> Đăng xuất</a></li>
+                                            <li><a class="dropdown-item" href="{{ url('Profile-user') }}"><i class="fa-solid fa-user"></i>Thông tin cá nhân</a></li>
+                                            <li><a class="dropdown-item" href="{{ url('change-password') }}"><i class="fa fa-lock"></i> Đổi mật khẩu</a></li>
+                                            <li><a class="dropdown-item" href="{{ route('logout') }}"><i class="fa-solid fa-right-from-bracket"></i> Đăng xuất</a></li>
                                         </ul>
                                     </div>
                                     @endguest
@@ -165,10 +165,18 @@
                     <div class="col-lg-6">
                         <nav class="header__menu">
                             <ul>
-                                <li class="active"><a href="{{ '/' }}">Trang chủ</a></li>
-                                <li><a href="{{url('product')}}">Sản phẩm</a></li>
-                                <li><a href="{{ url('/blog') }}">Tin tức</a></li>
-                                <li><a href="{{ url('/contact') }}">Liên hệ</a></li>
+                                <li class="{{ request()->is('/') ? 'active' : '' }}">
+                                    <a href="{{ '/' }}">Trang chủ</a>
+                                </li>
+                                <li class="{{ request()->is('product*') ? 'active' : '' }}">
+                                    <a href="{{ url('product') }}">Sản phẩm</a>
+                                </li>
+                                <li class="{{ request()->is('blog*') ? 'active' : '' }}">
+                                    <a href="{{ url('/blog') }}">Tin tức</a>
+                                </li>
+                                <li class="{{ request()->is('contact') ? 'active' : '' }}">
+                                    <a href="{{ url('/contact') }}">Liên hệ</a>
+                                </li>
                             </ul>
                         </nav>
                     </div>
@@ -228,12 +236,10 @@
                             <form id="newsletterForm" class="newsletter-form">
                                 @csrf
                                 <div class="form-group mb-3">
-                                    <input type="text" name="name" class="form-control"
-                                        placeholder="Tên của bạn (không bắt buộc)">
+                                    <input type="text" name="name" class="form-control" placeholder="Tên của bạn (không bắt buộc)">
                                 </div>
                                 <div class="form-group mb-3">
-                                    <input type="email" name="email" class="form-control"
-                                        placeholder="Nhập email của bạn" required>
+                                    <input type="email" name="email" class="form-control" placeholder="Nhập email của bạn" required>
                                 </div>
                             </form>
                             <button type="button" class="site-btn" id="subscribeBtn">
@@ -259,9 +265,7 @@
                                     Copyright &copy;
                                     <script>
                                         document.write(new Date().getFullYear());
-                                    </script> All rights reserved | This template is made with <i
-                                        class="fa fa-heart" aria-hidden="true"></i> by <a href="https://colorlib.com"
-                                        target="_blank">Colorlib</a>
+                                    </script> All rights reserved | This template is made with <i class="fa fa-heart" aria-hidden="true"></i> by <a href="https://colorlib.com" target="_blank">Colorlib</a>
                                     <!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
                                 </p>
                             </div>
@@ -285,8 +289,7 @@
         <script src="{{ asset('js/mixitup.min.js') }}"></script>
         <script src="{{ asset('js/owl.carousel.min.js') }}"></script>
         <script src="{{ asset('js/main.js') }}"></script>
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
-            integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous">
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous">
         </script>
         <script src="https://kit.fontawesome.com/f6dce9b617.js" crossorigin="anonymous"></script>
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>

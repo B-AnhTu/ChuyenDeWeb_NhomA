@@ -23,6 +23,12 @@ document.addEventListener("DOMContentLoaded", function () {
                 updateCartQuantity(productId, quantity - 1);
             }
         });
+        quantityInput.addEventListener("input", function () {
+            let quantity = parseInt(quantityInput.value);
+            if (!isNaN(quantity) && quantity > 0) {
+                updateCartQuantity(productId, quantity);
+            }
+        });
     });
 
     function updateCartQuantity(productId, quantity) {
@@ -118,7 +124,7 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         });
     });
-//Xử lý thanh toán
+    //Xử lý thanh toán
     const checkoutButton = document.querySelector(
         ".shoping__checkout .primary-btn .thanh-toan"
     );
@@ -156,8 +162,8 @@ document.addEventListener("DOMContentLoaded", function () {
                                 <input type="text" class="form-control" id="cardName" required>
                             </div>
                             <p>Tổng thanh toán: <strong>${formatCurrency(
-                                total
-                            )}</strong></p>
+            total
+        )}</strong></p>
                         </div>
                         <div class="modal-footer">
                             <button type="submit" class="primary-btn">Thanh toán</button>

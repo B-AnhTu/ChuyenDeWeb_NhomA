@@ -74,15 +74,19 @@ class CheckoutController extends Controller
                 'note' => $validated['note'] ?? null,
                 'status' => 'pending'
             ]);
-
-            // Tạo chi tiết đơn hàng
             foreach ($cart->cartProducts as $item) {
+                // Tạo chi tiết đơn hàng
                 OrderDetail::create([
                     'order_id' => $order->id,
                     'product_id' => $item->product->product_id,
                     'quantity' => $item->quantity,
                     'price' => $item->product->price
                 ]);
+
+                // Giảm số lượng tồn kho và tăng số lượng đã bán
+                $product = $item->product;
+                $product->decrement('stock_quantity', $item->quantity);
+                $product->increment('sold_quantity', $item->quantity);
             }
 
             // Xóa giỏ hàng

@@ -24,14 +24,17 @@ return new class extends Migration
             $table->integer('sold_quantity')->default(0);
 
             //Khóa ngoại 
-            $table->foreign('category_id')->references('category_id')->on('category');
-            $table->foreign('manufacturer_id')->references('manufacturer_id')->on('manufacturer');
+            $table->foreign('category_id')->references('category_id')->on('category')->onDelete('cascade');
+            $table->foreign('manufacturer_id')->references('manufacturer_id')->on('manufacturer')->onDelete('cascade');
             $table->string('slug')->unique();
             $table->timestamps();
 
 
             // Thêm fulltext index sau khi đã định nghĩa các cột
             $table->fullText(['product_name', 'description']);
+
+             // Thêm cột deleted_at để lưu trữ dữ liệu xóa
+            $table->softDeletes();
         });
     }
 
