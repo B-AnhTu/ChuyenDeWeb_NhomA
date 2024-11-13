@@ -120,7 +120,18 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/reviews/{id}/reject', [ProductReviewController::class, 'reject'])->name('reviews.reject');
     Route::delete('/reviews/{id}', [ProductReviewController::class, 'destroy'])->name('reviews.destroy');
 });
-//route mail
+
+// Routes cho theo dõi đơn hàng
+Route::get('/orders/track', [CheckoutController::class, 'showTrackingForm'])->name('orders.track-form');
+Route::post('/orders/track', [CheckoutController::class, 'trackOrder'])->name('orders.track');
+
+// Routes cho người dùng đã đăng nhập
+Route::middleware(['auth'])->group(function () {
+    Route::get('/my-orders', [CheckoutController::class, 'myOrders'])->name('orders.my-orders');
+    Route::get('/order/{order_id}', [CheckoutController::class, 'orderDetail'])->name('orders.detail');
+    Route::post('/orders/{id}/cancel', [CheckoutController::class, 'cancelOrder'])->name('orders.cancel');
+    Route::post('/orders/{id}/confirm-received', [CheckoutController::class, 'confirmReceived'])->name('orders.confirm-received');
+});
 // routes/web.php
 
 Route::post('/newsletter/subscribe', [NewsletterController::class, 'subscribe']);
@@ -180,7 +191,7 @@ Route::group(['middleware' => 'role:admin,editor'], function () {
     Route::get('/products/trashed', [ProductController::class, 'trashed'])->name('product.trashed');
     Route::put('/products/{id}/restore', [ProductController::class, 'restore'])->name('product.restore');
     Route::delete('/products/{id}/forceDelete', [ProductController::class, 'forceDelete'])->name('product.forceDelete');
-    
+
     //route user
     Route::get('/userAdmin', [UserController::class, 'list'])->name('userAdmin.index');
 

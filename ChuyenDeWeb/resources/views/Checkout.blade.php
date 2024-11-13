@@ -5,18 +5,18 @@
     <div class="container">
         <div class="checkout__form">
             <h4>Chi tiết thanh toán</h4>
-            @if (session('error'))
+            <!-- @if (session('error'))
             <div class="alert alert-danger">
                 {{ session('error') }}
             </div>
-            @endif
+            @endif -->
             <form action="{{ route('checkout.process') }}" method="POST">
                 @csrf
                 <div class="row">
                     <div class="col-lg-8 col-md-6">
                         <div class="checkout__input">
                             <p>Họ tên<span>*</span></p>
-                            <input type="text" name="shipping_name" value="{{ old('shipping_name') }}" required>
+                            <input type="text" name="shipping_name" value="{{ old('shipping_name', $user->fullname) }}" required>
                             @error('shipping_name')
                             <span class="text-danger">{{ $message }}</span>
                             @enderror
@@ -25,7 +25,7 @@
                             <div class="col-lg-6">
                                 <div class="checkout__input">
                                     <p>Email<span>*</span></p>
-                                    <input type="email" name="shipping_email" value="{{ old('shipping_email') }}" required>
+                                    <input type="email" name="shipping_email" value="{{ old('shipping_email', $user->email) }}" required>
                                     @error('shipping_email')
                                     <span class="text-danger">{{ $message }}</span>
                                     @enderror
@@ -34,7 +34,7 @@
                             <div class="col-lg-6">
                                 <div class="checkout__input">
                                     <p>Số điện thoại<span>*</span></p>
-                                    <input type="text" name="shipping_phone" value="{{ old('shipping_phone') }}" required>
+                                    <input type="text" name="shipping_phone" value="{{ old('shipping_phone', $user->phone ?? '') }}" required>
                                     @error('shipping_phone')
                                     <span class="text-danger">{{ $message }}</span>
                                     @enderror
@@ -43,7 +43,7 @@
                         </div>
                         <div class="checkout__input">
                             <p>Địa chỉ giao hàng<span>*</span></p>
-                            <input type="text" name="shipping_address" value="{{ old('shipping_address') }}" required>
+                            <input type="text" name="shipping_address" value="{{ old('shipping_address', $user->address ?? '') }}" required>
                             @error('shipping_address')
                             <span class="text-danger">{{ $message }}</span>
                             @enderror
