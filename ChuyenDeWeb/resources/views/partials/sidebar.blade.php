@@ -117,28 +117,28 @@
                         </ul>
                     </div>
                 </li>
-                <!--<li class="nav-item">
+                <li class="nav-item">
                     <a data-bs-toggle="collapse" href="#sidebarLayouts">
                         <i class="fas fa-th-list"></i>
-                        <p>Sidebar Layouts</p>
+                        <p>Orders</p>
                         <span class="caret"></span>
                     </a>
                     <div class="collapse" id="sidebarLayouts">
                         <ul class="nav nav-collapse">
                             <li>
-                                <a href="{{ asset('admin/sidebar-style-2.html') }}">
-                                    <span class="sub-item">Sidebar Style 2</span>
+                                <a href="{{ route('orders.index') }}">
+                                    <span class="sub-item">Quản lý đơn hàng</span>
                                 </a>
                             </li>
                             <li>
-                                <a href="{{ asset('admin/icon-menu.html') }}">
-                                    <span class="sub-item">Icon Menu</span>
+                                <a href="{{ route('orders.statistics') }}">
+                                    <span class="sub-item">Thống kê đơn hàng</span>
                                 </a>
                             </li>
                         </ul>
                     </div>
                 </li>
-                <li class="nav-item">
+                <!-- <li class="nav-item">
                     <a data-bs-toggle="collapse" href="#forms">
                         <i class="fas fa-pen-square"></i>
                         <p>Forms</p>

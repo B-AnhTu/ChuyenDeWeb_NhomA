@@ -22,7 +22,7 @@ return new class extends Migration
             $table->text('shipping_address');
             $table->enum('payment_method', ['cod', 'banking']);
             $table->text('note')->nullable();
-            $table->enum('status', ['pending', 'processing', 'completed', 'cancelled'])->default('pending');
+            $table->enum('status', ['pending', 'processing', 'shipping','completed', 'cancelled'])->default('pending');
             $table->timestamps();
         });
     }

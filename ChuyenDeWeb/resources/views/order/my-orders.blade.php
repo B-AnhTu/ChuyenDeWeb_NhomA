@@ -24,21 +24,21 @@
                     <td>{{ number_format($order->total_amount) }} vnđ</td>
                     <td>
                         @switch($order->status)
-                            @case('pending')
-                                <span class="badge badge-warning">Chờ xử lý</span>
-                                @break
-                            @case('confirmed')
-                                <span class="badge badge-info">Đã xác nhận</span>
-                                @break
-                            @case('shipping')
-                                <span class="badge badge-primary">Đang giao hàng</span>
-                                @break
-                            @case('completed')
-                                <span class="badge badge-success">Hoàn thành</span>
-                                @break
-                            @case('cancelled')
-                                <span class="badge badge-danger">Đã hủy</span>
-                                @break
+                        @case('pending')
+                        <span class="badge badge-warning">Chờ xử lý</span>
+                        @break
+                        @case('confirmed')
+                        <span class="badge badge-info">Đã xác nhận</span>
+                        @break
+                        @case('shipping')
+                        <span class="badge badge-primary">Đang giao hàng</span>
+                        @break
+                        @case('completed')
+                        <span class="badge badge-success">Hoàn thành</span>
+                        @break
+                        @case('cancelled')
+                        <span class="badge badge-danger">Đã hủy</span>
+                        @break
                         @endswitch
                     </td>
                     <td>

@@ -17,6 +17,7 @@ use App\Http\Controllers\CartController;
 use App\Http\Controllers\ProductLikeController;
 use App\Http\Controllers\CartProductController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\AdminOrderController;
 use App\Http\Controllers\BlogCommentController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\ContactController;
@@ -234,6 +235,12 @@ Route::group(['middleware' => 'role:admin,editor'], function () {
     Route::get('/searchBlogs', [BlogController::class, 'searchBlogs'])->name('searchBlogs');
     Route::get('/searchUsers', [UserController::class, 'searchUsers'])->name('searchUsers');
     Route::get('/searchPage', [UserController::class, 'searchPage'])->name('searchPage');
+
+    //Route order
+    Route::get('/orders/statistics', [AdminOrderController::class, 'statistics'])->name('orders.statistics');
+    Route::get('/orders', [AdminOrderController::class, 'index'])->name('orders.index');
+    Route::get('/orders/{id}', [AdminOrderController::class, 'show'])->name('orders.show');
+    Route::post('/orders/{id}/status', [AdminOrderController::class, 'updateStatus'])->name('orders.update-status');
 });
 
 
