@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Order;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -135,33 +136,102 @@ class AdminOrderController extends Controller
         //
     }
 
+    /**
+     * Hiển thị trang thống kê đơn hàng
+     */
     public function statistics(Request $request)
     {
-        // Tổng số đơn hàng và thống kê theo trạng thái
-        $stats = [
-            'total_orders' => Order::count(),
-            'pending_orders' => Order::where('status', 'pending')->count(),
-            'processing_orders' => Order::where('status', 'processing')->count(),
-            'shipping_orders' => Order::where('status', 'shipping')->count(),
-            'completed_orders' => Order::where('status', 'completed')->count(),
-            'cancelled_orders' => Order::where('status', 'cancelled')->count(),
-            'total_revenue' => Order::where('status', 'completed')->sum('total_amount'),
-            'today_orders' => Order::whereDate('created_at', today())->count(),
-            'today_revenue' => Order::where('status', 'completed')
-                ->whereDate('created_at', today())
+        // Xử lý khoảng thời gian
+        $dateFrom = $request->get('date_from', Carbon::now()->startOfMonth());
+        $dateTo = $request->get('date_to', Carbon::now());
+
+        // Thống kê tổng quan
+        $overview = $this->getOrdersOverview($dateFrom, $dateTo);
+        
+        // Thống kê theo trạng thái
+        $statusStats = $this->getOrdersByStatus($dateFrom, $dateTo);
+        
+        // Thống kê theo ngày
+        $dailyStats = $this->getDailyOrderStats($dateFrom, $dateTo);
+        
+        // Top sản phẩm bán chạy
+        $topProducts = $this->getTopSellingProducts($dateFrom, $dateTo);
+
+        return view('orders.statistics', compact(
+            'overview',
+            'statusStats',
+            'dailyStats',
+            'topProducts',
+            'dateFrom',
+            'dateTo'
+        ));
+    }
+
+    /**
+     * Lấy thống kê tổng quan
+     */
+    private function getOrdersOverview($dateFrom, $dateTo)
+    {
+        return [
+            'total_orders' => Order::whereBetween('created_at', [$dateFrom, $dateTo])->count(),
+            'total_revenue' => Order::whereBetween('created_at', [$dateFrom, $dateTo])
+                ->where('status', 'completed')
                 ->sum('total_amount'),
+            'average_order_value' => Order::whereBetween('created_at', [$dateFrom, $dateTo])
+                ->where('status', 'completed')
+                ->avg('total_amount'),
+            'total_customers' => Order::whereBetween('created_at', [$dateFrom, $dateTo])
+                ->distinct('user_id')
+                ->count(),
         ];
+    }
 
-        // Thống kê doanh thu theo tháng (bao gồm cả năm)
-        $monthlyStats = Order::where('status', 'completed')
-            ->selectRaw('YEAR(created_at) as year, MONTH(created_at) as month, COUNT(*) as total_orders, SUM(total_amount) as revenue')
-            ->groupBy(DB::raw('YEAR(created_at), MONTH(created_at)'))
-            ->get()
-            ->map(function ($item) {
-                $item->month_name = \Carbon\Carbon::createFromFormat('m', $item->month)->format('F Y');
-                return $item;
-            });
+    /**
+     * Lấy thống kê theo trạng thái đơn hàng
+     */
+    private function getOrdersByStatus($dateFrom, $dateTo)
+    {
+        return Order::whereBetween('created_at', [$dateFrom, $dateTo])
+            ->select('status', DB::raw('count(*) as total'), DB::raw('sum(total_amount) as revenue'))
+            ->groupBy('status')
+            ->get();
+    }
 
-        return view('orders.statistics', compact('stats', 'monthlyStats'));
+    /**
+     * Lấy thống kê đơn hàng theo ngày
+     */
+    private function getDailyOrderStats($dateFrom, $dateTo)
+    {
+        return Order::whereBetween('created_at', [$dateFrom, $dateTo])
+            ->select(
+                DB::raw('DATE(created_at) as date'),
+                DB::raw('count(*) as total_orders'),
+                DB::raw('sum(total_amount) as daily_revenue')
+            )
+            ->groupBy('date')
+            ->orderBy('date')
+            ->get();
+    }
+
+    /**
+     * Lấy danh sách top sản phẩm bán chạy
+     */
+    private function getTopSellingProducts($dateFrom, $dateTo)
+    {
+        return DB::table('order_details')
+            ->join('orders', 'order_details.order_id', '=', 'orders.id')
+            ->join('product', 'order_details.product_id', '=', 'product.product_id')
+            ->whereBetween('orders.created_at', [$dateFrom, $dateTo])
+            ->where('orders.status', 'completed')
+            ->select(
+                'product.product_id',
+                'product.product_name',
+                DB::raw('sum(order_details.quantity) as total_quantity'),
+                DB::raw('sum(order_details.quantity * order_details.price) as total_revenue')
+            )
+            ->groupBy('product.product_id', 'product.product_name')
+            ->orderBy('total_quantity', 'desc')
+            ->limit(10)
+            ->get();
     }
 }
