@@ -40,7 +40,7 @@
                                                 method="POST">
                                                 @csrf
                                                 @method('PUT')
-                                                <button type="submit" class="btn btn-success">Khôi phục</button>
+                                                <button onclick="return confirm('Bạn có muốn khôi phục sản phẩm này không?')" type="submit" class="btn btn-success">Khôi phục</button>
                                             </form>
                                         </div>
                                         <div class="col-md-6">
@@ -48,12 +48,10 @@
                                                 method="POST">
                                                 @csrf
                                                 @method('DELETE')
-                                                <button type="submit" class="btn btn-danger">Xóa vĩnh viễn</button>
+                                                <button onclick="return confirm('Bạn có muốn xóa sản phẩm này vĩnh viễn không?')" type="submit" class="btn btn-danger">Xóa vĩnh viễn</button>
                                             </form>
                                         </div>
                                     </div>
-
-
                                 </td>
                             </tr>
                         @endforeach
