@@ -85,7 +85,7 @@
                     <h4 class="text-section">Components</h4>
                 </li> -->
 
-                 <li class="nav-item">
+                <li class="nav-item">
                     <a data-bs-toggle="collapse" href="#base">
                         <i class="fas fa-layer-group"></i>
                         <p>Comments</p>
@@ -113,7 +113,7 @@
                                     <span class="sub-item">Unapproved Review</span>
                                 </a>
                             </li>
-                            
+
                         </ul>
                     </div>
                 </li>
@@ -126,13 +126,13 @@
                     <div class="collapse" id="sidebarLayouts">
                         <ul class="nav nav-collapse">
                             <li>
-                                <a href="{{ route('orders.index') }}">
-                                    <span class="sub-item">Quản lý đơn hàng</span>
+                                <a href="{{ route('orders.statistics') }}">
+                                    <span class="sub-item">Thống kê đơn hàng</span>
                                 </a>
                             </li>
                             <li>
-                                <a href="{{ route('orders.statistics') }}">
-                                    <span class="sub-item">Thống kê đơn hàng</span>
+                                <a href="{{ route('orders.index') }}">
+                                    <span class="sub-item">Quản lý đơn hàng</span>
                                 </a>
                             </li>
                         </ul>
