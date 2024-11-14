@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('orders', function (Blueprint $table) {
             $table->id();
+            $table->string('order_id')->unique();
             $table->unsignedBigInteger('user_id')->constrained();
             $table->decimal('total_amount', 12, 2);
             $table->string('shipping_name');
@@ -21,7 +22,7 @@ return new class extends Migration
             $table->text('shipping_address');
             $table->enum('payment_method', ['cod', 'banking']);
             $table->text('note')->nullable();
-            $table->enum('status', ['pending', 'processing', 'completed', 'cancelled'])->default('pending');
+            $table->enum('status', ['pending', 'processing', 'shipping','completed', 'cancelled'])->default('pending');
             $table->timestamps();
         });
     }
