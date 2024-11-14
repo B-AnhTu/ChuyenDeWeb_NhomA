@@ -93,7 +93,7 @@
                 <div class="col-md-4">
                     <select name="status" class="form-select">
                         <option value="pending" {{ $order->status == 'pending' ? 'selected' : '' }}>Chờ xử lý</option>
-                        <option value="processing" {{ $order->status == 'processing' ? 'selected' : '' }}>Đang xử lý</option>
+                        <option value="processing" {{ $order->status == 'processing' ? 'selected' : '' }}>Xác nhận</option>
                         <option value="shipping" {{ $order->status == 'shipping' ? 'selected' : '' }}>Đang giao</option>
                         <option value="completed" {{ $order->status == 'completed' ? 'selected' : '' }}>Hoàn thành</option>
                         <option value="cancelled" {{ $order->status == 'cancelled' ? 'selected' : '' }}>Đã hủy</option>

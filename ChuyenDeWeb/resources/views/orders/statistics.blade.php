@@ -65,8 +65,6 @@
         </div>
     </div>
 </div>
-@push('scripts')
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 <script src="{{ asset('js/chart-order.js') }}"></script>
-@endpush
 @endsection

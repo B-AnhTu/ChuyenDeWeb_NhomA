@@ -27,7 +27,7 @@
                         @case('pending')
                         <span class="badge badge-warning">Chờ xử lý</span>
                         @break
-                        @case('confirmed')
+                        @case('processing')
                         <span class="badge badge-info">Đã xác nhận</span>
                         @break
                         @case('shipping')
