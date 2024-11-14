@@ -207,9 +207,9 @@ class UserController extends Controller
             }
         }
         // Delete image if exists
-        if ($user->image && file_exists(public_path('img/profile-picture/' . $user->image))) {
-            unlink(public_path('img/profile-picture/' . $user->image));
-        }
+        // if ($user->image && file_exists(public_path('img/profile-picture/' . $user->image))) {
+        //     unlink(public_path('img/profile-picture/' . $user->image));
+        // }
         try {
             $user->delete();
             return redirect()->route('userAdmin.index')->with('success', 'Xóa người dùng thành công');
