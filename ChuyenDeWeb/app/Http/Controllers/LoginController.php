@@ -45,7 +45,7 @@ class LoginController extends Controller
 
             // Redirect based on user role (case-insensitive)
             if (strtolower($user->role) === 'admin') {
-                return redirect()->route('admin.index');
+                return redirect()->route('orders.statistics');
             } else {
                 return redirect()->route('index');
             }

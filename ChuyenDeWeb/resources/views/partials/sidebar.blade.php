@@ -47,32 +47,32 @@
                             </li>
                             <li>
                                 <a href="{{ route('manufacturer.index') }}">
-                                    <span class="sub-item">Manufacturer Management</span>
+                                    <span class="sub-item">Manufacturer</span>
                                 </a>
                             </li>
                             <li>
                                 <a href="{{ route('product.index') }}">
-                                    <span class="sub-item">Product Management</span>
+                                    <span class="sub-item">Product</span>
                                 </a>
                             </li>
                             <li>
                                 <a href="{{ route('category.index') }}">
-                                    <span class="sub-item">Category Management</span>
+                                    <span class="sub-item">Category</span>
                                 </a>
                             </li>
                             <li>
                                 <a href="{{ route('userAdmin.index') }}">
-                                    <span class="sub-item">User Management</span>
+                                    <span class="sub-item">User</span>
                                 </a>
                             </li>
                             <li>
                                 <a href="{{ route('blogAdmin.index') }}">
-                                    <span class="sub-item">Blog Management</span>
+                                    <span class="sub-item">Blog</span>
                                 </a>
                             </li>
                             <li>
                                 <a href="{{ route('cart.index') }}">
-                                    <span class="sub-item">Cart Management</span>
+                                    <span class="sub-item">Cart</span>
                                 </a>
                             </li>
                         </ul>
