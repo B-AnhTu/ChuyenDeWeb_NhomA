@@ -126,15 +126,7 @@ Route::middleware(['auth'])->group(function () {
 Route::get('/orders/track', [CheckoutController::class, 'showTrackingForm'])->name('orders.track-form');
 Route::post('/orders/track', [CheckoutController::class, 'trackOrder'])->name('orders.track');
 
-// Routes cho người dùng đã đăng nhập
-Route::middleware(['auth'])->group(function () {
-    Route::get('/my-orders', [CheckoutController::class, 'myOrders'])->name('orders.my-orders');
-    Route::get('/order/{order_id}', [CheckoutController::class, 'orderDetail'])->name('orders.detail');
-    Route::post('/orders/{id}/cancel', [CheckoutController::class, 'cancelOrder'])->name('orders.cancel');
-    Route::post('/orders/{id}/confirm-received', [CheckoutController::class, 'confirmReceived'])->name('orders.confirm-received');
-});
 // routes/web.php
-
 Route::post('/newsletter/subscribe', [NewsletterController::class, 'subscribe']);
 Route::post('/send-contact', [ContactController::class, 'sendMail'])->name('send.contact');
 
@@ -257,6 +249,7 @@ Route::group(['middleware' => 'guest'], function () {
     Route::post('/register', [RegisterController::class, 'register']);
 });
 
+// Route dành cho người dùng đã đăng nhập
 Route::middleware(['auth'])->group(function () {
     // route đổi mật khẩu
     Route::post('/change-password', [ChangePasswordController::class, 'changePassword'])->name('change-password');
@@ -269,4 +262,13 @@ Route::middleware(['auth'])->group(function () {
 
     // Thêm route mới cho trang Profile-User
     Route::get('/Profile-user', [ProfileUserController::class, 'show'])->name('profile.show');
+
+    //Orders
+    Route::get('/my-orders', [CheckoutController::class, 'myOrders'])->name('orders.my-orders');
+    
+    Route::get('/order/{order_id}', [CheckoutController::class, 'orderDetail'])->name('orders.detail');
+    
+    Route::post('/orders/{id}/cancel', [CheckoutController::class, 'cancelOrder'])->name('orders.cancel');
+    
+    Route::post('/orders/{id}/confirm-received', [CheckoutController::class, 'confirmReceived'])->name('orders.confirm-received');
 });
