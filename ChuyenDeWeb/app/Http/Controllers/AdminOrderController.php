@@ -158,7 +158,6 @@ class AdminOrderController extends Controller
             ->groupBy(DB::raw('YEAR(created_at), MONTH(created_at)'))
             ->get()
             ->map(function ($item) {
-                // Thêm năm và tháng vào để dễ dàng phân biệt
                 $item->month_name = \Carbon\Carbon::createFromFormat('m', $item->month)->format('F Y');
                 return $item;
             });
