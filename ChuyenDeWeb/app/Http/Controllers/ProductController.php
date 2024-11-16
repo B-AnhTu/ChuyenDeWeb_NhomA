@@ -3,18 +3,20 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Mail\NewProductNotification;
 use App\Models\Blog;
 use Illuminate\Http\Request;
 use App\Models\Product;
 use App\Models\Manufacturer;
 use App\Models\Category;
+use App\Models\NewsletterSubscriber;
 use App\Models\ProductLike;
 use App\Rules\SingleSpaceOnly;
 use App\Rules\NoSpecialCharacters;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use App\Services\SlugService;
-
+use Illuminate\Support\Facades\Mail;
 
 class ProductController extends Controller
 {
@@ -256,7 +258,13 @@ class ProductController extends Controller
             'slug' => $data['slug'],
         ]);
         $product->save();
+        // Sau khi lưu sản phẩm mới thành công
+        $subscribers = NewsletterSubscriber::where('is_active', true)->get();
 
+        foreach ($subscribers as $subscriber) {
+            Mail::to($subscriber->email)
+                ->send(new NewProductNotification($product));
+        }
         return redirect()->route('product.index')->with('success', 'Sản phẩm đã được tạo thành công');
     }
     // Hiển thị chi tiết sản phẩm
@@ -475,5 +483,4 @@ class ProductController extends Controller
 
         return redirect()->route('product.trashed')->with('error', 'Sản phẩm không tồn tại.');
     }
-    
 }

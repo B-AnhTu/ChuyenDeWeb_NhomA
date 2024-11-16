@@ -47,32 +47,32 @@
                             </li>
                             <li>
                                 <a href="{{ route('manufacturer.index') }}">
-                                    <span class="sub-item">Manufacturer Management</span>
+                                    <span class="sub-item">Manufacturer</span>
                                 </a>
                             </li>
                             <li>
                                 <a href="{{ route('product.index') }}">
-                                    <span class="sub-item">Product Management</span>
+                                    <span class="sub-item">Product</span>
                                 </a>
                             </li>
                             <li>
                                 <a href="{{ route('category.index') }}">
-                                    <span class="sub-item">Category Management</span>
+                                    <span class="sub-item">Category</span>
                                 </a>
                             </li>
                             <li>
                                 <a href="{{ route('userAdmin.index') }}">
-                                    <span class="sub-item">User Management</span>
+                                    <span class="sub-item">User</span>
                                 </a>
                             </li>
                             <li>
                                 <a href="{{ route('blogAdmin.index') }}">
-                                    <span class="sub-item">Blog Management</span>
+                                    <span class="sub-item">Blog</span>
                                 </a>
                             </li>
                             <li>
                                 <a href="{{ route('cart.index') }}">
-                                    <span class="sub-item">Cart Management</span>
+                                    <span class="sub-item">Cart</span>
                                 </a>
                             </li>
                         </ul>
@@ -85,7 +85,7 @@
                     <h4 class="text-section">Components</h4>
                 </li> -->
 
-                 <li class="nav-item">
+                <li class="nav-item">
                     <a data-bs-toggle="collapse" href="#base">
                         <i class="fas fa-layer-group"></i>
                         <p>Comments</p>
@@ -113,32 +113,32 @@
                                     <span class="sub-item">Unapproved Review</span>
                                 </a>
                             </li>
-                            
+
                         </ul>
                     </div>
                 </li>
-                <!--<li class="nav-item">
+                <li class="nav-item">
                     <a data-bs-toggle="collapse" href="#sidebarLayouts">
                         <i class="fas fa-th-list"></i>
-                        <p>Sidebar Layouts</p>
+                        <p>Orders</p>
                         <span class="caret"></span>
                     </a>
                     <div class="collapse" id="sidebarLayouts">
                         <ul class="nav nav-collapse">
                             <li>
-                                <a href="{{ asset('admin/sidebar-style-2.html') }}">
-                                    <span class="sub-item">Sidebar Style 2</span>
+                                <a href="{{ route('orders.statistics') }}">
+                                    <span class="sub-item">Thống kê đơn hàng</span>
                                 </a>
                             </li>
                             <li>
-                                <a href="{{ asset('admin/icon-menu.html') }}">
-                                    <span class="sub-item">Icon Menu</span>
+                                <a href="{{ route('orders.index') }}">
+                                    <span class="sub-item">Quản lý đơn hàng</span>
                                 </a>
                             </li>
                         </ul>
                     </div>
                 </li>
-                <li class="nav-item">
+                <!-- <li class="nav-item">
                     <a data-bs-toggle="collapse" href="#forms">
                         <i class="fas fa-pen-square"></i>
                         <p>Forms</p>
