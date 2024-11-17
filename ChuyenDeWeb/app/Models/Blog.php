@@ -52,4 +52,127 @@ class Blog extends Model
             }
         });
     }
+    /**
+     * Lấy tất cả blog với phân trang
+     */
+    public static function getPaginatedBlogs($perPage = 5, $searchTerm = null)
+    {
+        $query = self::query();
+
+        if ($searchTerm) {
+            $query->where('title', 'LIKE', "%{$searchTerm}%")
+                  ->orWhere('content', 'LIKE', "%{$searchTerm}%");
+        }
+
+        return $query->orderBy('created_at', 'desc')->paginate($perPage);
+    }
+
+    /**
+     * Tạo blog mới
+     */
+    public static function createBlog(array $data)
+    {
+        return self::create($data);
+    }
+
+    /**
+     * Cập nhật blog
+     */
+    public function updateBlog(array $data)
+    {
+        return $this->update($data);
+    }
+
+    /**
+     * Xóa blog
+     */
+    public static function deleteBlogBySlug($slug)
+    {
+        $blog = self::where('slug', $slug)->first();
+        if ($blog) {
+            $blog->delete();
+        }
+    }
+    /**
+     * Sắp xếp
+     */
+    public function scopeSortBlogs($query, $sortBy)
+    {
+        switch ($sortBy) {
+            case 'name_asc':
+                return $query->orderBy('title', 'asc');
+            case 'name_desc':
+                return $query->orderBy('title', 'desc');
+            case 'description_asc':
+                return $query->orderBy('short_description', 'asc');
+            case 'description_desc':
+                return $query->orderBy('short_description', 'desc');
+            case 'updated_at_asc':
+                return $query->orderBy('updated_at', 'asc');
+            case 'updated_at_desc':
+                return $query->orderBy('updated_at', 'desc');
+            default:
+                return $query;
+        }
+    }
+
+    /**
+     * Tìm kiếm full text search (trên admin)
+     */
+    public function scopeSearchBlogs($query, $searchTerm)
+    {
+        if ($searchTerm) {
+            $searchWords = explode(' ', $searchTerm);
+            $searchWords = array_filter($searchWords, fn($word) => strlen($word) >= 2);
+
+            if (!empty($searchWords)) {
+                $searchQuery = '+' . implode('* +', $searchWords) . '*';
+                return $query->whereRaw("MATCH(title, content) AGAINST(? IN BOOLEAN MODE)", [$searchQuery]);
+            }
+        }
+
+        return $query;
+    }
+    // Áp dụng vừa tìm kiếm vừa sắp xếp blog
+    public function scopeSearchAndSort($query, $searchTerm = null, $sortBy = null)
+    {
+        // Tìm kiếm nếu có từ khóa
+        if ($searchTerm) {
+            $searchWords = explode(' ', $searchTerm);
+            $searchWords = array_filter($searchWords, fn($word) => strlen($word) >= 2);
+
+            if (!empty($searchWords)) {
+                $searchQuery = '+' . implode('* +', $searchWords) . '*';
+                $query->whereRaw("MATCH(title, content) AGAINST(? IN BOOLEAN MODE)", [$searchQuery]);
+            }
+        }
+
+        // Sắp xếp nếu có lựa chọn
+        if ($sortBy) {
+            switch ($sortBy) {
+                case 'name_asc':
+                    $query->orderBy('title', 'asc');
+                    break;
+                case 'name_desc':
+                    $query->orderBy('title', 'desc');
+                    break;
+                case 'description_asc':
+                    $query->orderBy('short_description', 'asc');
+                    break;
+                case 'description_desc':
+                    $query->orderBy('short_description', 'desc');
+                    break;
+                case 'updated_at_asc':
+                    $query->orderBy('updated_at', 'asc');
+                    break;
+                case 'updated_at_desc':
+                    $query->orderBy('updated_at', 'desc');
+                    break;
+                default:
+                    $query->orderBy('created_at', 'desc'); // Sắp xếp mặc định
+            }
+        }
+
+        return $query;
+    }
 }
