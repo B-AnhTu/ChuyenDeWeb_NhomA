@@ -66,6 +66,13 @@ class Blog extends Model
 
         return $query->orderBy('created_at', 'desc')->paginate($perPage);
     }
+    /**
+     * Lấy blog theo slug
+     */
+    public static function getBlogBySlug($slug)
+    {
+        return self::where('slug', $slug)->first();
+    }
 
     /**
      * Tạo blog mới
@@ -80,7 +87,40 @@ class Blog extends Model
      */
     public function updateBlog(array $data)
     {
-        return $this->update($data);
+        return DB::transaction(function () use ($data) {
+            // Lưu giá trị updated_at hiện tại trước khi cập nhật
+            $currentUpdatedAt = $this->updated_at;
+
+            // Kiểm tra slug mới từ category_name
+            $newSlug = $data['slug'] ?? $this->slug; // Lấy slug mới từ dữ liệu
+            $slugChanged = $newSlug !== $this->slug; // Kiểm tra slug đã thay đổi
+
+            // 1. Kiểm tra xung đột trước khi thực hiện cập nhật
+            if ($currentUpdatedAt != $this->updated_at) {
+                throw new \Exception('Conflict detected. The category has been updated by another user.');
+            }
+
+            // 2. Cập nhật thông tin cho category
+            if (isset($data['image'])) {
+                $file = $data['image'];
+                $filename = time() . '_' . $file->getClientOriginalName();
+                $file->move(public_path('img/category'), $filename);
+
+                // Xóa ảnh cũ nếu có
+                if ($this->image && file_exists(public_path('img/category/' . $this->image))) {
+                    unlink(public_path('img/category/' . $this->image));
+                }
+
+                $data['image'] = $filename;
+            }
+
+            $data['updated_at'] = now();
+
+            // 3. Cập nhật category
+            $this->update($data);
+
+            return $this; // Trả về category đã cập nhật
+        });
     }
 
     /**
@@ -96,7 +136,7 @@ class Blog extends Model
     /**
      * Sắp xếp
      */
-    public function scopeSortBlogs($query, $sortBy)
+    public function sortBlogs($query, $sortBy)
     {
         switch ($sortBy) {
             case 'name_asc':
@@ -119,7 +159,7 @@ class Blog extends Model
     /**
      * Tìm kiếm full text search (trên admin)
      */
-    public function scopeSearchBlogs($query, $searchTerm)
+    public function search($query, $searchTerm)
     {
         if ($searchTerm) {
             $searchWords = explode(' ', $searchTerm);

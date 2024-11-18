@@ -96,6 +96,13 @@ class BlogController extends Controller
         $this->blogService->createBlog($request->validated());
         return redirect()->route('blogAdmin.index')->with('success', 'Blog created successfully.');
     }
+    public function show($slug){
+        $blog = Blog::where('slug', $slug)->first();
+        if (!$blog){
+            return redirect()->route('blogAdmin.index')->with('error', 'Blog not found. It may have been deleted or modified by another user.');  
+        }
+        return view('blogUpdate', compact('blog'));
+    }
     /**
      * Hiển thị form chỉnh sửa blog
      */
