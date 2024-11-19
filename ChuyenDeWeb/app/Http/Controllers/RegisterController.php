@@ -51,14 +51,13 @@ class RegisterController extends Controller
             return redirect()->back()->withErrors($validator)->withInput();
         }
 
-        // Đăng ký thành công, lưu user vào database
-        User::create([
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-            'fullname' => $request->fullname,
-            'slug' => $this->slugService->slugify($request->fullname),
-            'phone' => $request->phone,
-        ]);
+        // Đăng ký thành công, lưu user vào database thông qua model
+        User::registerUser(
+            $request->email, 
+            $request->password, 
+            $request->fullname, 
+            $request->phone
+        );
 
         // Thêm thông báo thành công vào session
         session()->flash('success', 'Đăng ký thành công! Vui lòng đăng nhập.');

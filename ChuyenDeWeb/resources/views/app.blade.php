@@ -9,16 +9,13 @@
         <meta http-equiv="X-UA-Compatible" content="ie=edge">
         <meta name="csrf-token" content="{{ csrf_token() }}">
         <title>Web bán hàng</title>
-        <style>
-            .fa-heart.liked {
-                color: red;
-            }
-        </style>
         <!-- Google Font -->
-        <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@200;300;400;600;900&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@200;300;400;600;900&display=swap"
+            rel="stylesheet">
 
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+        {{-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous"> --}}
         <!-- Css Styles -->
+        <link rel="stylesheet" href="{{ asset('bootstrap5.3/css/bootstrap.min.css') }}" type="text/css">
         <link rel="stylesheet" href="{{ asset('css/bootstrap.min.css') }}" type="text/css">
         <link rel="stylesheet" href="{{ asset('css/font-awesome.min.css') }}" type="text/css">
         <link rel="stylesheet" href="{{ asset('css/elegant-icons.css') }}" type="text/css">
@@ -27,7 +24,7 @@
         <link rel="stylesheet" href="{{ asset('css/owl.carousel.min.css') }}" type="text/css">
         <link rel="stylesheet" href="{{ asset('css/slicknav.min.css') }}" type="text/css">
         <link rel="stylesheet" href="{{ asset('css/style.css') }}" type="text/css">
-        <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+        {{-- <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet"> --}}
 
         {{-- jquery --}}
         <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -57,21 +54,25 @@
             <div class="humberger__menu__widget">
                 <div class="header__top__right__auth">
                     @guest
-                    <!-- Hiển thị nút Đăng nhập nếu chưa đăng nhập -->
-                    <a href="{{ url('/login') }}"><i class="fa fa-user"></i> Đăng nhập</a>
+                        <!-- Hiển thị nút Đăng nhập nếu chưa đăng nhập -->
+                        <a href="{{ url('/login') }}"><i class="fa fa-user"></i> Đăng nhập</a>
                     @else
-                    <!-- Dropdown khi người dùng đã đăng nhập -->
-                    <div class="dropdown-center">
-                        <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            {{ auth()->user()->fullname }}
-                        </button>
-                        <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="{{ url('Profile-user') }}"><i class="fa-solid fa-user"></i>Thông tin cá nhân</a></li>
-                            <li><a class="dropdown-item" href="{{ url('change-password') }}"><i class="fa fa-lock"></i> Đổi
-                                    mật khẩu</a></li>
-                            <li><a class="dropdown-item" href="{{ route('logout') }}"><i class="fa-solid fa-right-from-bracket"></i> Đăng xuất</a></li>
-                        </ul>
-                    </div>
+                        <!-- Dropdown khi người dùng đã đăng nhập -->
+                        <div class="dropdown-center">
+                            <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown"
+                                aria-expanded="false">
+                                {{ auth()->user()->fullname }}
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="{{ url('Profile-user') }}"><i
+                                            class="fa-solid fa-user"></i>Thông tin cá nhân</a></li>
+                                <li><a class="dropdown-item" href="{{ url('change-password') }}"><i class="fa fa-lock"></i>
+                                        Đổi
+                                        mật khẩu</a></li>
+                                <li><a class="dropdown-item" href="{{ route('logout') }}"><i
+                                            class="fa-solid fa-right-from-bracket"></i> Đăng xuất</a></li>
+                            </ul>
+                        </div>
                     @endguest
                 </div>
             </div>
@@ -128,25 +129,31 @@
                                 </div>
                                 <div class="header__top__right__auth">
                                     @guest
-                                    <!-- Hiển thị nút Đăng nhập nếu chưa đăng nhập -->
-                                    <a href="{{ url('/login') }}"><i class="fa fa-user"></i> Đăng nhập</a>
+                                        <!-- Hiển thị nút Đăng nhập nếu chưa đăng nhập -->
+                                        <a href="{{ url('/login') }}"><i class="fa fa-user"></i> Đăng nhập</a>
                                     @else
-                                    <!-- Dropdown khi người dùng đã đăng nhập -->
-                                    <div class="dropdown-center">
-                                        <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                            {{ auth()->user()->fullname }}
-                                        </button>
-                                        <ul class="dropdown-menu">
-                                            <li><a class="dropdown-item" href="{{ url('Profile-user') }}"><i class="fa-solid fa-user"></i>Thông tin cá nhân</a></li>
-                                            <li>@auth
-                                                <a class="dropdown-item" href="{{ route('orders.my-orders') }}"><i class="fa fa-shopping-bag"></i>Đơn hàng của tôi</a>
-                                                @endauth
-                                            </li>
-                                            <li><a class="dropdown-item" href="{{ route('orders.track-form') }}"><i class="fa fa-search"></i>Tra cứu đơn hàng</a></li>
-                                            <li><a class="dropdown-item" href="{{ url('change-password') }}"><i class="fa fa-lock"></i> Đổi mật khẩu</a></li>
-                                            <li><a class="dropdown-item" href="{{ route('logout') }}"><i class="fa-solid fa-right-from-bracket"></i> Đăng xuất</a></li>
-                                        </ul>
-                                    </div>
+                                        <!-- Dropdown khi người dùng đã đăng nhập -->
+                                        <div class="dropdown-center">
+                                            <button class="btn btn-secondary dropdown-toggle" type="button"
+                                                data-bs-toggle="dropdown" aria-expanded="false">
+                                                {{ auth()->user()->fullname }}
+                                            </button>
+                                            <ul class="dropdown-menu">
+                                                <li><a class="dropdown-item" href="{{ url('Profile-user') }}"><i
+                                                            class="fa-solid fa-user"></i>Thông tin cá nhân</a></li>
+                                                <li>@auth
+                                                        <a class="dropdown-item" href="{{ route('orders.my-orders') }}"><i
+                                                                class="fa fa-shopping-bag"></i>Đơn hàng của tôi</a>
+                                                    @endauth
+                                                </li>
+                                                <li><a class="dropdown-item" href="{{ route('orders.track-form') }}"><i
+                                                            class="fa fa-search"></i>Tra cứu đơn hàng</a></li>
+                                                <li><a class="dropdown-item" href="{{ url('change-password') }}"><i
+                                                            class="fa fa-lock"></i> Đổi mật khẩu</a></li>
+                                                <li><a class="dropdown-item" href="{{ route('logout') }}"><i
+                                                            class="fa-solid fa-right-from-bracket"></i> Đăng xuất</a></li>
+                                            </ul>
+                                        </div>
                                     @endguest
                                 </div>
                             </div>
@@ -156,9 +163,9 @@
             </div>
             <!-- Hiển thị thông báo lỗi nếu người dùng vai trò user cố đăng nhập vào trang quản trị -->
             @if (session('error'))
-            <div class="alert alert-danger">
-                {{ session('error') }}
-            </div>
+                <div class="alert alert-danger">
+                    {{ session('error') }}
+                </div>
             @endif
             <div class="container">
                 <div class="row">
@@ -188,8 +195,10 @@
                     <div class="col-lg-3">
                         <div class="header__cart">
                             <ul>
-                                <li><a title="sản phẩm yêu thích" href="{{ url('wishlist') }}"><i class="fa fa-heart"></i></a></li>
-                                <li><a title="giỏ hàng" href="{{ url('cart') }}"><i class="fa fa-shopping-bag"></i></a>
+                                <li><a title="sản phẩm yêu thích" href="{{ url('wishlist') }}"><i
+                                            class="fa fa-heart"></i></a></li>
+                                <li><a title="giỏ hàng" href="{{ url('cart') }}"><i
+                                            class="fa fa-shopping-bag"></i></a>
                                 </li>
                             </ul>
                         </div>
@@ -236,15 +245,18 @@
                     <div class="col-lg-4 col-md-12">
                         <div class="footer__widget">
                             <h6>Tham gia bản tin của chúng tôi ngay bây giờ</h6>
-                            <p>Nhận thông tin cập nhật qua E-mail về cửa hàng mới nhất và các ưu đãi đặc biệt của chúng tôi.
+                            <p>Nhận thông tin cập nhật qua E-mail về cửa hàng mới nhất và các ưu đãi đặc biệt của chúng
+                                tôi.
                             </p>
                             <form id="newsletterForm" class="newsletter-form">
                                 @csrf
                                 <div class="form-group mb-3">
-                                    <input type="text" name="name" class="form-control" placeholder="Tên của bạn (không bắt buộc)">
+                                    <input type="text" name="name" class="form-control"
+                                        placeholder="Tên của bạn (không bắt buộc)">
                                 </div>
                                 <div class="form-group mb-3">
-                                    <input type="email" name="email" class="form-control" placeholder="Nhập email của bạn" required>
+                                    <input type="email" name="email" class="form-control"
+                                        placeholder="Nhập email của bạn" required>
                                 </div>
                             </form>
                             <button type="button" class="site-btn" id="subscribeBtn">
@@ -270,21 +282,25 @@
                                     Copyright &copy;
                                     <script>
                                         document.write(new Date().getFullYear());
-                                    </script> All rights reserved | This template is made with <i class="fa fa-heart" aria-hidden="true"></i> by <a href="https://colorlib.com" target="_blank">Colorlib</a>
+                                    </script> All rights reserved | This template is made with <i
+                                        class="fa fa-heart" aria-hidden="true"></i> by <a href="https://colorlib.com"
+                                        target="_blank">Colorlib</a>
                                     <!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
                                 </p>
                             </div>
-                            <div class="footer__copyright__payment"><img src="img/payment-item.png" alt=""></div>
+                            <div class="footer__copyright__payment"><img src="img/payment-item.png" alt="">
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </footer>
         <!-- Footer Section End -->
-
+        <script src="https://kit.fontawesome.com/f6dce9b617.js" crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
         <!-- Js Plugins -->
         <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
-        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+        {{-- <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script> --}}
         <!-- <script src="{{ asset('js/send-email.js') }}"></script> -->
         <script src="{{ asset('js/jquery-3.3.1.min.js') }}"></script>
         <script src="{{ asset('js/bootstrap.min.js') }}"></script>
@@ -294,12 +310,16 @@
         <script src="{{ asset('js/mixitup.min.js') }}"></script>
         <script src="{{ asset('js/owl.carousel.min.js') }}"></script>
         <script src="{{ asset('js/main.js') }}"></script>
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous">
-        </script>
-        <script src="https://kit.fontawesome.com/f6dce9b617.js" crossorigin="anonymous"></script>
-        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        {{-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous">
+        </script> --}}
+        <script src="{{ asset('bootstrap5.3/js/bootstrap.bundle.min.js') }}"></script>
 
-        {{--Xử lý nút gửi mail--}}
+
+
+
+
+
+        {{-- Xử lý nút gửi mail --}}
         <script>
             document.getElementById("subscribeBtn").addEventListener("click", function() {
                 const form = document.getElementById("newsletterForm");
@@ -446,9 +466,8 @@
                         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                     },
                     success: function(response) {
-                        icon.toggleClass('liked'); // Thêm hoặc bỏ class "liked" khi thích/bỏ thích
+                        icon.toggleClass('liked');
 
-                        // Hiển thị thông báo bằng SweetAlert2
                         Swal.fire({
                             title: 'Thành công!',
                             text: response.message,
@@ -461,6 +480,13 @@
                             Swal.fire({
                                 title: 'Lỗi!',
                                 text: 'Vui lòng đăng nhập để thực hiện chức năng này',
+                                icon: 'error',
+                                confirmButtonText: 'OK'
+                            });
+                        } else if (xhr.status === 404) {
+                            Swal.fire({
+                                title: 'Lỗi!',
+                                text: 'Sản phẩm không tồn tại',
                                 icon: 'error',
                                 confirmButtonText: 'OK'
                             });

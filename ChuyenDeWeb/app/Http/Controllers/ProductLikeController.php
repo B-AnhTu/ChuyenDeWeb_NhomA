@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Models\ProductLike;
+use App\Models\Product; // Thêm model Product
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -17,6 +18,12 @@ class ProductLikeController extends Controller
 
         $userId = Auth::id();
         $productId = $request->input('product_id');
+
+        // Kiểm tra sản phẩm có tồn tại
+        $product = Product::find($productId);
+        if (!$product) {
+            return response()->json(['message' => 'Sản phẩm không tồn tại'], 404);
+        }
 
         // Kiểm tra xem sản phẩm đã được thích bởi người dùng chưa
         $existingLike = ProductLike::where('user_id', $userId)
