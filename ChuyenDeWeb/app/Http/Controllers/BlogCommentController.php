@@ -107,7 +107,7 @@ class BlogCommentController extends Controller
         $comment->status = 0;
         $comment->save();
 
-        return redirect()->back()->with('message', 'Comment disapproved successfully!');
+        return redirect()->back()->with('message', 'Bình luận đã bị từ chối!');
     }
 
     public function manageComments()

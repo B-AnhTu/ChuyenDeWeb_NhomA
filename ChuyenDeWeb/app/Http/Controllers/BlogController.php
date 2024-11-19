@@ -25,10 +25,12 @@ class BlogController extends Controller
      */
     public function index(Request $request, $slug = null)
     {
-        $recent_posts = Blog::orderBy('created_at', 'desc')->take(5)->get();
+        // Lấy 5 bài viết gần đây
+        $recent_posts = Blog::getRecentPosts();
 
+        // Nếu có slug, tìm bài viết theo slug
         if ($slug) {
-            $blog = Blog::where('slug', $slug)->first();
+            $blog = Blog::findBySlug($slug);
 
             if (!$blog) {
                 return view('404');
@@ -39,18 +41,18 @@ class BlogController extends Controller
                 'recent_posts' => $recent_posts
             ]);
         }
-        
 
         $searchTerm = $request->input('query');
-        $perPage = 6; // Số bài viết trên mỗi trang
+        $perPage = 6;
 
         if ($searchTerm) {
             $data_blog = Blog::searchFullText($searchTerm)->paginate($perPage);
         } else {
-            $data_blog = Blog::orderBy('created_at', 'desc')->paginate($perPage);
+            $data_blog = Blog::getAllBlogsQuery()->paginate($perPage); 
         }
 
-        $data_cate = Category::getAllCate();
+        // Lấy tất cả danh mục (Có thể dùng trong phần lọc bài viết)
+        $data_cate = Category::all();
 
         return view('blog', [
             'data_blog' => $data_blog,
@@ -84,7 +86,7 @@ class BlogController extends Controller
     {
         $request->validate([
             'title' => ['required', 'max:100', new NoSpecialCharacters, new SingleSpaceOnly],
-            'short_description' => ['required','max:255', new NoSpecialCharacters, new SingleSpaceOnly],
+            'short_description' => ['required', 'max:255', new NoSpecialCharacters, new SingleSpaceOnly],
             'content' => ['required', new NoSpecialCharacters],
             'image' => 'required|image|mimes:jpeg,png,jpg|max:5048',
         ], [
@@ -159,9 +161,9 @@ class BlogController extends Controller
         $request->validate([
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:5096',
             'title' => ['required', 'max:100', new NoSpecialCharacters, new SingleSpaceOnly],
-            'short_description' => ['required','max:255', new NoSpecialCharacters, new SingleSpaceOnly],
+            'short_description' => ['required', 'max:255', new NoSpecialCharacters, new SingleSpaceOnly],
             'content' => ['required', new NoSpecialCharacters],
-        ],[
+        ], [
             'image.mimes' => 'Vui lòng chọn hình ảnh có đuôi hợp lệ như .png, .jpeg. .jpg',
             'title.required' => 'Vui lòng nhập tiêu đề',
             'title.max' => 'Tiêu đề không được quá 100 ký tự',
@@ -261,7 +263,7 @@ class BlogController extends Controller
     // Tìm kiếm blog
     public function searchBlogs(Request $request)
     {
-        $query = Blog::query(); 
+        $query = Blog::query();
         $searchTerm = $request->input('query');
 
         // Tìm kiếm full-text ưu tiên theo title trước, sau đó là content
@@ -288,6 +290,4 @@ class BlogController extends Controller
             'searchTerm' => $searchTerm,
         ]);
     }
-    
-    
 }
