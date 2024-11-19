@@ -7,12 +7,21 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Session;
+use App\Models\User;
 
 class ChangePasswordController extends Controller
 {
     public function changePassword(Request $request)
     {
-        // Kiểm tra các yêu cầu
+        // Lấy người dùng hiện tại
+        $user = Auth::user();
+
+        // Kiểm tra nếu người dùng không đăng nhập
+        if (!$user) {
+            return redirect()->route('login')->withErrors(['error' => 'Bạn cần đăng nhập để thực hiện thao tác này.']);
+        }
+
+        // Xác thực dữ liệu đầu vào
         $validator = Validator::make($request->all(), [
             'current_password' => 'required',
             'new_password' => 'required|min:8|max:20|different:current_password',
@@ -27,22 +36,20 @@ class ChangePasswordController extends Controller
             'new_password_confirmation.same' => 'Nhập lại mật khẩu mới không khớp.',
         ]);
 
-        // Nếu có lỗi, trả về trang đổi mật khẩu với thông báo lỗi
+        // Xử lý nếu có lỗi
         if ($validator->fails()) {
             return redirect()->back()->withErrors($validator)->withInput();
         }
 
         // Kiểm tra mật khẩu hiện tại
-        if (!Hash::check($request->current_password, Auth::user()->password)) {
+        if (!Hash::check($request->current_password, $user->password)) {
             return redirect()->back()->withErrors(['current_password' => 'Mật khẩu hiện tại không đúng.'])->withInput();
         }
 
-        // Cập nhật mật khẩu mới
-        $user = Auth::user();
-        $user->password = Hash::make($request->new_password);
-        $user->save();
+        // Cập nhật mật khẩu mới qua phương thức trong Model
+        $user->updatePassword($request->new_password);
 
-        // Thông báo thay đổi mật khẩu thành công
+        // Tạo thông báo thành công
         Session::flash('success', 'Thay đổi mật khẩu thành công!');
         return redirect()->route('change-password');
     }

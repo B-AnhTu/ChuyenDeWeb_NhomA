@@ -961,6 +961,10 @@ ol {
 	font-weight: 700;
 }
 
+.fa-heart.liked {
+	color: red;
+}
+
 /*---------------------
  newsletter-form
 -----------------------*/

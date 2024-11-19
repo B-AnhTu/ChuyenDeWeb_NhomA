@@ -1,6 +1,13 @@
 @extends('app')
 @section('content')
 
+    @if ($errors->has('error'))
+        <div class="alert alert-danger">
+            {{ $errors->first('error') }}
+        </div>
+    @endif
+
+
     <div class="container mt-5 py-5">
         <div class="row">
             <div class="col-md-3 text-center">
@@ -151,7 +158,8 @@
                 .then(data => {
                     if (data.success) {
                         // Đóng modal
-                        const modal = bootstrap.Modal.getInstance(document.getElementById('changeProfilePictureModal'));
+                        const modal = bootstrap.Modal.getInstance(document.getElementById(
+                            'changeProfilePictureModal'));
                         modal.hide();
 
                         // Cập nhật ảnh đại diện trên trang
@@ -167,22 +175,21 @@
                             timer: 1500
                         });
                     } else {
-                        // Hiển thị thông báo lỗi bằng SweetAlert2
+
                         Swal.fire({
                             icon: 'error',
                             title: 'Lỗi!',
-                            text: 'Cập nhật ảnh đại diện thất bại',
+                            text: data.message, 
                             confirmButtonText: 'Đóng'
                         });
                     }
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    // Hiển thị thông báo lỗi bằng SweetAlert2
                     Swal.fire({
                         icon: 'error',
                         title: 'Lỗi!',
-                        text: 'Đã xảy ra lỗi khi cập nhật ảnh đại diện',
+                        text: 'Đã xảy ra lỗi không xác định',
                         confirmButtonText: 'Đóng'
                     });
                 });
