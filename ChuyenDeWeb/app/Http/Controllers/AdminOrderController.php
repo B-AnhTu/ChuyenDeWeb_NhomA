@@ -40,9 +40,11 @@ class AdminOrderController extends Controller
             $query->whereDate('created_at', '<=', $request->date_to);
         }
 
-        $orders = $query->paginate(20);
+        $orders = $query->paginate(10);
+
         return view('orders.index', compact('orders'));
     }
+
 
 
     /**
@@ -119,8 +121,6 @@ class AdminOrderController extends Controller
 
             DB::commit();
 
-            // Có thể thêm logic gửi email thông báo cho khách hàng ở đây
-
             return back()->with('success', 'Cập nhật trạng thái đơn hàng thành công');
         } catch (\Exception $e) {
             DB::rollBack();
@@ -147,13 +147,13 @@ class AdminOrderController extends Controller
 
         // Thống kê tổng quan
         $overview = $this->getOrdersOverview($dateFrom, $dateTo);
-        
+
         // Thống kê theo trạng thái
         $statusStats = $this->getOrdersByStatus($dateFrom, $dateTo);
-        
+
         // Thống kê theo ngày
         $dailyStats = $this->getDailyOrderStats($dateFrom, $dateTo);
-        
+
         // Top sản phẩm bán chạy
         $topProducts = $this->getTopSellingProducts($dateFrom, $dateTo);
 

@@ -79,14 +79,13 @@
                         <td>{{ number_format($order->total_amount) }}đ</td>
                         <td>
                             <span class="badge bg-{{ match($order->status) {
-                                                    'completed' => 'success',
-                                                    'cancelled' => 'danger',
-                                                    'shipping' => 'info',
-                                                     default => 'warning',
-                                                } }}">
+                                            'completed' => 'success',
+                                            'cancelled' => 'danger',
+                                            'shipping' => 'info',
+                                             default => 'warning',
+                                        } }}">
                                 {{ $order->status }}
                             </span>
-
                         </td>
                         <td>{{ $order->created_at->format('d/m/Y H:i') }}</td>
                         <td>
@@ -96,7 +95,37 @@
                     @endforeach
                 </tbody>
             </table>
-            {{ $orders->links() }}
+
+            {{-- Custom Pagination --}}
+            <div class="pagination">
+                @if($orders->currentPage() > 1)
+                <a href="{{ $orders->url(1) }}" class="page-link"><i class="fa fa-long-arrow-left"></i></a>
+                @endif
+
+                @php
+                $start = max(1, $orders->currentPage() - 2);
+                $end = min($orders->lastPage(), $start + 4);
+                if($end - $start < 4) { $start=max(1, $end - 4); } @endphp @if($start> 1)
+                    <a href="{{ $orders->url(1) }}" class="page-link">1</a>
+                    @if($start > 2)
+                    <span>...</span>
+                    @endif
+                    @endif
+
+                    @for($i = $start; $i <= $end; $i++) <a href="{{ $orders->url($i) }}" class="page-link {{ $i == $orders->currentPage() ? 'active' : '' }}">{{ $i }}</a>
+                        @endfor
+
+                        @if($end < $orders->lastPage())
+                            @if($end < $orders->lastPage() - 1)
+                                <span>...</span>
+                                @endif
+                                <a href="{{ $orders->url($orders->lastPage()) }}" class="page-link">{{ $orders->lastPage() }}</a>
+                                @endif
+
+                                @if($orders->hasMorePages())
+                                <a href="{{ $orders->nextPageUrl() }}" class="page-link"><i class="fa fa-long-arrow-right"></i></a>
+                                @endif
+            </div>
         </div>
     </div>
 </div>
