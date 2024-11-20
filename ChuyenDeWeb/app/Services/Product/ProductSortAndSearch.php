@@ -15,6 +15,6 @@ class ProductSortAndSearch
     // Phương thức sắp xếp danh mục
     public function sortProducts($query, $sortBy)
     {
-        return (new Product())->sort($query, $sortBy);
+        return Product::sort($query, $sortBy);
     }
 }

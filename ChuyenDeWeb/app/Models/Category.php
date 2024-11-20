@@ -54,7 +54,7 @@ class Category extends Model
     /**
      * Cập nhật Category
      */
-    public function updateWithConflictCheck(array $data)
+    public static function updateWithConflictCheck(array $data)
     {
         return DB::transaction(function () use ($data) {
             // Lưu giá trị updated_at hiện tại trước khi cập nhật
@@ -119,7 +119,7 @@ class Category extends Model
     /**
      * Sắp xếp
      */
-    public function sortCategories($query, $sortBy)
+    public static function sortCategories($query, $sortBy)
     {
         // Sắp xếp theo yêu cầu
         switch ($sortBy) {
@@ -129,11 +129,11 @@ class Category extends Model
             case 'name_desc':
                 $query->orderBy('category_name', 'desc');
                 break;
-            case 'updated_at_asc':
-                $query->orderBy('updated_at', 'asc');
+            case 'created_at_asc':
+                $query->orderBy('created_at', 'asc');
                 break;
-            case 'updated_at_desc':
-                $query->orderBy('updated_at', 'desc');
+            case 'created_at_desc':
+                $query->orderBy('created_at', 'desc');
                 break;
             default:
                 // Mặc định 

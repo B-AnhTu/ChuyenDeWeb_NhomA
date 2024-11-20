@@ -15,6 +15,6 @@ class CategorySortAndSearch
     // Phương thức sắp xếp danh mục
     public function sortCategories($query, $sortBy)
     {
-        return (new Category())->sortCategories($query, $sortBy);
+        return Category::sortCategories($query, $sortBy);
     }
 }

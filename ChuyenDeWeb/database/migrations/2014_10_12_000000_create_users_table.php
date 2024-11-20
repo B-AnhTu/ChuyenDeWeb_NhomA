@@ -25,7 +25,7 @@ return new class extends Migration
             $table->rememberToken();
             $table->timestamps();
 
-            $table->string('slug')->unique();
+            $table->string('slug')->unique()->nullable();
         });
     }
 

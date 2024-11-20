@@ -11,10 +11,7 @@ use App\Models\Manufacturer;
 use App\Models\Category;
 use App\Models\NewsletterSubscriber;
 use App\Models\ProductLike;
-use App\Rules\SingleSpaceOnly;
-use App\Rules\NoSpecialCharacters;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Mail;
 use App\Services\Product\ProductService;
 use App\Services\Product\ProductSortAndSearch;
 use App\Http\Requests\Product\StoreProductRequest;
@@ -266,25 +263,26 @@ class ProductController extends Controller
         try {
             // Tìm product theo slug
             $product = $this->productService->getProductBySlug($slug);
-            // Kiểm tra nếu product không tồn tại
+            
+            // Kiểm tra nếu sản phẩm không tồn tại
             if (!$product) {
                 Session::flash('error', 'Product not found. It may have been deleted or modified by another user.');
                 return redirect()->route('productAdmin.index')->withInput();
             }
-    
+
             // Lưu dữ liệu đã validated từ request
             $validatedData = $request->validated();
-    
+
             // Gọi service để cập nhật product
             $this->productService->updateProduct($product, $validatedData);
-    
+
             // Thông báo thành công
             Session::flash('success', 'Product updated successfully.');
             return redirect()->route('product.index')->with('success', 'Product updated successfully.');
         } catch (\Exception $e) {
             // Thông báo lỗi
             Session::flash('error', $e->getMessage());
-            return redirect()->route('product.edit', ['slug' => $slug])->withInput(); // Chuyển hướng về trang cập nhật
+            return redirect()->route('product.index')->withInput(); // Chuyển hướng về trang cập nhật
         }
     }
     // Xóa sản phẩm trong database

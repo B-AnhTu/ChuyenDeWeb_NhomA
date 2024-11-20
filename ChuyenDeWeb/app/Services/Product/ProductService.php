@@ -16,9 +16,9 @@ class ProductService
         $this->slugService = $slugService; // Khởi tạo thuộc tính slugService
     }
     // Lấy danh sách danh mục có phân trang
-    public function getAllCategories()
+    public function getAllProducts()
     {
-        return Product::getAllProduct();
+        return Product::getAllProducts();
     }
     /**
      * Lấy sản phẩm theo slug

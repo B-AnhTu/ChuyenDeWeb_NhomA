@@ -85,7 +85,7 @@ class Blog extends Model
     /**
      * Cập nhật blog
      */
-    public function updateBlog(array $data)
+    public static function updateBlog(array $data)
     {
         return DB::transaction(function () use ($data) {
             // Lưu giá trị updated_at hiện tại trước khi cập nhật
@@ -136,7 +136,7 @@ class Blog extends Model
     /**
      * Sắp xếp
      */
-    public function sortBlogs($query, $sortBy)
+    public static function sortBlogs($query, $sortBy)
     {
         switch ($sortBy) {
             case 'name_asc':
@@ -159,7 +159,7 @@ class Blog extends Model
     /**
      * Tìm kiếm full text search (trên admin)
      */
-    public function search($query, $searchTerm)
+    public static function search($query, $searchTerm)
     {
         if ($searchTerm) {
             $searchWords = explode(' ', $searchTerm);
@@ -174,7 +174,7 @@ class Blog extends Model
         return $query;
     }
     // Áp dụng vừa tìm kiếm vừa sắp xếp blog
-    public function scopeSearchAndSort($query, $searchTerm = null, $sortBy = null)
+    public static function scopeSearchAndSort($query, $searchTerm = null, $sortBy = null)
     {
         // Tìm kiếm nếu có từ khóa
         if ($searchTerm) {

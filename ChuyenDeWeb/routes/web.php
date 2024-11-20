@@ -137,10 +137,7 @@ Route::middleware(['auth', 'admin'])->group(function () {
 });
 
 Route::group(['middleware' => 'role:admin,editor'], function () {
-    // Route for admin dashboard
-    Route::get('/adminPage', [UserController::class, 'listRole'])->name('admin.index');
-    Route::put('/userAdmin/{slug}/update-permissions', [AdminDashboardController::class, 'updatePermissions'])->name('userAdmin.updatePermissions');
-
+    
     //route manufacturer
     Route::get('/manufacturerAdmin', [ManufacturerController::class, 'index'])->name('manufacturer.index');
 
@@ -168,7 +165,7 @@ Route::group(['middleware' => 'role:admin,editor'], function () {
     Route::delete('/categoryDelete/{slug}', [CategoryController::class, 'destroy'])->name('category.delete');
 
     //route product
-    Route::get('/productAdmin', [ProductController::class, 'list'])->name('product.index');
+    Route::get('/productAdmin', [ProductController::class, 'index'])->name('product.index');
 
     Route::get('/productAdmin/{slug}', [ProductController::class, 'show'])->name('product.show');
 
@@ -185,8 +182,13 @@ Route::group(['middleware' => 'role:admin,editor'], function () {
     Route::put('/products/{slug}/restore', [ProductController::class, 'restore'])->name('product.restore');
     Route::delete('/products/{slug}/forceDelete', [ProductController::class, 'forceDelete'])->name('product.forceDelete');
 
+    // Route for admin
+    Route::get('/adminPage', [UserController::class, 'listAdmin'])->name('admin.index');
+    Route::put('/userAdmin/update-permissions/{slug}', [UserController::class, 'updatePermissions'])->name('userAdmin.updatePermissions');
+
     //route user
-    Route::get('/userAdmin', [UserController::class, 'list'])->name('userAdmin.index');
+    Route::get('/userAdmin', [UserController::class, 'index'])->name('userAdmin.index');
+    //Route::get('/userAdmin', [UserController::class, 'index']);
 
     Route::get('/userAdmin/{slug}', [UserController::class, 'show'])->name('userAdmin.show');
 

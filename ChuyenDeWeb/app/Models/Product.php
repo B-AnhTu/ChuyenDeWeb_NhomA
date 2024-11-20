@@ -114,18 +114,21 @@ class Product extends Model
     /**
      * Cập nhật sản phẩm với kiểm tra xung đột
      */
-    public function updateWithConflictCheck(array $data)
+    public static function updateWithConflictCheck(array $data)
     {
         return DB::transaction(function () use ($data) {
-            // Lưu giá trị updated_at hiện tại trước khi cập nhật
+            // Lưu giá trị updated_at hiện tại từ cơ sở dữ liệu
             $currentUpdatedAt = $this->updated_at;
 
-            // Kiểm tra xung đột trước khi thực hiện cập nhật
+            // Làm mới thông tin của sản phẩm từ cơ sở dữ liệu
+            $this->refresh();
+
+            // Kiểm tra xung đột bằng cách so sánh updated_at
             if ($currentUpdatedAt != $this->updated_at) {
                 throw new \Exception('Conflict detected. The product has been updated by another user.');
             }
 
-            // Cập nhật thông tin cho product
+            // Xử lý cập nhật ảnh nếu có
             if (isset($data['image'])) {
                 $file = $data['image'];
                 $filename = time() . '_' . $file->getClientOriginalName();
@@ -139,7 +142,10 @@ class Product extends Model
                 $data['image'] = $filename;
             }
 
+            // Cập nhật timestamp updated_at
             $data['updated_at'] = now();
+
+            // Cập nhật dữ liệu
             $this->update($data);
 
             return $this; // Trả về sản phẩm đã cập nhật

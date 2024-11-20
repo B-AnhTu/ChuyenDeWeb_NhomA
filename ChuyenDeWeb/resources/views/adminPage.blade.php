@@ -3,10 +3,20 @@
 @section('content')
 <div class="container">
     <h2 class="text-center mb-5">Admin Page - Manage User Permissions</h2>
+    @if (session('success'))
+        <div class="alert alert-success">
+            {{ session('success') }}
+        </div>
+    @endif
+    @if (session('error'))
+        <div class="alert alert-danger">
+            {{ session('error') }}
+        </div>
+    @endif
     <div class="col-md-12 mt-3">
         <div class="row mb-3 d-flex align-items-center">
             <div class="col-md-3">
-                <form action="{{ route('sortAdmin') }}" method="get">
+                <form action="{{ route('admin.index') }}" method="get">
                     <select class="form-control me-2" name="sort_by" onchange="this.form.submit()">
                         <option value="" disabled selected>Sắp xếp theo</option>
                         <option value="name_asc" {{ request('sort_by') == 'name_asc' ? 'selected' : '' }}>Tên (Từ A - Z)
@@ -25,7 +35,7 @@
                 </form>
             </div>
             <div class="col-md-6 mx-center">
-                <form class="d-flex" action="{{ route('searchPage') }}" method="GET">
+                <form class="d-flex" action="{{ route('admin.index') }}" method="GET">
                     @csrf
                     <input name="query" class="form-control me-2" type="text" placeholder="Search" aria-label="Search">
                     <button class="btn btn-outline-success" type="submit">Search</button>
@@ -50,7 +60,6 @@
                 <th>Email</th>
                 <th>Image</th>
                 <th>Role</th>
-                <th>Action</th>
             </tr>
         </thead>
         <tbody>
@@ -70,8 +79,7 @@
                             @csrf
                             @method('PUT')
                             <div class="input-group">
-                                <select class="form-control role-select mr-2" name="role"
-                                    data-user-id="{{ $user->user_id }}">
+                                <select class="form-control role-select mr-2" name="role">
                                     <option value="admin" {{ $user->role == 'admin' ? 'selected' : '' }}>Admin</option>
                                     <option value="editor" {{ $user->role == 'editor' ? 'selected' : '' }}>Editor</option>
                                     <option value="user" {{ $user->role == 'user' ? 'selected' : '' }}>User</option>
@@ -79,20 +87,7 @@
                             </div>
                             <button onclick="return confirm('Bạn có chắc chắn muốn cập nhật quyền hạn cho người dùng này?')"
                                 type="submit" class="btn btn-primary update-permissions"
-                                data-user-id="{{ $user->user_id }}">Update</button>
-                        </form>
-                    </td>
-                    <td>
-                        <!-- Add action buttons here -->
-                        <a href="{{ route('userAdmin.show', $user->slug) }}" class="btn btn-primary"><i
-                                class="fas fa-eye"></i></a>
-                        <a href="{{ route('userAdmin.edit', $user->slug) }}" class="btn btn-primary"><i
-                                class="fas fa-pencil-alt"></i></a>
-                        <form action="{{ route('userAdmin.delete', $user->slug) }}" method="POST" style="display:inline;">
-                            @csrf
-                            @method('DELETE')
-                            <button onclick="return confirm('Are you sure you want to delete this user?')" type="submit"
-                                class="btn btn-danger"><i class="fas fa-trash"></i></button>
+                                >Update</button>
                         </form>
                     </td>
                 </tr>
@@ -103,17 +98,15 @@
         {{ $users->links('pagination::bootstrap-4') }}
     </div>
 </div>
-
-<script>
+<!-- <script>
     document.addEventListener('DOMContentLoaded', function () {
-        document.querySelectorAll('.update-permissions').forEach(button => {
-            button.addEventListener('click', function (event) {
-                event.preventDefault(); // Prevent form submission
+        document.querySelectorAll('.role-select').forEach(select => {
+            select.addEventListener('change', function () {
+                const userSlug = this.dataset.userId; // Lấy slug từ data attribute
+                const role = this.value; // Lấy giá trị của role
 
-                const userId = this.getAttribute('data-user-id');
-                const role = document.querySelector(`.role-select[data-user-id="${userId}"]`).value;
-
-                fetch(`/userAdmin/${userId}/update-permissions`, {
+                // Gửi yêu cầu cập nhật quyền
+                fetch(`/userAdmin/updatePermissions/${userSlug}`, {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
@@ -121,22 +114,22 @@
                     },
                     body: JSON.stringify({ role })
                 })
-                    .then(response => response.json())
-                    .then(data => {
-                        const alertContainer = document.getElementById('alert-container');
-                        alertContainer.innerHTML = ''; // Clear previous alerts
+                .then(response => response.json())
+                .then(data => {
+                    const alertContainer = document.getElementById('alert-container');
+                    alertContainer.innerHTML = ''; // Xóa các thông báo trước đó
 
-                        const alertBox = document.createElement('div');
-                        alertBox.className = `alert ${data.success ? 'alert-success' : 'alert-danger'}`;
-                        alertBox.textContent = data.message;
-                        alertContainer.appendChild(alertBox);
+                    const alertBox = document.createElement('div');
+                    alertBox.className = `alert ${data.success ? 'alert-success' : 'alert-danger'}`;
+                    alertBox.textContent = data.message;
+                    alertContainer.appendChild(alertBox);
 
-                        // Remove the alert after a few seconds
-                        setTimeout(() => alertBox.remove(), 5000);
-                    })
-                    .catch(error => console.error('Error:', error));
+                    // Xóa thông báo sau vài giây
+                    setTimeout(() => alertBox.remove(), 5000);
+                })
+                .catch(error => console.error('Error:', error));
             });
         });
     });
-</script>
+</script> -->
 @endsection
