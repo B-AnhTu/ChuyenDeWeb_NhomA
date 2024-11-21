@@ -129,6 +129,7 @@ class Product extends Model
     //Tìm kiếm sản phẩm trang index
     public static function searchProducts($keyword = null, $manufacturerId = null, $perPage = 8)
     {
+        
         $query = self::query();
 
         if ($keyword) {

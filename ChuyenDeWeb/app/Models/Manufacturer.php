@@ -88,7 +88,7 @@ class Manufacturer extends Model
     /**
      * Cập nhật Manufacturer
      */
-    public static function updateWithConflictCheck(array $data)
+    public function updateWithConflictCheck(array $data)
     {
         return DB::transaction(function () use ($data) {
             // Lưu giá trị updated_at hiện tại trước khi cập nhật

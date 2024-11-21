@@ -82,7 +82,13 @@ class IndexController extends Controller
     // tìm kiếm sản phẩm theo nhà sản xuất
     public function search(Request $request)
     {
+        // Lấy danh sách manufacturers trước khi tìm kiếm
+        $manufacturers = Manufacturer::all();
+        $categories = Category::all();
         $products = Product::searchProducts($request->keyword, $request->manufacturer_id);
+        $likedProductIds = Auth::check()
+        ? ProductLike::where('user_id', Auth::id())->pluck('product_id')->toArray()
+        : [];
 
         if ($request->ajax()) {
             return response()->json([
@@ -93,7 +99,7 @@ class IndexController extends Controller
             ]);
         }
 
-        return view('index', compact('products', 'manufacturers'));
+        return view('index', compact('products', 'manufacturers', 'categories', 'likedProductIds'));
     }
 
 
