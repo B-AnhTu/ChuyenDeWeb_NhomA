@@ -32,51 +32,49 @@ class ManufacturerService
             $validatedData['image'] = $filename;
         }
 
-        $validatedData['slug'] = $this->slugService->slugify($validatedData['manufacturer_name']);
         $validatedData['created_at'] = now();
         $validatedData['updated_at'] = now();
 
-        return Manufacturer::createManufacturer($validatedData);
+        // Tạo người dùng mới
+        $manufacturer = Manufacturer::createManufacturer($validatedData);
+
+        // Tạo slug cho người dùng sau khi đã tạo
+        $manufacturer->slug = Manufacturer::generateUniqueSlug($manufacturer->manufacturer_name, $manufacturer->manufacturer_id);
+        $manufacturer->save();
+
+        return $manufacturer; // Trả về người dùng đã tạo
     }
     /**
      * Lấy nhà sản xuất theo slug
      */
-    public function getManufacturerBySlug($manufacturerSlug){
-        return Manufacturer::getManufacturerBySlug($manufacturerSlug);
+    public function getManufacturerBySlug($slug){
+        $manufacturerId = Manufacturer::decodeSlug($slug); // Giải mã slug để lấy ID sản phẩm
+        return Manufacturer::find($manufacturerId);
     }
     /**
      * Sửa nhà sản xuất ( có kiểm tra lỗi bảo mật Optimistic Locking)
      */
     public function updateManufacturer($manufacturer, $validatedData)
     {
-        // Làm mới slug dựa trên manufacturer_name
-        $validatedData['slug'] = $this->slugService->slugify($validatedData['manufacturer_name']);
+        $validatedData['updated_at'] = now();
 
-        return $manufacturer->updateWithConflictCheck($validatedData);
+        // Cập nhật thông tin người dùng
+        $manufacturer->updateWithConflictCheck($validatedData);
+
+        // Nếu fullname đã thay đổi, tạo lại slug
+        if ($manufacturer->manufacturer_name !== $validatedData['manufacturer_name']) {
+            $manufacturer->slug = Manufacturer::generateUniqueSlug($validatedData['manufacturer_name'], $validatedData['manufacturer_id']);
+        }
+
+        $manufacturer->save();
+
+        return $manufacturer; // Trả về người dùng đã cập nhật
     }
     /**
      * Xóa nhà sản xuất
      */
     public function deleteManufacturer($slug)
     {
-        // Tìm Manufacturer theo slug
-        $manufacturer = Manufacturer::getManufacturerBySlug($slug);
-
-        // Kiểm tra xem Manufacturer có tồn tại không
-        if (!$manufacturer) {
-            throw new \Exception('Không tìm thấy nhà sản xuất. Có thể nhà sản xuất đã bị chỉnh sửa hoặc xóa bởi người dùng khác.');
-        }
-
-        // Thực hiện xóa Manufacturer
-        try {
-            Manufacturer::deleteManufacturerBySlug($manufacturer->slug);
-
-        } catch (\Exception $e) {
-            // Xử lý lỗi trong trường hợp xóa không thành công
-            throw new \Exception('Xảy ra lỗi trong khi cố gắng xóa nhà sản xuất: ' . $e->getMessage());
-        }
-
-        // Trả về true nếu xóa thành công
-        return true;
+        return Manufacturer::deletemanufacturerBySlug($slug);
     }
 }

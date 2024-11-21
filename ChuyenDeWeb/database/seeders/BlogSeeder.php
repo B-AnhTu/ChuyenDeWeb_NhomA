@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
+use App\Models\Blog;
 
 class BlogSeeder extends Seeder
 {
@@ -13,11 +14,10 @@ class BlogSeeder extends Seeder
      */
     public function run(): void
     {
-        DB::table('blog')->insert([
+        $blogs = [
             [
                 'image' => 'blog-01.jpg',
                 'title' => '10 Mẹo Bảo Quản Laptop Để Sử Dụng Lâu Dài',
-                'slug' => '10-meo-bao-quan-lap-top-de-su-dung-lau-dai',
                 'short_description' => 'Bảo quản laptop đúng cách không chỉ giúp thiết bị hoạt động hiệu quả mà còn kéo dài tuổi thọ sử dụng. Khám phá 10 mẹo để bảo trì laptop của bạn.',
                 'content' => 'Laptop là một trong những thiết bị điện tử quan trọng nhất trong cuộc sống hàng ngày. Để đảm bảo rằng laptop của bạn luôn hoạt động tốt và bền bỉ, dưới đây là 10 mẹo bảo quản hiệu quả:
                     1. Giữ Laptop Sạch Sẽ 
@@ -47,7 +47,6 @@ class BlogSeeder extends Seeder
             [
                 'image' => 'blog-02.jpg',
                 'title' => '5 Lợi Ích Của Việc Sử Dụng Laptop Đúng Cách',
-                'slug' => '5-loi-ich-cua-viec-su-dung-laptop-dung-cach',
                 'short_description' => 'Sử dụng laptop đúng cách không chỉ giúp tăng hiệu suất mà còn bảo vệ sức khỏe người dùng. Khám phá 5 lợi ích quan trọng.',
                 'content' => 'Việc sử dụng laptop đúng cách mang lại nhiều lợi ích cho người dùng. Dưới đây là 5 lợi ích nổi bật:
                     1. Tăng Tuổi Thọ Thiết Bị
@@ -67,7 +66,6 @@ class BlogSeeder extends Seeder
             [
                 'image' => 'blog-03.jpg',
                 'title' => 'Cách Giải Quyết Vấn Đề Nhiệt Độ Cao Của Laptop',
-                'slug' => 'cach-giai-quyet-van-de-nhiet-do-cao-cua-laptop',
                 'short_description' => 'Nhiệt độ cao có thể gây hại cho laptop. Tìm hiểu cách giải quyết vấn đề này hiệu quả.',
                 'content' => 'Nhiệt độ cao có thể ảnh hưởng nghiêm trọng đến hiệu suất và tuổi thọ của laptop. Dưới đây là một số cách giải quyết:
                     1. Vệ Sinh Quạt Tản Nhiệt
@@ -87,7 +85,6 @@ class BlogSeeder extends Seeder
             [
                 'image' => 'blog-04.jpg',
                 'title' => '10 Mẹo Bảo Quản Điện Thoại Để Sử Dụng Bền Lâu',
-                'slug' => '10-meo-bao-quan-dien-thoai-de-su-dung-ben-lau',
                 'short_description' => 'Bảo quản điện thoại đúng cách giúp thiết bị hoạt động hiệu quả và kéo dài tuổi thọ.',
                 'content' => 'Để đảm bảo điện thoại của bạn luôn hoạt động tốt, dưới đây là 10 mẹo bảo quản hiệu quả:
                     1. Sử Dụng Ốp Lưng
@@ -107,7 +104,6 @@ class BlogSeeder extends Seeder
             [
                 'image' => 'blog-05.jpg',
                 'title' => 'Cách Bảo Quản Máy Tính Bảng Để Sử Dụng Lâu Dài',
-                'slug' => 'cach-bao-quan-may-tinh-bang-de-su-dung-lau-dai',
                 'short_description' => 'Bảo quản máy tính bảng đúng cách giúp tăng cường hiệu suất và kéo dài tuổi thọ.',
                 'content' => 'Máy tính bảng là thiết bị hữu ích trong cuộc sống hàng ngày. Dưới đây là một số mẹo bảo quản:
                     1. Sử Dụng Bao Bì Chống Sốc
@@ -127,7 +123,6 @@ class BlogSeeder extends Seeder
             [
                 'image' => 'blog-06.jpg',
                 'title' => 'Cách Bảo Quản Tai Nghe Để Sử Dụng Bền Lâu',
-                'slug' => 'cach-bao-quan-tai-nghe-de-su-dung-ben-lau',
                 'short_description' => 'Bảo quản tai nghe đúng cách giúp tăng cường độ bền và chất lượng âm thanh.',
                 'content' => 'Tai nghe là thiết bị không thể thiếu trong cuộc sống hiện đại. Dưới đây là một số mẹo bảo quản:
                     1. Gói Tai Nghe Khi Không Sử Dụng
@@ -147,7 +142,6 @@ class BlogSeeder extends Seeder
             [
                 'image' => 'blog-07.jpg',
                 'title' => 'Cách Bảo Quản Điện Thoại Để Luôn Mới',
-                'slug' => 'cach-bao-quan-dien-thoai-de-luon-moi',
                 'short_description' => 'Bảo quản điện thoại đúng cách giúp tăng tuổi thọ và giữ máy luôn mới.',
                 'content' => 'Điện thoại là thiết bị không thể thiếu trong cuộc sống hiện đại. Dưới đây là một số cách bảo quản điện thoại hiệu quả:
                     1. Sử Dụng Ốp Lưng
@@ -167,7 +161,6 @@ class BlogSeeder extends Seeder
             [
                 'image' => 'blog-08.jpg',
                 'title' => 'Mẹo Bảo Quản Tai Nghe Không Dây',
-                'slug' => 'meo-bao-quan-tai-nghe-khong-day',
                 'short_description' => 'Tai nghe không dây cần được bảo quản cẩn thận để kéo dài thời gian sử dụng.',
                 'content' => 'Tai nghe không dây ngày càng phổ biến. Để bảo quản tai nghe không dây tốt, cần lưu ý:
                     1. Giữ Cho Tai Nghe Luôn Sạch Sẽ
@@ -187,7 +180,6 @@ class BlogSeeder extends Seeder
             [
                 'image' => 'blog-09.jpg',
                 'title' => 'Bảo Quản Loa Đúng Cách Để Âm Thanh Luôn Sắc Nét',
-                'slug' => 'bao-quan-loa-dung-cach-de-am-thanh-luon-sac-net',
                 'short_description' => 'Loa là thiết bị phát âm thanh quan trọng. Bảo quản loa đúng cách sẽ giúp duy trì chất lượng âm thanh.',
                 'content' => 'Loa là thiết bị phát nhạc cần được bảo quản cẩn thận. Dưới đây là các mẹo giúp bảo quản loa:
                     1. Đặt Loa Ở Nơi Thoáng Mát
@@ -207,7 +199,6 @@ class BlogSeeder extends Seeder
             [
                 'image' => 'blog-10.jpg',
                 'title' => 'Cách Bảo Quản Máy Tính Bàn Để Sử Dụng Bền Lâu',
-                'slug' => 'cach-bao-quan-may-tinh-ban-de-su-dung-ben-lau',
                 'short_description' => 'Bảo quản máy tính bàn giúp tăng tuổi thọ của thiết bị và duy trì hiệu suất hoạt động ổn định.',
                 'content' => 'Máy tính bàn là công cụ làm việc quan trọng. Để giữ cho máy tính hoạt động tốt và bền lâu, bạn nên:
                     1. Vệ Sinh Định Kỳ
@@ -224,6 +215,14 @@ class BlogSeeder extends Seeder
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
-        ]);
+        ];
+
+        foreach ($blogs as $blog) {
+            // Tạo blog
+            $newBlog = Blog::create($blog);
+            // Tạo slug từ title và ID của blog
+            $newBlog->slug = Blog::generateUniqueSlug($newBlog->title, $newBlog->blog_id);
+            $newBlog->save();
+        }
     }
 }

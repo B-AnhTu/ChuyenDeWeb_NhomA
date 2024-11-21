@@ -2,10 +2,9 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\DB;
 use App\Models\User;
+use App\Services\SlugService;
 
 class UserSeeder extends Seeder
 {
@@ -14,8 +13,12 @@ class UserSeeder extends Seeder
      */
     public function run(): void
     {
-        User::create([
-            'fullname' => 'Adminstrator',
+        // Tạo người dùng quản trị viên
+        $adminFullname = 'Adminstrator';
+
+        // Chèn người dùng quản trị viên vào cơ sở dữ liệu và lưu lại
+        $adminUser = User::create([
+            'fullname' => $adminFullname,
             'email' => 'admin@gmail.com',
             'password' => bcrypt('admin12345'),
             'address' => '123 Street',
@@ -25,11 +28,21 @@ class UserSeeder extends Seeder
             'permission' => 'admin',
             'is_online' => false,
         ]);
-        for ($i = 1; $i < 20; $i++) { 
-            User::create([
-                'fullname' => 'User'.$i,
-                'email' => 'user'.$i.'@gmail.com',
-                'password' => bcrypt('user123'.$i),
+
+        // Tạo slug cho quản trị viên với ID mã hóa
+        $adminUser->slug = $this->generateUniqueSlug($adminFullname, $adminUser->user_id);
+        $adminUser->save();
+
+        // Tạo người dùng thường
+        for ($i = 1; $i < 20; $i++) {
+            $letter = chr(96 + $i);
+            $fullname = 'Nguoi dung ' . ucfirst($letter);
+
+            // Chèn người dùng thường vào cơ sở dữ liệu và lưu lại
+            $user = User::create([
+                'fullname' => $fullname,
+                'email' => 'user' . $i . '@gmail.com',
+                'password' => bcrypt('user123' . $i),
                 'address' => '123 Street',
                 'phone' => '0123456789',
                 'image' => 'user-default.jpg',
@@ -37,7 +50,25 @@ class UserSeeder extends Seeder
                 'permission' => 'viewer',
                 'is_online' => false,
             ]);
+
+            // Tạo slug cho người dùng thường với ID mã hóa
+            $user->slug = $this->generateUniqueSlug($fullname, $user->user_id);
+            $user->save();
         }
-        
+    }
+
+    // Hàm tạo slug không trùng lặp
+    protected function generateUniqueSlug($fullname, $userId): string
+    {
+        // Tạo slug từ fullname
+        $slug = SlugService::slugify($fullname);
+
+        // Mã hóa ID người dùng
+        $encodedId = base64_encode($userId); // Mã hóa ID người dùng
+
+        // Tạo slug duy nhất bằng cách thêm ID đã mã hóa vào cuối slug
+        $uniqueSlug = $slug . '_' . $encodedId;
+
+        return $uniqueSlug; // Trả về slug duy nhất
     }
 }

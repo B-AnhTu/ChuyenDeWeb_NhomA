@@ -140,8 +140,6 @@ class UserController extends Controller
             Session::flash('error', $e->getMessage());
             return redirect()->route('userAdmin.index')->withInput(); // Chuyển hướng về trang cập nhật
         }
-
-        
     }
 
     /**
@@ -151,16 +149,16 @@ class UserController extends Controller
     {
         $user = $this->userService->getUserBySlug($slug);
         if (!$user) {
-            return redirect()->route('admin.index')->with('error', 'User not found or slug mismatch.');
+            return redirect()->route('userAdmin.index')->with('error', 'Người dùng không tồn tại.');
         }
 
         // Gọi service để xóa người dùng
         try {
             $this->userService->deleteUserBySlug($slug, Auth::user());
-            return redirect()->route('admin.index')->with('success', 'Xóa người dùng thành công.');
+            return redirect()->route('userAdmin.index')->with('success', 'Xóa người dùng thành công.');
         } catch (\Exception $e) {
             Session::flash('error', $e->getMessage());
-            return redirect()->route('admin.index')->withInput();
+            return redirect()->route('userAdmin.index')->withInput();
         }
         
     }
@@ -203,7 +201,7 @@ class UserController extends Controller
     {
         $user = $this->userService->getUserBySlug($slug);
         if (!$user) {
-            return redirect()->route('admin.index')->with('error', 'User not found or slug mismatch.');
+            return redirect()->route('admin.index')->with('error', 'Người dùng không tồn tại.');
         }
 
         // Lấy vai trò mới từ request

@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
-
+use App\Services\SlugService;
 
 class Category extends Model
 {
@@ -21,6 +21,51 @@ class Category extends Model
         'slug',
     ];
 
+    // Hàm khởi tạo và cập nhật slug
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($category) {
+            $category->slug = static::generateUniqueSlug($category->category_name, $category->category_id);
+        });
+
+        static::updating(function ($category) {
+            $category->slug = static::generateUniqueSlug($category->category_name, $category->category_id);
+        });
+    }
+
+    // Tạo slug không trùng lặp
+    protected static function generateUniqueSlug($categoryName, $categoryId = null)
+    {
+        // Tạo slug từ product name
+        $slug = SlugService::slugify($categoryName);
+
+        // Mã hóa ID danh mục
+        $encodedId = base64_encode($categoryId); // Mã hóa ID danh mục
+
+        // Tạo slug duy nhất bằng cách thêm ID đã mã hóa vào cuối slug
+        $uniqueSlug = $slug . '_' . $encodedId;
+
+        return $uniqueSlug; // Trả về slug duy nhất
+    }
+
+    // Phương thức giải mã slug để lấy ID sản phẩm
+    public static function decodeSlug($slug)
+    {
+        // Tách slug thành phần
+        $parts = explode('_', $slug);
+        if (count($parts) < 2) {
+            return null; // Nếu không có ID, trả về null
+        }
+
+        // Lấy phần cuối cùng (ID đã mã hóa)
+        $encodedId = end($parts); // Lấy phần cuối cùng
+        $decodedId = base64_decode($encodedId); // Giải mã base64
+
+        return $decodedId; // Trả về ID 
+    }
+
     // Phương thức lấy tất cả category
     public static function getAllCate()
     {
@@ -34,13 +79,8 @@ class Category extends Model
         return self::paginate(5);
     }
 
-
-    /**
-     * Lấy category theo slug
-     */
-    public static function getCategoryBySlug($slug)
-    {
-        return self::where('slug', $slug)->first();
+    public static function getCategoryById($id){
+        return self::find($id);
     }
 
     /**
@@ -54,7 +94,7 @@ class Category extends Model
     /**
      * Cập nhật Category
      */
-    public static function updateWithConflictCheck(array $data)
+    public function updateWithConflictCheck(array $data)
     {
         return DB::transaction(function () use ($data) {
             // Lưu giá trị updated_at hiện tại trước khi cập nhật
@@ -97,13 +137,15 @@ class Category extends Model
      */
     public static function deleteCategoryBySlug($slug)
     {
-        $category = Category::getCategoryBySlug($slug);
+        $category_id = self::decodeSlug($slug);
+        $category = self::getCategoryById($category_id);
         if ($category) {
             // Kiểm tra và xóa hình ảnh nếu có
             if ($category->image && file_exists(public_path('img/category/' . $category->image))) {
                 unlink(public_path('img/category/' . $category->image));
             }
             $category->delete();
+            return true;
         }
     }
     /**

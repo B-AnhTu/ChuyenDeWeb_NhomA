@@ -39,8 +39,8 @@
                                     lượng hàng tồn (Tăng dần)</option>
                                 <option value="stock_desc" {{ request('sort_by') == 'stock_desc' ? 'selected' : '' }}>Số
                                     lượng hàng tồn (Giảm dần)</option>
-                                <option value="updated_at_asc" {{ request('sort_by') == 'updated_at_asc' ? 'selected' : '' }}>Ngày cập nhật (cũ nhất)</option>
-                                <option value="updated_at_desc" {{ request('sort_by') == 'updated_at_desc' ? 'selected' : '' }}>Ngày cập nhật (mới nhất)</option>
+                                <option value="created_at_asc" {{ request('sort_by') == 'created_at_asc' ? 'selected' : '' }}>Ngày tạo (cũ nhất)</option>
+                                <option value="created_at_desc" {{ request('sort_by') == 'created_at_desc' ? 'selected' : '' }}>Ngày tạo (mới nhất)</option>
                             </select>
                             <!-- <button class="btn btn-outline-success" type="submit">Lọc</button> -->
                         </form>

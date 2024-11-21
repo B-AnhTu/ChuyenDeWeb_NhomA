@@ -20,11 +20,16 @@ class ProductService
     {
         return Product::getAllProducts();
     }
+    // Lấy danh sách sản phẩm đã bị xóa tạm thời
+    public function getDeletedProducts(){
+        return Product::getDeletedProducts();
+    }
     /**
      * Lấy sản phẩm theo slug
      */
     public function getProductBySlug($slug){
-        return Product::getProductBySlug($slug);
+        $productId = Product::decodeSlug($slug); // Giải mã slug để lấy ID sản phẩm
+        return Product::getProductById($productId); // Tìm sản phẩm theo ID
     }
     /**
      * 
@@ -39,47 +44,51 @@ class ProductService
             $validatedData['image'] = $filename;
         }
 
-        $validatedData['slug'] = $this->slugService->slugify($validatedData['product_name']);
         $validatedData['created_at'] = now();
         $validatedData['updated_at'] = now();
-        
-        $product = new Product();
-        return $product->createProduct($validatedData); 
+
+        // Tạo người dùng mới
+        $product = Product::createProduct($validatedData);
+
+        // Tạo slug cho người dùng sau khi đã tạo
+        $product->slug = Product::generateUniqueSlug($product->product_name, $product->product_id);
+        $product->save();
+
+        return $product; // Trả về người dùng đã tạo
     }
     /**
      * Sửa danh mục ( có kiểm tra lỗi bảo mật Optimistic Locking)
      */
     public function updateProduct($product, $validatedData)
     {
-        // Làm mới slug dựa trên Product_name
-        $validatedData['slug'] = $this->slugService->slugify($validatedData['product_name']);
+        // Kiểm tra xem image có tồn tại trong validated data
+        if (isset($validatedData['image'])) {
+            $file = $validatedData['image'];
+            $filename = time() . '_' . $file->getClientOriginalName();
+            $file->move(public_path('img/profile-picture'), $filename);
+            $validatedData['image'] = $filename;
+        }
 
-        return $product->updateWithConflictCheck($validatedData);
+        $validatedData['updated_at'] = now();
+
+        // Cập nhật thông tin người dùng
+        $product->updateWithConflictCheck($validatedData);
+
+        // Nếu fullname đã thay đổi, tạo lại slug
+        if ($product->product_name !== $validatedData['product_name']) {
+            $product->slug = Product::generateUniqueSlug($validatedData['product_name'], $validatedData['product_id']);
+        }
+
+        $product->save();
+
+        return $product; // Trả về người dùng đã cập nhật
     }
     /**
      * Xóa sản phẩm
      */
     public function deleteProduct($slug)
     {
-        // Tìm Product theo slug
-        $product = Product::getProductBySlug($slug);
-
-        // Kiểm tra xem Product có tồn tại không
-        if (!$product) {
-            throw new \Exception('Product not found. It may have already been deleted.');
-        }
-
-        // Thực hiện xóa Product
-        try {
-            Product::deleteProductBySlug($product->slug);
-        } catch (\Exception $e) {
-            // Xử lý lỗi trong trường hợp xóa không thành công
-            throw new \Exception('An error occurred while trying to delete the Product: ' . $e->getMessage());
-        }
-
-        // Trả về true nếu xóa thành công
-        return true;
-
+        return Product::deleteProductBySlug($slug);
     }
     /**
      * Khôi phục sản phẩm

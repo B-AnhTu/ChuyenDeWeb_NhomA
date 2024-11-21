@@ -97,12 +97,12 @@ class BlogController extends Controller
     public function store(StoreBlogRequest $request)
     {
         $this->blogService->createBlog($request->validated());
-        return redirect()->route('blogAdmin.index')->with('success', 'Blog created successfully.');
+        return redirect()->route('blogAdmin.index')->with('success', 'Thêm blog mới thành công.');
     }
     public function show($slug){
-        $blog = Blog::where('slug', $slug)->first();
+        $blog = $this->blogService->getBlogBySlug($slug);
         if (!$blog){
-            return redirect()->route('blogAdmin.index')->with('error', 'Blog not found. It may have been deleted or modified by another user.');  
+            return redirect()->route('blogAdmin.index')->with('error', 'Blog không tồn tại');  
         }
         return view('blogUpdate', compact('blog'));
     }
@@ -111,9 +111,9 @@ class BlogController extends Controller
      */
     public function edit($slug){
         
-        $blog = Blog::where('slug', $slug)->first();
+        $blog = $this->blogService->getBlogBySlug($slug);
         if (!$blog){
-            return redirect()->route('blogAdmin.index')->with('error', 'Blog not found. It may have been deleted or modified by another user.');  
+            return redirect()->route('blogAdmin.index')->with('error', 'Blog không tồn tại');  
         }
         return view('blogUpdate', compact('blog'));
     }
@@ -125,16 +125,16 @@ class BlogController extends Controller
     {
         try {
             // Tìm blog theo slug
-            $blog = Blog::where('slug', $slug)->first();
+            $blog = $this->blogService->getBlogBySlug($slug);
             // Kiểm tra nếu blog không tồn tại hoặc đã bị chỉnh sửa
             if (!$blog) {
-                Session::flash('error', 'Blog not found. It may have been deleted or modified by another user.');
+                Session::flash('error', 'Blog không tồn tại');
                 return redirect()->route('blogAdmin.index')->withInput();
             }
             $this->blogService->updateBlog($blog, $request->validated());
             
             // Thông báo thành công
-            Session::flash('success', 'Blog updated successfully.');
+            Session::flash('success', 'Cập nhật blog thành công.');
             return redirect()->route('blogAdmin.index');
         } catch (\Exception $e) {
             // Thông báo lỗi
@@ -148,10 +148,16 @@ class BlogController extends Controller
      */
     public function destroy($slug)
     {
+        // Kiểm tra nếu blog không tồn tại
+        $blog = $this->blogService->getBlogBySlug($slug);
+        if (!$blog) {
+            Session::flash('error', 'Blog không tồn tại');
+            return redirect()->route('blogAdmin.index');
+        }
         try {
             $this->blogService->deleteBlog($slug);
             // Thông báo thành công
-            return redirect()->route('blogAdmin.index')->with('success', 'Blog deleted successfully.');
+            return redirect()->route('blogAdmin.index')->with('success', 'Xóa blog thành công.');
         } 
         catch (\Exception $e){
             // Thông báo lỗi

@@ -120,19 +120,35 @@ class User extends Authenticatable
             $user->slug = static::generateUniqueSlug($user->fullname, $user->user_id);
         });
     }
-
     // Tạo slug không trùng lặp
     protected static function generateUniqueSlug($fullname, $userId = null)
     {
         // Tạo slug từ fullname
         $slug = SlugService::slugify($fullname);
-        $secretKey = 'khongthehacktdc2004'; // Thay thế bằng chuỗi ký tự bí mật của bạn
-        $encodedId = base64_encode($userId . $secretKey); // Mã hóa ID người dùng
+
+        // Mã hóa ID người dùng
+        $encodedId = base64_encode($userId); // Mã hóa ID người dùng
 
         // Tạo slug duy nhất bằng cách thêm ID đã mã hóa vào cuối slug
-        $uniqueSlug = $slug . '-' . $encodedId;
+        $uniqueSlug = $slug . '_' . $encodedId;
 
         return $uniqueSlug; // Trả về slug duy nhất
+    }
+
+    // Phương thức giải mã slug để lấy ID người dùng
+    public static function decodeSlug($slug)
+    {
+        // Tách slug thành phần
+        $parts = explode('_', $slug);
+        if (count($parts) < 2) {
+            return null; // Nếu không có ID, trả về null
+        }
+
+        // Lấy phần cuối cùng (ID đã mã hóa)
+        $encodedId = end($parts); // Lấy phần cuối cùng
+        $decodedId = base64_decode($encodedId); // Giải mã base64
+
+        return $decodedId; // Trả về ID người dùng
     }
 
     //Hàm chức năng thêm xóa sửa
@@ -142,6 +158,10 @@ class User extends Authenticatable
     public static function getAllUsers()
     {
         return self::all();
+    }
+    //Lấy user theo id
+    public static function getUserById($id){
+        return self::find($id);
     }
     /**
      * Lấy danh sách user online
@@ -155,7 +175,7 @@ class User extends Authenticatable
     public static function getUserBySlug($slug)
     {
         // Lấy user theo slug gốc
-        $user = static::where('slug', $slug)->first();
+        $user = self::where('slug', $slug)->first();
 
         if ($user) {
             return $user;
@@ -167,21 +187,55 @@ class User extends Authenticatable
      * Thêm user
      */
     // Phương thức tạo người dùng
-    public static function createUser($data)
+    public static function createUser(array $data)
     {
         return self::create($data);
     }
 
     // Phương thức cập nhật người dùng
-    public static function updateUser($data)
+    public function updateUser(array $data)
     {
-        return self::update($data);
+        return DB::transaction(function () use ($data) {
+            // Lưu giá trị updated_at hiện tại trước khi cập nhật
+            $currentUpdatedAt = $this->updated_at;
+
+            // Kiểm tra xung đột trước khi thực hiện cập nhật
+            if ($currentUpdatedAt != $this->updated_at) {
+                throw new \Exception('Conflict detected. The manufacturer has been updated by another user.');
+            }
+
+            // Kiểm tra slug mới từ user
+            $newSlug = $data['slug'] ?? $this->slug; // Lấy slug mới từ dữ liệu
+            $slugChanged = $newSlug !== $this->slug; // Kiểm tra slug đã thay đổi
+
+            // Cập nhật thông tin hình ảnh
+            if (isset($data['image'])) {
+                $file = $data['image'];
+                $filename = time() . '_' . $file->getClientOriginalName();
+                $file->move(public_path('img/profile-picture'), $filename);
+
+                // Xóa ảnh cũ nếu có
+                if ($this->image && file_exists(public_path('img/profile-picture/' . $this->image))) {
+                    unlink(public_path('img/profile-picture/' . $this->image));
+                }
+
+                $data['image'] = $filename;
+            }
+
+            $data['updated_at'] = now();
+
+            // 3. Cập nhật user
+            $this->update($data);
+
+            return $this; // Trả về user đã cập nhật
+        });
     }
     /**
      * Xóa user
      */
     public static function deleteUserBySlug($slug, $currentUser){
-        $user = User::getUserBySlug($slug);
+        $userId = User::decodeSlug($slug); 
+        $user = User::getUserById($userId); 
 
         // Kiểm tra nếu người dùng không tồn tại
         if (!$user) {
@@ -240,7 +294,7 @@ class User extends Authenticatable
                 $query->orderBy('created_at', 'desc');
                 break;
             default:
-                $query->orderBy('created_at', 'asc');
+                $query->orderBy('created_at', 'desc');
                 break;
         }
         return $query;
@@ -283,13 +337,7 @@ class User extends Authenticatable
             throw new \Exception('Bạn không có quyền cập nhật quyền hạn của người dùng.');
         }
     }
-    public static function getUserIdBySlug($slug){
-        $user = User::getUserBySlug($slug);
-        if($user){
-            return $user->user_id;
-        }
-        return null;
-    }
+
     
     
 }

@@ -36,17 +36,24 @@ class CategoryService
             $validatedData['image'] = $filename;
         }
 
-        $validatedData['slug'] = $this->slugService->slugify($validatedData['category_name']);
         $validatedData['created_at'] = now();
         $validatedData['updated_at'] = now();
 
-        return Category::createCategory($validatedData);
+        // Tạo người dùng mới
+        $category = Category::createCategory($validatedData);
+
+        // Tạo slug cho người dùng sau khi đã tạo
+        $category->slug = Category::generateUniqueSlug($category->category_name, $category->category_id);
+        $category->save();
+
+        return $category; // Trả về người dùng đã tạo
     }
     /**
      * Lấy danh mục theo slug
      */
-    public function getCategoryBySlug($categorySlug){
-        return Category::getCategoryBySlug($categorySlug);
+    public function getCategoryBySlug($slug){
+        $categoryId = Category::decodeSlug($slug); // Giải mã slug để lấy ID sản phẩm
+        return Category::find($categoryId);
     }
     /**
      * Sửa danh mục ( có kiểm tra lỗi bảo mật Optimistic Locking)
@@ -54,33 +61,26 @@ class CategoryService
     public function updateCategory($category, $validatedData)
     {
         // Làm mới slug dựa trên category_name
-        $validatedData['slug'] = $this->slugService->slugify($validatedData['category_name']);
 
-        return $category->updateWithConflictCheck($validatedData);
+        $validatedData['updated_at'] = now();
+
+        // Cập nhật thông tin người dùng
+        $category->updateWithConflictCheck($validatedData);
+
+        // Nếu fullname đã thay đổi, tạo lại slug
+        if ($category->category_name !== $validatedData['category_name']) {
+            $category->slug = Category::generateUniqueSlug($validatedData['category_name'], $validatedData['category_id']);
+        }
+
+        $category->save();
+
+        return $category; // Trả về người dùng đã cập nhật
     }
     /**
      * Xóa danh mục
      */
     public function deleteCategory($slug)
     {
-        // Tìm Category theo slug
-        $category = Category::getCategoryBySlug($slug);
-
-        // Kiểm tra xem Category có tồn tại không
-        if (!$category) {
-            throw new \Exception('Không tìm thấy danh mục. Có thể danh mục đã bị chỉnh sửa hoặc xóa bởi người dùng khác.');
-        }
-
-        // Thực hiện xóa category
-        try {
-            Category::deleteCategoryBySlug($category->slug);
-
-        } catch (\Exception $e) {
-            // Xử lý lỗi trong trường hợp xóa không thành công
-            throw new \Exception('Xảy ra lỗi trong khi cố gắng xóa danh mục: ' . $e->getMessage());
-        }
-
-        // Trả về true nếu xóa thành công
-        return true;
+        return Category::deleteCategoryBySlug($slug);
     }
 }

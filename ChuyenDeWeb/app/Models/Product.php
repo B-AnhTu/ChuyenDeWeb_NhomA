@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\NewProductNotification;
 use App\Models\NewsletterSubscriber;
+use App\Services\SlugService;
 
 
 class Product extends Model
@@ -32,6 +33,51 @@ class Product extends Model
         'slug',
     ];
 
+    // Hàm khởi tạo và cập nhật slug
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($product) {
+            $product->slug = static::generateUniqueSlug($product->product_name, $product->product_id);
+        });
+
+        static::updating(function ($product) {
+            $product->slug = static::generateUniqueSlug($product->product_name, $product->product_id);
+        });
+    }
+
+    // Tạo slug không trùng lặp
+    protected static function generateUniqueSlug($productName, $productId = null)
+    {
+        // Tạo slug từ fullname
+        $slug = SlugService::slugify($productName);
+
+        // Mã hóa ID người dùng
+        $encodedId = base64_encode($productId); // Mã hóa ID người dùng
+
+        // Tạo slug duy nhất bằng cách thêm ID đã mã hóa vào cuối slug
+        $uniqueSlug = $slug . '_' . $encodedId;
+
+        return $uniqueSlug; // Trả về slug duy nhất
+    }
+
+    // Phương thức giải mã slug để lấy ID sản phẩm
+    public static function decodeSlug($slug)
+    {
+        // Tách slug thành phần
+        $parts = explode('_', $slug);
+        if (count($parts) < 2) {
+            return null; // Nếu không có ID, trả về null
+        }
+
+        // Lấy phần cuối cùng (ID đã mã hóa)
+        $encodedId = end($parts); // Lấy phần cuối cùng
+        $decodedId = base64_decode($encodedId); // Giải mã base64
+
+        return $decodedId; // Trả về ID sản phẩm
+    }
+
     // lấy tất cả sản phẩm trong trang index
     public static function getAllProducts($perPage = 8)
     {
@@ -44,6 +90,10 @@ class Product extends Model
         return self::orderBy('created_at', 'desc')->paginate($perPage);
     }
 
+    // Lấy sản phẩm theo id 
+    public static function getProductById($productId){
+        return self::find($productId);
+    }
     // lọc sản phẩm theo danh mục trang index
     public static function filterByManufacturer($manufacturerId, $perPage = 8)
     {
@@ -246,18 +296,16 @@ class Product extends Model
                 ->send(new NewProductNotification($this));
         }
     }
-
-    /**
-     * Lấy tất cả sản phẩm có phân trang
-     */
-    public static function getAllProducts(){
-        return Product::paginate(5);
-    }
     /**
      * Lấy sản phẩm dựa trên slug
      */
     public static function getProductBySlug($slug){
-        return self::where('slug', $slug)->first();
+        $product = self::where('slug', $slug)->first();
+        if ($product) {
+            return $product;
+        }
+
+        return null; // Nếu không tìm thấy
     }
     /**
      * Thêm sản phẩm
@@ -274,7 +322,7 @@ class Product extends Model
     /**
      * Cập nhật sản phẩm với kiểm tra xung đột
      */
-    public static function updateWithConflictCheck(array $data)
+    public function updateWithConflictCheck(array $data)
     {
         return DB::transaction(function () use ($data) {
             // Lưu giá trị updated_at hiện tại từ cơ sở dữ liệu
@@ -311,34 +359,42 @@ class Product extends Model
             return $this; // Trả về sản phẩm đã cập nhật
         });
     }
+    public static function getDeletedProducts(){
+        return self::onlyTrashed()->paginate(5);
+    }
     /**
      * Xóa sản phẩm (tạm thời)
      */
     public static function deleteProductBySlug($slug){
-        $product = Product::getProductBySlug($slug);
+        $product_id = self::decodeSlug($slug);
+        $product = self::getProductById($product_id);
         if ($product) {
             $product->delete();
+            return true;
         }
-
     }
     /**
      * Khôi phục sản phẩm
      */
     public static function restoreProduct($slug){
-        // Tìm sản phẩm đã xóa theo slug
-        $product = self::onlyTrashed()->where('slug', $slug)->first();
+        // Giải mã slug để lấy sản phẩm ID
+        $productId = self::decodeSlug($slug);
+        // Tìm sản phẩm đã xóa theo ID
+        $product = self::onlyTrashed()->find($productId);
         if ($product) {
-            $product->restore();
-            return true;
+            $product->restore(); // Khôi phục sản phẩm
+            return true; 
         }
-        return false;
+        return false; 
     }
     /**
      * Xóa vĩnh viễn sản phẩm
      */
     public static function forceDeleteProduct($slug){
-        // Tìm sản phẩm đã xóa theo slug
-        $product = self::onlyTrashed()->where('slug', $slug)->first();
+        // Giải mã slug để lấy sản phẩm ID
+        $productId = self::decodeSlug($slug);
+        // Tìm sản phẩm đã xóa theo ID
+        $product = self::onlyTrashed()->find($productId);
         if ($product) {
             // Xóa ảnh nếu có
             if ($product->image && file_exists(public_path('img/products/' . $product->image))) {
@@ -408,14 +464,14 @@ class Product extends Model
                 case 'stock_desc':
                     $query->orderBy('stock_quantity', 'desc');
                     break;
-                case 'updated_at_asc':
-                    $query->orderBy('updated_at', 'asc');
+                case 'created_at_asc':
+                    $query->orderBy('created_at', 'asc');
                     break;
-                case 'updated_at_desc':
-                    $query->orderBy('updated_at', 'desc');
+                case 'created_at_desc':
+                    $query->orderBy('created_at', 'desc');
                     break;
                 default:
-                    $query->orderBy('created_at', 'asc'); // Sắp xếp mặc định
+                    $query->orderBy('created_at', 'desc'); // Sắp xếp mặc định
                     break;
             }
         return $query;

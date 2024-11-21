@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
+use App\Services\SlugService;
 
 
 class Manufacturer extends Model
@@ -20,6 +21,50 @@ class Manufacturer extends Model
     protected $table = 'manufacturer';
     protected $primaryKey = 'manufacturer_id'; // Specify the correct primary key
 
+    // Hàm khởi tạo và cập nhật slug
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($manufacturer) {
+            $manufacturer->slug = static::generateUniqueSlug($manufacturer->manufacturer_name, $manufacturer->manufacturer_id);
+        });
+
+        static::updating(function ($manufacturer) {
+            $manufacturer->slug = static::generateUniqueSlug($manufacturer->manufacturer_name, $manufacturer->manufacturer_id);
+        });
+    }
+
+    // Tạo slug không trùng lặp
+    protected static function generateUniqueSlug($manufacturerName, $manufacturerId = null)
+    {
+        // Tạo slug từ manufacturer name
+        $slug = SlugService::slugify($manufacturerName);
+
+        // Mã hóa ID nhà sản xuất
+        $encodedId = base64_encode($manufacturerId); // Mã hóa ID nhà sản xuất
+
+        // Tạo slug duy nhất bằng cách thêm ID đã mã hóa vào cuối slug
+        $uniqueSlug = $slug . '_' . $encodedId;
+
+        return $uniqueSlug; // Trả về slug duy nhất
+    }
+    // Phương thức giải mã slug để lấy ID nhà sản xuất
+    public static function decodeSlug($slug)
+    {
+        // Tách slug thành phần
+        $parts = explode('_', $slug);
+        if (count($parts) < 2) {
+            return null; // Nếu không có ID, trả về null
+        }
+
+        // Lấy phần cuối cùng (ID đã mã hóa)
+        $encodedId = end($parts); // Lấy phần cuối cùng
+        $decodedId = base64_decode($encodedId); // Giải mã base64
+
+        return $decodedId; // Trả về ID nhà sản xuất
+    }
+
     /** 
      * Phương thức lấy tất cả Manufacturer (có phân trang) 
      * */
@@ -27,14 +72,9 @@ class Manufacturer extends Model
     {
         return self::paginate(5);
     }
-
-
-    /**
-     * Lấy Manufacturer theo slug
-     */
-    public static function getManufacturerBySlug($slug)
-    {
-        return self::where('slug', $slug)->first();
+    // Lấy manufacturer theo id
+    public static function getManufacturerById($id){
+        return self::find($id);
     }
 
     /**
@@ -98,6 +138,7 @@ class Manufacturer extends Model
                 unlink(public_path('img/manufacturer/' . $manufacturer->image));
             }
             $manufacturer->delete();
+            return true;
         }
     }
     /**

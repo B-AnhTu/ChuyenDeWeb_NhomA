@@ -36,18 +36,31 @@ class UpdateUserRequest extends FormRequest
      */
     public function rules(): array
     {
+        $slug = $this->route('slug');
+        $user = $this->userService->getUserBySlug($slug); // Nên lấy đối tượng người dùng thay vì ID
 
-        $slug = $this->route('slug'); // Lấy slug người dùng từ route
-        $userId = $this->userService->getUserIdBySlug($slug);
+        if (!$user) {
+            throw new \Exception('Người dùng không tồn tại'); // Xử lý trường hợp không tìm thấy người dùng
+        }
 
-        return [
+        $userId = $user->user_id; // Lấy ID từ đối tượng
+
+        $rules = [
             'fullname' => ['required', 'string', 'max:50', new SingleSpaceOnly, new NoSpecialCharacters],
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:5120',
-            'email' => ['required', 'email', 'max:50', 'unique:users,email,' . $userId], // Kiểm tra duy nhất, bỏ qua người dùng hiện tại, new GmailOnly, new NoSpace],
             'password' => ['required', 'min:8', 'max:20', new NoSpace],
             'phone' => ['required', 'digits:10', 'regex:/^0[0-9]{9}$/', new NoSpecialCharacters, new NoSpace],
             'address' => ['required', 'string', 'max:255', new NoSpecialCharacters],
         ];
+
+        // Kiểm tra xem email có được cập nhật hay không
+        if ($this->filled('email')) {
+            $rules['email'] = ['required', 'email', 'max:50', 'unique:users,email,' . $userId . ',user_id'];
+        } else {
+            $rules['email'] = ['nullable', 'email', 'max:50']; // Nếu không cập nhật, chỉ cần kiểm tra định dạng
+        }
+
+        return $rules;
     }
     public function messages()
     {

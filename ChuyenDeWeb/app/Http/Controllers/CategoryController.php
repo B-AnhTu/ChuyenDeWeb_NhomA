@@ -72,6 +72,10 @@ class CategoryController extends Controller
     public function show($slug)
     {
         $category = $this->categoryService->getCategoryBySlug($slug);
+        if (!$category) {
+            Session::flash('error', 'Danh mục không tồn tại');
+            return redirect()->route('category.index')->withInput();
+        }
         return view('categoryShow', compact('category'));
     }
 
@@ -80,7 +84,7 @@ class CategoryController extends Controller
     {
         $category = $this->categoryService->getCategoryBySlug($slug);
         if (!$category) {
-            Session::flash('error', 'Category not found. It may have been deleted or modified by another user.');
+            Session::flash('error', 'Danh mục không tồn tại');
             return redirect()->route('category.index')->withInput();
         }
         return view('categoryUpdate', compact('category'));
@@ -94,7 +98,7 @@ class CategoryController extends Controller
             $category = $this->categoryService->getCategoryBySlug($slug);
             // Kiểm tra nếu category không tồn tại
             if (!$category) {
-                Session::flash('error', 'Category not found. It may have been deleted or modified by another user.');
+                Session::flash('error', 'Danh mục không tồn tại');
                 return redirect()->route('categoryAdmin.index')->withInput();
             }
     
@@ -105,8 +109,8 @@ class CategoryController extends Controller
             $this->categoryService->updateCategory($category, $validatedData);
             
             // Thông báo thành công
-            Session::flash('success', 'Category updated successfully.');
-            return redirect()->route('category.index')->with('success', 'Category updated successfully.');
+            Session::flash('success', 'Cập nhật danh mục thành công.');
+            return redirect()->route('category.index')->with('success', 'Cập nhật danh mục thành công.');
         } catch (\Exception $e) {
             // Thông báo lỗi
             Session::flash('error', $e->getMessage());
@@ -118,12 +122,19 @@ class CategoryController extends Controller
     // Xóa danh mục
     public function destroy($slug)
     {
+        // Tìm category theo slug
+        $category = $this->categoryService->getCategoryBySlug($slug);
+        // Kiểm tra nếu category không tồn tại
+        if (!$category) {
+            Session::flash('error', 'Danh mục không tồn tại');
+            return redirect()->route('category.index')->withInput();
+        }
         try {
             // Gọi service để xóa category
             $this->categoryService->deleteCategory($slug);
             
             // Thông báo thành công
-            return redirect()->route('category.index')->with('success', 'Category deleted successfully.');
+            return redirect()->route('category.index')->with('success', 'Xóa danh mục thành công.');
         } catch (\Exception $e) {
             // Thông báo lỗi
             Session::flash('error', $e->getMessage());

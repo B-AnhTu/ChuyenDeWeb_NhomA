@@ -26,14 +26,15 @@ class UserService
     public function getOnlineUsers(){
         return User::getOnlineUsers();
     }
+    public function getUserById($id){
+        return User::getUserById($id); 
+    }
     /**
      * Lấy user theo slug
      */
     public function getUserBySlug($slug){
-        return User::getUserBySlug($slug);
-    }
-    public function getUserIdBySlug($slug){
-        return User::getUserIdBySlug($slug);
+        $userId = User::decodeSlug($slug); 
+        return self::getUserById($userId); 
     }
     /**
      * Cập nhật quyền cho người dùng
@@ -55,7 +56,7 @@ class UserService
         $user = User::createUser($validatedData);
 
         // Tạo slug cho người dùng sau khi đã tạo
-        //$user->slug = User::generateUniqueSlug($user->fullname, $user->user_id);
+        $user->slug = User::generateUniqueSlug($user->fullname, $user->user_id);
         $user->save();
 
         return $user; // Trả về người dùng đã tạo
@@ -63,18 +64,14 @@ class UserService
 
     public function updateUser($user, $validatedData)
     {
-        if (isset($validatedData['image'])) {
-            $file = $validatedData['image'];
-            $filename = time() . '_' . $file->getClientOriginalName();
-            $file->move(public_path('img/profile-picture'), $filename);
-            $validatedData['image'] = $filename;
-        }
-
         // Cập nhật thông tin người dùng
         $user->updateUser($validatedData);
 
-        // Tạo lại slug cho người dùng
-        //$user->slug = User::generateUniqueSlug($user->fullname, $user->user_id);
+        // Nếu fullname đã thay đổi, tạo lại slug
+        if ($user->fullname !== $validatedData['fullname']) {
+            $user->slug = User::generateUniqueSlug($validatedData['fullname'], $validatedData['user_id']); // Sử dụng fullname mới từ validatedData
+        }
+
         $user->save();
 
         return $user; // Trả về người dùng đã cập nhật
@@ -84,8 +81,8 @@ class UserService
     {
         // Tạo slug từ fullname
         $slug = SlugService::slugify($fullname);
-        $secretKey = 'khongthehacktdc2004'; // Thay thế bằng chuỗi ký tự bí mật của bạn
-        $encodedId = base64_encode($userId . $secretKey); // Mã hóa ID người dùng
+        
+        $encodedId = base64_encode($userId); // Mã hóa ID người dùng
 
         // Tạo slug duy nhất bằng cách thêm ID đã mã hóa vào cuối slug
         $uniqueSlug = $slug . '-' . $encodedId;

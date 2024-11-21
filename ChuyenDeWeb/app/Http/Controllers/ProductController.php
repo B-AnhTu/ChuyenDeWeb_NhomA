@@ -106,13 +106,6 @@ class ProductController extends Controller
 
         return view('product', compact('products', 'manufacturers', 'categories'));
     }
-
-
-
-
-
-
-
     
     // Hiển thị danh sách sản phẩm trong admin
     public function list(Request $request)
@@ -189,7 +182,7 @@ class ProductController extends Controller
             
             // Kiểm tra nếu sản phẩm không tồn tại
             if (!$product) {
-                Session::flash('error', 'Product not found. It may have been deleted or modified by another user.');
+                Session::flash('error', 'Sản phẩm không tồn tại');
                 return redirect()->route('productAdmin.index')->withInput();
             }
 
@@ -200,8 +193,8 @@ class ProductController extends Controller
             $this->productService->updateProduct($product, $validatedData);
 
             // Thông báo thành công
-            Session::flash('success', 'Product updated successfully.');
-            return redirect()->route('product.index')->with('success', 'Product updated successfully.');
+            Session::flash('success', 'Cập nhật sản phẩm thành công.');
+            return redirect()->route('product.index')->with('success', 'Cập nhật sản phẩm thành công.');
         } catch (\Exception $e) {
             // Thông báo lỗi
             Session::flash('error', $e->getMessage());
@@ -215,7 +208,7 @@ class ProductController extends Controller
             $this->productService->deleteProduct($slug);
 
             //Thông báo thành công
-            return redirect()->route('product.index')->with('success', 'Product deleted successfully');
+            return redirect()->route('product.index')->with('success', 'Xóa sản phẩm thành công');
         } catch (\Exception $e) {
             // Thông báo lỗi
             Session::flash('error',$e->getMessage());
@@ -226,7 +219,7 @@ class ProductController extends Controller
     public function trashed()
     {
         // Lấy danh sách các sản phẩm đã xóa tạm thời
-        $trashedProducts = Product::onlyTrashed()->paginate(5);
+        $trashedProducts = $this->productService->getDeletedProducts();
 
         return view('trashed', compact('trashedProducts'));
     }

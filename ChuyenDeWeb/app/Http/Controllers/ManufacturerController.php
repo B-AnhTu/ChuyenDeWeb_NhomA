@@ -76,6 +76,10 @@ class ManufacturerController extends Controller
     public function show($slug)
     {
         $manufacturer = $this->manufacturerService->getManufacturerBySlug($slug);
+        if (!$manufacturer) {
+            Session::flash('error', 'Nhà sản xuất không tồn tại');
+            return redirect()->route('manufacturer.index')->withInput();
+        }
         return view('manufacturerShow', compact('manufacturer'));
     }
 
@@ -86,7 +90,7 @@ class ManufacturerController extends Controller
     {
         $manufacturer = $this->manufacturerService->getManufacturerBySlug($slug);
         if (!$manufacturer) {
-            Session::flash('error', 'manu$manufacturer not found. It may have been deleted or modified by another user.');
+            Session::flash('error', 'Nhà sản xuất không tồn tại');
             return redirect()->route('manufacturer.index')->withInput();
         }
         //Chuyển đến trang cập nhật
@@ -103,7 +107,7 @@ class ManufacturerController extends Controller
             $manufacturer = $this->manufacturerService->getManufacturerBySlug($slug);
             // Kiểm tra nếu category không tồn tại
             if (!$manufacturer) {
-                Session::flash('error', 'Manufacturer not found. It may have been deleted or modified by another user.');
+                Session::flash('error', 'Nhà sản xuất không tồn tại');
                 return redirect()->route('manufacturerAdmin.index')->withInput();
             }
     
@@ -114,8 +118,8 @@ class ManufacturerController extends Controller
             $this->manufacturerService->updateManufacturer($manufacturer, $validatedData);
             
             // Thông báo thành công
-            Session::flash('success', 'Manufacturer updated successfully.');
-            return redirect()->route('manufacturer.index')->with('success', 'Manufacturer updated successfully.');
+            Session::flash('success', 'Cập nhật nhà sản xuất thành công');
+            return redirect()->route('manufacturer.index')->with('success', 'Cập nhật nhà sản xuất thành công');
         } catch (\Exception $e) {
             // Thông báo lỗi
             Session::flash('error', $e->getMessage());
@@ -128,55 +132,25 @@ class ManufacturerController extends Controller
      */
     public function destroy($slug)
     {
+        // Tìm manufacturer theo slug
+        $manufacturer = $this->manufacturerService->getManufacturerBySlug($slug);
+        // Kiểm tra nếu manufacturer không tồn tại
+        if (!$manufacturer) {
+            Session::flash('error', 'Nhà sản xuất không tồn tại');
+            return redirect()->route('manufacturer.index')->withInput();
+        }
         try {
             // Gọi service để xóa manufacturer
             $this->manufacturerService->deleteManufacturer($slug);
             
             // Thông báo thành công
-            return redirect()->route('manufacturer.index')->with('success', 'Manufacturer deleted successfully.');
+            return redirect()->route('manufacturer.index')->with('success', 'Xóa nhà sản xuất thành công.');
         } catch (\Exception $e) {
             // Thông báo lỗi
             Session::flash('error', $e->getMessage());
             return redirect()->route('manufacturer.index')->withInput(); 
         }
     }
-    // // Sắp xếp theo tên, ngày cập nhật
-    // public function sortManufacturers(Request $request)
-    // {
-    //     $query = Manufacturer::query();
-
-    //     // Sắp xếp theo yêu cầu
-    //     if ($request->has('sort_by')) {
-    //         switch ($request->sort_by) {
-    //             case 'name_asc':
-    //                 $query->orderBy('manufacturer_name', 'asc');
-    //                 break;
-    //             case 'name_desc':
-    //                 $query->orderBy('manufacturer_name', 'desc');
-    //                 break;
-    //             case 'updated_at_asc':
-    //                 $query->orderBy('updated_at', 'asc');
-    //                 break;
-    //             case 'updated_at_desc':
-    //                 $query->orderBy('updated_at', 'desc');
-    //                 break;
-    //             default:
-    //                 // Mặc định không sắp xếp
-    //                 break;
-    //         }
-    //     }
-
-    //     $manufacturers = $query->paginate(5); // Phân trang
-
-    //     return view('manufacturerAdmin', compact('manufacturers'));
-    // }
-    // // Tìm kiếm nhà sản xuất theo tên
-    // public function searchManufacturers(Request $request){
-    //     $query = $request->input('query');
-
-    //     $manufacturers = Manufacturer::where('manufacturer_name', 'like', '%' . $query . '%')->paginate(5);
-
-    //     return view('manufacturerAdmin', compact('manufacturers'));
-    // }
+    
     
 }

@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Facades\DB;
+use App\Services\SlugService;
 
 
 class Blog extends Model
@@ -64,17 +65,6 @@ class Blog extends Model
     {
         return self::all();
     }
-    //Hàm tìm kiếm full text
-    public static function searchFullText($searchTerm)
-    {
-        $keywords = explode(' ', $searchTerm);
-        return self::where(function ($query) use ($keywords) {
-            foreach ($keywords as $keyword) {
-                $query->orWhere('title', 'LIKE', "%{$keyword}%")
-                    ->orWhere('content', 'LIKE', "%{$keyword}%");
-            }
-        });
-    }
     /**
      * Lấy tất cả blog với phân trang
      */
@@ -89,13 +79,12 @@ class Blog extends Model
 
         return $query->orderBy('created_at', 'desc')->paginate($perPage);
     }
-    /**
-     * Lấy blog theo slug
-     */
-    public static function getBlogBySlug($slug)
+    // Lấy blog bằng id
+    public static function getBlogById($id)
     {
-        return self::where('slug', $slug)->first();
+        return self::find($id);
     }
+    
 
     /**
      * Tạo blog mới
@@ -108,7 +97,7 @@ class Blog extends Model
     /**
      * Cập nhật blog
      */
-    public static function updateBlog(array $data)
+    public function updateBlog(array $data)
     {
         return DB::transaction(function () use ($data) {
             // Lưu giá trị updated_at hiện tại trước khi cập nhật
@@ -151,9 +140,15 @@ class Blog extends Model
      */
     public static function deleteBlogBySlug($slug)
     {
-        $blog = self::where('slug', $slug)->first();
+        $blog_id = self::decodeSlug($slug);
+        $blog = self::find($blog_id);
         if ($blog) {
+            // Kiểm tra và xóa hình ảnh nếu có
+            if ($blog->image && file_exists(public_path('img/blog/' . $blog->image))) {
+                unlink(public_path('img/blog/' . $blog->image));
+            }
             $blog->delete();
+            return true;
         }
     }
     /**
@@ -170,12 +165,12 @@ class Blog extends Model
                 return $query->orderBy('short_description', 'asc');
             case 'description_desc':
                 return $query->orderBy('short_description', 'desc');
-            case 'updated_at_asc':
-                return $query->orderBy('updated_at', 'asc');
-            case 'updated_at_desc':
-                return $query->orderBy('updated_at', 'desc');
+            case 'created_at_asc':
+                return $query->orderBy('created_at', 'asc');
+            case 'created_at_desc':
+                return $query->orderBy('created_at', 'desc');
             default:
-                return $query;
+                return $query->orderBy('created_at', 'desc');
         }
     }
 
@@ -225,11 +220,11 @@ class Blog extends Model
                 case 'description_desc':
                     $query->orderBy('short_description', 'desc');
                     break;
-                case 'updated_at_asc':
-                    $query->orderBy('updated_at', 'asc');
+                case 'created_at_asc':
+                    $query->orderBy('created_at', 'asc');
                     break;
-                case 'updated_at_desc':
-                    $query->orderBy('updated_at', 'desc');
+                case 'created_at_desc':
+                    $query->orderBy('created_at', 'desc');
                     break;
                 default:
                     $query->orderBy('created_at', 'desc'); // Sắp xếp mặc định
@@ -237,5 +232,49 @@ class Blog extends Model
         }
 
         return $query;
+    }
+
+    // Hàm kiểm tra khởi tạo và cập nhật slug
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($blog) {
+            $blog->slug = static::generateUniqueSlug($blog->title, $blog->blog_id);
+        });
+
+        static::updating(function ($blog) {
+            $blog->slug = static::generateUniqueSlug($blog->title, $blog->blog_id);
+        });
+    }
+
+    // Tạo slug không trùng lặp
+    protected static function generateUniqueSlug($title, $blogId = null)
+    {
+        // Tạo slug từ title
+        $slug = SlugService::slugify($title);
+
+        // Mã hóa ID người dùng
+        $encodedId = base64_encode($blogId); // Mã hóa ID người dùng
+
+        // Tạo slug duy nhất bằng cách thêm ID đã mã hóa vào cuối slug
+        $uniqueSlug = $slug . '_' . $encodedId;
+
+        return $uniqueSlug; // Trả về slug duy nhất
+    }
+    // Phương thức giải mã slug để lấy ID sản phẩm
+    public static function decodeSlug($slug)
+    {
+        // Tách slug thành phần
+        $parts = explode('_', $slug);
+        if (count($parts) < 2) {
+            return null; // Nếu không có ID, trả về null
+        }
+
+        // Lấy phần cuối cùng (ID đã mã hóa)
+        $encodedId = end($parts); // Lấy phần cuối cùng
+        $decodedId = base64_decode($encodedId); // Giải mã base64
+
+        return $decodedId; // Trả về ID người dùng
     }
 }
