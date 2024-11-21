@@ -7,7 +7,7 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Support\Str;
-
+use Illuminate\Support\Facades\Hash;
 
 class User extends Authenticatable
 {
@@ -74,6 +74,56 @@ class User extends Authenticatable
         return $slug;
     }
 
+
+    // Kiểm tra đăng nhập
+    public static function attemptLogin($email, $password)
+    {
+        $user = static::where('email', $email)->first();
+
+        if ($user && Hash::check($password, $user->password)) {
+            return $user;
+        }
+
+        return null;
+    }
+
+    // Cập nhật trạng thái online cho người dùng
+    public static function updateOnlineStatus($userId, $status)
+    {
+        $user = static::find($userId);
+        
+        if ($user) {
+            $user->is_online = $status;
+            $user->save();
+        }
+    }
+
+    // Phương thức đăng ký người dùng
+    public static function registerUser($email, $password, $fullname, $phone)
+    {
+        return self::create([
+            'email' => $email,
+            'password' => Hash::make($password),
+            'fullname' => $fullname,
+            'slug' => self::generateUniqueSlug($fullname),
+            'phone' => $phone,
+        ]);
+    }
+    
+    // Phương thức cập nhật mật khẩu
+    public function updatePassword($newPassword)
+    {
+        $this->password = Hash::make($newPassword);
+        $this->save();
+    }
+
+
+
+
+
+
+
+    
     // Quan hệ với bảng Blog
     public function blog()
     {

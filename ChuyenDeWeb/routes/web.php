@@ -264,7 +264,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/Profile-user', [ProfileUserController::class, 'show'])->name('profile.show');
 
     //Orders
-    Route::get('/my-orders', [CheckoutController::class, 'myOrders'])->name('orders.my-orders');
+    Route::get('/order/my-orders', [CheckoutController::class, 'myOrders'])->name('orders.my-orders');
     
     Route::get('/order/{order_id}', [CheckoutController::class, 'orderDetail'])->name('orders.detail');
     

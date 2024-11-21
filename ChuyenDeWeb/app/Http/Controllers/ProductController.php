@@ -26,9 +26,11 @@ class ProductController extends Controller
     {
         $this->slugService = $slugService; // Khởi tạo slugService
     }
+
+
     public function index(Request $request)
     {
-        $products = Product::orderBy('created_at', 'desc')->paginate(6);
+        $products = Product::getAllProductsViewProduct();
         $manufacturers = Manufacturer::all();
         $categories = Category::all();
 
@@ -40,7 +42,6 @@ class ProductController extends Controller
             ]);
         }
 
-        // Kiểm tra xem người dùng đã thích sản phẩm nào
         $likedProductIds = Auth::check()
             ? ProductLike::where('user_id', Auth::id())->pluck('product_id')->toArray()
             : [];
@@ -55,15 +56,10 @@ class ProductController extends Controller
     // lọc sản phẩm theo nhà sản xuất
     public function filter(Request $request)
     {
-        // Kiểm tra xem manufacturer_id có được gửi từ request hay không
         if ($request->has('manufacturer_id')) {
-            $products = Product::where('manufacturer_id', $request->manufacturer_id)
-                ->orderBy('created_at', 'desc')
-                ->paginate(6); // Phân trang với 6 sản phẩm một lần
-
-            // Trả về JSON chứa sản phẩm và thông tin phân trang
+            $products = Product::filterByManufacturerViewProduct($request->manufacturer_id); // Gọi từ model
             return response()->json([
-                'data' => $products->items(),  // Trả về danh sách sản phẩm
+                'data' => $products->items(),
                 'current_page' => $products->currentPage(),
                 'last_page' => $products->lastPage()
             ]);
@@ -78,49 +74,7 @@ class ProductController extends Controller
     // tìm kiếm sản phẩm theo nhà sản xuất
     public function search(Request $request)
     {
-        $query = Product::query();
-
-        // Xử lý tìm kiếm full-text
-        if ($request->has('keyword') && $request->keyword) {
-            $searchTerm = $request->keyword;
-
-            // Chuẩn bị từ khóa tìm kiếm
-            $searchWords = explode(' ', $searchTerm);
-            $searchWords = array_filter($searchWords, function ($word) {
-                return strlen($word) >= 2;
-            });
-
-            if (!empty($searchWords)) {
-                $searchQuery = '+' . implode('* +', $searchWords) . '*';
-
-                $query->whereRaw("MATCH(product_name, description) AGAINST(? IN BOOLEAN MODE)", [$searchQuery]);
-            }
-        }
-
-        // Lọc theo nhà sản xuất
-        if ($request->has('manufacturer_id') && $request->manufacturer_id) {
-            $query->where('manufacturer_id', $request->manufacturer_id);
-        }
-
-        // Sắp xếp kết quả theo độ phù hợp và thêm các thông tin liên quan
-        $query->select('product.*')
-            ->with(['category', 'manufacturer'])
-            ->when($request->has('keyword') && $request->keyword, function ($q) use ($request) {
-                $searchTerm = $request->keyword;
-                $searchWords = explode(' ', $searchTerm);
-                $searchWords = array_filter($searchWords, function ($word) {
-                    return strlen($word) >= 2;
-                });
-                if (!empty($searchWords)) {
-                    $searchQuery = '+' . implode('* +', $searchWords) . '*';
-                    $q->selectRaw("MATCH(product_name, description) AGAINST(? IN BOOLEAN MODE) as relevance", [$searchQuery]);
-                    $q->orderBy('relevance', 'desc');
-                }
-            })
-            ->orderBy('product_view', 'desc') // Sắp xếp thêm theo lượt xem
-            ->orderBy('sold_quantity', 'desc'); // Và theo số lượng đã bán
-
-        $products = $query->paginate(6);
+        $products = Product::searchProductsViewProduct($request->keyword, $request->manufacturer_id);
 
         if ($request->ajax()) {
             return response()->json([
@@ -138,45 +92,7 @@ class ProductController extends Controller
     // sắp xếp
     public function sort(Request $request)
     {
-        // Khởi tạo truy vấn sản phẩm
-        $query = Product::query();
-
-        // Lọc theo nhà sản xuất nếu có
-        if ($request->has('manufacturer_id') && $request->manufacturer_id) {
-            $query->where('manufacturer_id', $request->manufacturer_id);
-        }
-
-        // Lọc theo từ khóa nếu có
-        if ($request->has('keyword') && $request->keyword) {
-            $query->where('product_name', 'like', '%' . $request->keyword . '%');
-        }
-
-        // Sắp xếp sản phẩm dựa trên yêu cầu
-        if ($request->has('sort_by')) {
-            switch ($request->sort_by) {
-                case 'name_asc':
-                    $query->orderBy('product_name', 'asc');
-                    break;
-                case 'name_desc':
-                    $query->orderBy('product_name', 'desc');
-                    break;
-                case 'price_desc':
-                    $query->orderBy('price', 'desc');
-                    break;
-                case 'price_asc':
-                    $query->orderBy('price', 'asc');
-                    break;
-                default:
-                    // Mặc định không sắp xếp
-                    break;
-            }
-        } else {
-            // Nếu không có yêu cầu sắp xếp, sắp xếp theo ngày tạo
-            $query->orderBy('created_at', 'desc');
-        }
-
-        // Phân trang kết quả
-        $products = $query->paginate(8);
+        $products = Product::sortProductsViewProduct($request->sort_by, $request->manufacturer_id, $request->keyword);
 
         if ($request->ajax()) {
             return response()->json([
@@ -190,6 +106,13 @@ class ProductController extends Controller
         return view('product', compact('products', 'manufacturers', 'categories'));
     }
 
+
+
+
+
+
+
+    
     // Hiển thị danh sách sản phẩm trong admin
     public function list()
     {
