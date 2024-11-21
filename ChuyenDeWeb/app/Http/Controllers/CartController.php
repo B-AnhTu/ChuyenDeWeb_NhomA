@@ -73,7 +73,6 @@ class CartController extends Controller
             'user' => Auth::id()
         ]);
 
-
         $request->validate([
             'product_id' => 'required|exists:product,product_id',
             'quantity' => 'required|integer|min:1'
@@ -97,13 +96,15 @@ class CartController extends Controller
 
             // Tính toán lại tổng tiền của sản phẩm và tổng giỏ hàng
             $itemTotal = $cartProduct->quantity * $cartProduct->product->price;
-            $cartTotal = $cart->cartProducts->sum(fn($item) => $item->quantity * $item->product->price);
+            $cartTotal = $cart->cartProducts->sum(function ($item) {
+                return $item->quantity * $item->product->price;
+            });
 
             return response()->json([
                 'success' => true,
                 'message' => 'Cập nhật số lượng thành công',
                 'itemTotal' => $itemTotal,
-                'cartTotal' => $cartTotal,
+                'cartTotal' => $cartTotal, // Trả về tổng tiền mới
             ]);
         }
         return response()->json([
@@ -111,6 +112,7 @@ class CartController extends Controller
             'message' => 'Sản phẩm không tồn tại trong giỏ hàng'
         ], 404);
     }
+
 
 
     public function remove(Request $request)
@@ -135,6 +137,7 @@ class CartController extends Controller
                 ], 404);
             }
 
+            // Xóa sản phẩm khỏi giỏ hàng
             $deleted = CartProduct::where('cart_id', $cart->cart_id)
                 ->where('product_id', $request->product_id)
                 ->delete();
@@ -145,9 +148,15 @@ class CartController extends Controller
                 'product_id' => $request->product_id
             ]);
 
+            // Tính toán lại tổng tiền giỏ hàng sau khi xóa sản phẩm
+            $cartTotal = $cart->cartProducts->sum(function ($item) {
+                return $item->quantity * $item->product->price;
+            });
+
             return response()->json([
                 'success' => true,
-                'message' => 'Đã xóa sản phẩm khỏi giỏ hàng'
+                'message' => 'Đã xóa sản phẩm khỏi giỏ hàng',
+                'cartTotal' => $cartTotal, // Trả về tổng tiền mới
             ]);
         } catch (\Exception $e) {
             Log::error('Error removing from cart', [

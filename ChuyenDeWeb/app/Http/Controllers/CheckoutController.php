@@ -71,7 +71,7 @@ class CheckoutController extends Controller
 
             foreach ($cart->cartProducts as $item) {
                 if (!$item->product->isStockAvailable($item->quantity)) {
-                    return back()->with('error', 'Số lượng trong kho không đủ cho sản phẩm: ' . $item->product->product_name);
+                    return back()->with('danger', 'Số lượng trong kho không đủ cho sản phẩm: ' . $item->product->product_name);
                 }
 
                 OrderDetail::addOrderDetail($order->id, $item);
