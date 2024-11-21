@@ -165,7 +165,7 @@ Route::group(['middleware' => 'role:admin,editor'], function () {
     Route::delete('/categoryDelete/{slug}', [CategoryController::class, 'destroy'])->name('category.delete');
 
     //route product
-    Route::get('/productAdmin', [ProductController::class, 'index'])->name('product.index');
+    Route::get('/productAdmin', [ProductController::class, 'list'])->name('product.index');
 
     Route::get('/productAdmin/{slug}', [ProductController::class, 'show'])->name('product.show');
 

@@ -131,9 +131,9 @@ class User extends Authenticatable
     }
 
     // Phương thức cập nhật người dùng
-    public function updateUser($data)
+    public static function updateUser($data)
     {
-        return $this->update($data);
+        return self::update($data);
     }
     /**
      * Xóa user
