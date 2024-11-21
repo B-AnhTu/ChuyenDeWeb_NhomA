@@ -32,13 +32,15 @@
             @include('partials.footer')
         </div>
     </div>
-    
+
     <!-- Import JS -->
     <!-- Fonts and icons -->
     <script src="{{ asset('admin/assets/js/plugin/webfont/webfont.min.js') }}"></script>
     <script>
         WebFont.load({
-            google: { families: ["Public Sans:300,400,500,600,700"] },
+            google: {
+                families: ["Public Sans:300,400,500,600,700"]
+            },
             custom: {
                 families: [
                     "Font Awesome 5 Solid",
@@ -48,7 +50,7 @@
                 ],
                 urls: ["{{ asset('admin/assets/css/fonts.min.css') }}"],
             },
-            active: function () {
+            active: function() {
                 sessionStorage.fonts = true;
             },
         });
@@ -91,6 +93,10 @@
     <script src="{{ asset('admin/assets/js/setting-demo.js') }}"></script>
     <script src="{{ asset('admin/assets/js/demo.js') }}"></script>
      -->
+    {{-- jquery --}}
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    {{-- thêm thư viện SweetAlert2 --}}
+    <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <!-- Sparkline Charts -->
     <script>
