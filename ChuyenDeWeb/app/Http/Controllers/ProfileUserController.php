@@ -17,6 +17,11 @@ class ProfileUserController extends Controller
         // Lấy người dùng hiện tại
         $user = Auth::user();
 
+        // kiểm tra nếu user không tồn tại
+        if (!$user) {
+            return back()->withErrors(['error' => 'Không tìm thấy thông tin người dùng'])->withInput();
+        }
+
         // Định nghĩa các quy tắc xác thực
         $validator = Validator::make($request->all(), [
             'fullname' => 'required|string|max:50|regex:/^[^\d\W_]+( [^\d\W_]+)*$/u',
@@ -60,9 +65,22 @@ class ProfileUserController extends Controller
     // update image
     public function updateProfileImage(Request $request)
     {
-        $request->validate([
-            'profileImage' => 'required|mimes:jpeg,jpg,png,gif|max:5120', 
+        // Xác thực file
+        $validator = Validator::make($request->all(), [
+            'profileImage' => 'required|mimes:jpeg,jpg,png,gif|max:5120',
+        ], [
+            'profileImage.required' => 'Vui lòng chọn một file ảnh.',
+            'profileImage.mimes' => 'Không đúng định dạng ảnh. Chỉ chấp nhận jpeg, jpg, png, gif.',
+            'profileImage.max' => 'Kích thước ảnh không được vượt quá 5MB.',
         ]);
+
+        // Nếu lỗi, trả về thông báo
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => $validator->errors()->first('profileImage'),
+            ]);
+        }
 
         $user = auth()->user();
 
@@ -80,9 +98,15 @@ class ProfileUserController extends Controller
             $user->image = $filename;
             $user->save();
 
-            return response()->json(['success' => true, 'newImageUrl' => asset('img/profile-picture/' . $filename)]);
+            return response()->json([
+                'success' => true,
+                'newImageUrl' => asset('img/profile-picture/' . $filename),
+            ]);
         }
 
-        return response()->json(['success' => false]);
+        return response()->json([
+            'success' => false,
+            'message' => 'Đã xảy ra lỗi khi tải ảnh.',
+        ]);
     }
 }

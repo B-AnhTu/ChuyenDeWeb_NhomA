@@ -22,12 +22,12 @@ class LoginController extends Controller
             'email' => 'required|email|max:50',
             'password' => 'required|min:8|max:20',
         ], [
-            'email.required' => 'Please enter your email',
-            'email.email' => 'Invalid email format',
-            'email.max' => 'Email cannot be longer than 50 characters',
-            'password.required' => 'Please enter your password',
-            'password.min' => 'Password must be at least 8 characters',
-            'password.max' => 'Password cannot be longer than 20 characters',
+            'email.required' => 'Vui lòng nhập email',
+            'email.email' => 'Định dạng email không hợp lệ',
+            'email.max' => 'Email không được dài hơn 50 ký tự',
+            'password.required' => 'Vui lòng nhập mật khẩu của bạn',
+            'password.min' => 'Mật khẩu phải có ít nhất 8 ký tự',
+            'password.max' => 'Mật khẩu không được dài hơn 20 ký tự',
         ]);
 
         // If validation fails, return to login page with errors
@@ -35,13 +35,15 @@ class LoginController extends Controller
             return redirect()->back()->withErrors($validator)->withInput();
         }
 
-        // Attempt to log in the user
-        if (Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
-            $user = Auth::user();
+        // Attempt to log in the user using the method from User model
+        $user = User::attemptLogin($request->email, $request->password);
+
+        if ($user) {
+            // Log in the user manually
+            Auth::login($user);
 
             // Update the user's online status
-            $user->is_online = true;
-            $user->save();
+            User::updateOnlineStatus($user->user_id, true);
 
             // Redirect based on user role (case-insensitive)
             if (strtolower($user->role) === 'admin') {
@@ -52,18 +54,16 @@ class LoginController extends Controller
         }
 
         // If login fails, return to login page with error
-        return redirect()->back()->withErrors(['email' => 'Invalid email or password'])->withInput();
+        return redirect()->back()->withErrors(['email' => 'Email hoặc mật khẩu không hợp lệ'])->withInput();
     }
 
     public function logout()
     {
-        Log::info('User logging out');
         $user = Auth::user();
 
         // Update the user's online status
         if ($user) {
-            $user->is_online = false;
-            $user->save();
+            User::updateOnlineStatus($user->user_id, false);
         }
 
         Auth::logout();
