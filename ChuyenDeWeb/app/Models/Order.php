@@ -10,7 +10,6 @@ use Illuminate\Support\Facades\DB;
 
 class Order extends Model
 {
-    use SoftDeletes;
 
     protected $fillable = [
         'order_id',
