@@ -65,7 +65,8 @@
                 <div class="col-lg-9 col-md-7">
                     <div class="product__discount">
                         {{-- form search --}}
-                        <form id="search-form" class="d-flex align-items-center pb-5" action="#">
+                        <form id="search-form" class="d-flex align-items-center pb-5" action="#" method="get">
+                            @csrf
                             <div class="hero__search__categories me-2">
                                 <select id="manufacturer-select" style="max-width: 150px;">
                                     <option value="">Tất cả danh mục</option>
@@ -275,10 +276,9 @@
             $(document).on('click', '#pagination .page-link', function(e) {
                 e.preventDefault();
                 var page = $(this).data('page');
-                if(searchState.keyword || searchState.manufacturerId) {
+                if (searchState.keyword || searchState.manufacturerId) {
                     searchProducts(searchState.manufacturerId, searchState.keyword, page);
-                }
-                else if (isFilterActive) {
+                } else if (isFilterActive) {
                     fetchProductsByManufacturer(currentManufacturerId, page);
                 } else {
                     fetchNewestProducts(page);
@@ -396,10 +396,36 @@
                 }
             });
 
+            // update search url
+            function updateSearchUrl(keyword) {
+                const params = new URLSearchParams();
+
+                if (keyword) {
+                    params.append('keyword', keyword);
+                }
+
+                const newUrl = `/search?${params.toString()}`;
+                window.history.pushState({
+                    path: newUrl
+                }, '', newUrl);
+            }
+
+            // search form
+            $('#search-form').on('submit', function(e) {
+                e.preventDefault();
+                const manufacturerId = $('#manufacturer-select').val();
+                const keyword = $('#search-input').val().trim();
+
+                if (manufacturerId || keyword) {
+                    updateSearchUrl(keyword);
+                    searchProducts(manufacturerId, keyword, 1);
+                }
+            });
+
             function searchProducts(manufacturerId, keyword, page = 1) {
-                // Lưu trạng thái tìm kiếm hiện tại
                 searchState.manufacturerId = manufacturerId;
                 searchState.keyword = keyword;
+
                 $.ajax({
                     url: '/searchProduct',
                     type: 'GET',

@@ -38,14 +38,14 @@ Route::delete('/cart/{cart_id}/product/{product_id}', [CartProductController::cl
 // route hiển thị sản phẩm trang index
 Route::get('/', [IndexController::class, 'index'])->name('products.index');
 
+// route cho tìm kiếm sản phẩm
+Route::get('/search', [IndexController::class, 'search']);
+
 // route hiển thị sản phẩm khi chọn nhà sản xuất
 Route::get('/filterByManufacturer', [IndexController::class, 'filter']);
 
 // route để lọc sản phẩm theo loại sản phẩm
 Route::get('/filterByCategory', [IndexController::class, 'filterByCategory']);
-
-// route cho tìm kiếm sản phẩm
-Route::get('/search', [IndexController::class, 'search']);
 
 // route sắp xếp
 Route::get('/sort', [IndexController::class, 'sort']);
