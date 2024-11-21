@@ -137,10 +137,7 @@ Route::middleware(['auth', 'admin'])->group(function () {
 });
 
 Route::group(['middleware' => 'role:admin,editor'], function () {
-    // Route for admin dashboard
-    Route::get('/adminPage', [UserController::class, 'listRole'])->name('admin.index');
-    Route::put('/userAdmin/{slug}/update-permissions', [AdminDashboardController::class, 'updatePermissions'])->name('userAdmin.updatePermissions');
-
+    
     //route manufacturer
     Route::get('/manufacturerAdmin', [ManufacturerController::class, 'index'])->name('manufacturer.index');
 
@@ -182,11 +179,16 @@ Route::group(['middleware' => 'role:admin,editor'], function () {
     Route::delete('/productDelete/{slug}', [ProductController::class, 'destroy'])->name('product.delete');
 
     Route::get('/products/trashed', [ProductController::class, 'trashed'])->name('product.trashed');
-    Route::put('/products/{id}/restore', [ProductController::class, 'restore'])->name('product.restore');
-    Route::delete('/products/{id}/forceDelete', [ProductController::class, 'forceDelete'])->name('product.forceDelete');
+    Route::put('/products/{slug}/restore', [ProductController::class, 'restore'])->name('product.restore');
+    Route::delete('/products/{slug}/forceDelete', [ProductController::class, 'forceDelete'])->name('product.forceDelete');
+
+    // Route for admin
+    Route::get('/adminPage', [UserController::class, 'listAdmin'])->name('admin.index');
+    Route::put('/userAdmin/update-permissions/{slug}', [UserController::class, 'updatePermissions'])->name('userAdmin.updatePermissions');
 
     //route user
-    Route::get('/userAdmin', [UserController::class, 'list'])->name('userAdmin.index');
+    Route::get('/userAdmin', [UserController::class, 'index'])->name('userAdmin.index');
+    //Route::get('/userAdmin', [UserController::class, 'index']);
 
     Route::get('/userAdmin/{slug}', [UserController::class, 'show'])->name('userAdmin.show');
 
@@ -211,22 +213,6 @@ Route::group(['middleware' => 'role:admin,editor'], function () {
     Route::put('/blogUpdate/{slug}', [BlogController::class, 'update'])->name('blogAdmin.update');
 
     Route::delete('/blogDelete/{slug}', [BlogController::class, 'destroy'])->name('blogAdmin.delete');
-
-    //Route sorting cho trang quản trị
-    Route::get('/sortProducts', [ProductController::class, 'sortProducts'])->name('sortProducts');
-    Route::get('/sortCategories', [CategoryController::class, 'sortCategories'])->name('sortCategories');
-    Route::get('/sortManufacturers', [ManufacturerController::class, 'sortManufacturers'])->name('sortManufacturers');
-    Route::get('/sortBlogs', [BlogController::class, 'sortBlogs'])->name('sortBlogs');
-    Route::get('/sortUsers', [UserController::class, 'sortUsers'])->name('sortUsers');
-    Route::get('/sortAdmin', [UserController::class, 'sortAdmin'])->name('sortAdmin');
-
-    //Route tìm kiếm 
-    Route::get('/searchProducts', [ProductController::class, 'searchProducts'])->name('searchProducts');
-    Route::get('/searchCategories', [CategoryController::class, 'searchCategories'])->name('searchCategories');
-    Route::get('/searchManufacturers', [ManufacturerController::class, 'searchManufacturers'])->name('searchManufacturers');
-    Route::get('/searchBlogs', [BlogController::class, 'searchBlogs'])->name('searchBlogs');
-    Route::get('/searchUsers', [UserController::class, 'searchUsers'])->name('searchUsers');
-    Route::get('/searchPage', [UserController::class, 'searchPage'])->name('searchPage');
 
     //Route order
     Route::get('/orders/statistics', [AdminOrderController::class, 'statistics'])->name('orders.statistics');

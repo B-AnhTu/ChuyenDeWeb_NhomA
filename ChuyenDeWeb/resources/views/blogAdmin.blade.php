@@ -18,7 +18,7 @@
             <div class="col-md-12 my-3">
                 <div class="row mb-3 d-flex align-items-center">
                     <div class="col-md-3">
-                        <form action="{{ route('sortBlogs') }}" method="get">
+                        <form action="{{ route('blogAdmin.index') }}" method="get">
                             <select class="form-control me-2" name="sort_by" onchange="this.form.submit()">
                                 <option value="" disabled selected>Sắp xếp theo</option>
                                 <option value="name_asc" {{ request('sort_by') == 'name_asc' ? 'selected' : '' }}>Tên (Từ A - Z)</option>
@@ -31,7 +31,7 @@
                         </form>
                     </div>
                     <div class="col-md-6 mx-auto">
-                        <form class="d-flex" action="{{ route('searchBlogs') }}" method="GET">
+                        <form class="d-flex" action="{{ route('blogAdmin.index') }}" method="GET">
                             @csrf
                             <input name="query" class="form-control me-2" type="text" placeholder="Search Blog" aria-label="Search">
                             <button class="btn btn-outline-success" type="submit">Search</button>
