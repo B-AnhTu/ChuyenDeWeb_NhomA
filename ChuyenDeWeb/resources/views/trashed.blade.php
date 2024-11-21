@@ -36,7 +36,7 @@
                                     <!-- Tùy chọn khôi phục hoặc xóa vĩnh viễn -->
                                     <div class="row">
                                         <div class="col-md-6">
-                                            <form action="{{ route('product.restore', $product->product_id) }}"
+                                            <form action="{{ route('product.restore', $product->slug) }}"
                                                 method="POST">
                                                 @csrf
                                                 @method('PUT')
@@ -44,7 +44,7 @@
                                             </form>
                                         </div>
                                         <div class="col-md-6">
-                                            <form action="{{ route('product.forceDelete', $product->product_id) }}"
+                                            <form action="{{ route('product.forceDelete', $product->slug) }}"
                                                 method="POST">
                                                 @csrf
                                                 @method('DELETE')

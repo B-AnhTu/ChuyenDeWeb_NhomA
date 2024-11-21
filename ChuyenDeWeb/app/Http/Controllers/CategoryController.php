@@ -4,211 +4,132 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Models\Category;
-use App\Rules\NoSpecialCharacters;
-use App\Rules\SingleSpaceOnly;
 use Illuminate\Http\Request;
-use App\Services\SlugService;
+use App\Services\Category\CategoryService;
+use App\Services\Category\CategorySortAndSearch;
+use App\Http\Requests\Category\StoreCategoryRequest;
+use App\Http\Requests\Category\UpdateCategoryRequest;
+use Illuminate\Support\Facades\Session; 
+
 
 class CategoryController extends Controller
 {
-    protected $slugService; // Khai báo thuộc tính slugService
+    protected $categoryService, $categorySortAndSearch;
 
-    public function __construct(SlugService $slugService) // Constructor
+    public function __construct(CategoryService $categoryService, CategorySortAndSearch $categorySortAndSearch)
     {
-        $this->slugService = $slugService; // Khởi tạo slugService
-    }
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
-    {
-        $data_cate = Category::getAllCate();
-        return view('categoryAdmin', ['data_cate' => $data_cate]);
-    }
-    public function list(){
-        $categories = Category::orderBy('category_id', 'asc')->paginate(5);
-        return view('categoryAdmin', ['categories' => $categories]);
+        $this->categoryService = $categoryService;
+        $this->categorySortAndSearch = $categorySortAndSearch;
     }
 
-    /**
-     * Hiển thị trang tạo danh mục
-     */
+    // Danh sách danh mục
+    public function list(Request $request)
+    {
+        // Lấy từ khóa tìm kiếm và lựa chọn sắp xếp từ request
+        $searchTerm = $request->input('query');
+        $sortBy = $request->input('sort_by');
+
+        // Khởi tạo truy vấn
+        $query = Category::query(); // Tạo một truy vấn mới
+
+        // Nếu có tìm kiếm, thực hiện tìm kiếm
+        if ($searchTerm) {
+            $query= $this->categorySortAndSearch->searchCategories($searchTerm);
+        }
+
+        // Nếu có sắp xếp, thực hiện sắp xếp
+        if ($sortBy) {
+            $query = $this->categorySortAndSearch->sortCategories($query, $sortBy); // Gọi phương thức sắp xếp từ service
+        }
+
+        // Phân trang danh mục
+        $categories = $query->paginate(5);
+
+        return view('categoryAdmin', [
+            'categories' => $categories, // Phân trang
+            'filters' => [
+                'searchTerm' => $searchTerm,
+                'sort_by' => $sortBy,
+            ],
+        ]);
+        
+    }
+
+    // Hiển thị trang tạo danh mục
     public function create()
     {
         return view('categoryCreate');
     }
 
-    /**
-     * Tạo danh mục mới
-     */
-    public function store(Request $request)
+    // Tạo mới danh mục
+    public function store(StoreCategoryRequest $request)
     {
-        $validator = $request->validate([
-            'category_name' => ['required', 'string', 'max:50', new SingleSpaceOnly, new NoSpecialCharacters],
-            'image' => 'required|mimes:jpeg,jpg,png,gif|max:5120', 
-        ], [
-            'category_name.required' => 'Vui lòng nhập tên danh mục',
-            'category_name.max' => 'Tên danh mục không được quá 50 ký tự',
-            'image.required' => 'Vui lòng chọn hình ảnh để tải lên',
-            'image.mimes' => 'Vui lòng chọn hình ảnh có đuôi hợp lệ như .png, .jpeg. .jpg',
-            'image.max' => 'Kích thước tối đa của hình là 5MB',
-        ]);
-
-        $data = $request->all();
-
-        $data['slug'] = $this->slugService->slugify($data['category_name']); // Sử dụng hàm slugify để tạo slug
-
-        if ($request->hasFile('image')) {
-            $file = $request->file('image');
-            $filename = time() . '_' . $file->getClientOriginalName();
-            $file->move(public_path('img/category'), $filename);
-
-            // Cập nhật ảnh mới trong database
-            $data['image'] = $filename;
-        }
-
-        $category = Category::create([
-            'category_name' => $data['category_name'],
-            'image' => $data['image'],
-            'slug' => $data['slug'],
-        ]);
-        $category->save();
-
-        return redirect()->route('category.index')->with('success', 'Category created successfully');
+        $this->categoryService->createCategory($request->validated());
+        return redirect()->route('category.index')->with('success', 'Category created successfully.');
     }
 
-    /**
-     * Hiển thị chi tiết danh mục
-     */
+    // Hiển thị chi tiết danh mục
     public function show($slug)
     {
-        //Tìm id của danh mục cần xem
-        $category = Category::where('slug', $slug)->first();
-        if (!$category) {
-            return redirect()->route('category.index')->with('error', 'Danh mục không tồn tại');
-        }
+        $category = $this->categoryService->getCategoryBySlug($slug);
         return view('categoryShow', compact('category'));
     }
 
-    /**
-     * Hiển thị form cập nhật
-     */
+    // Hiển thị form cập nhật danh mục
     public function edit($slug)
     {
-        //Tìm danh mục cần sửa
-        $category = Category::where('slug', $slug)->first();
+        $category = $this->categoryService->getCategoryBySlug($slug);
         if (!$category) {
-            return redirect()->route('category.index')->with('error', 'Danh mục không tồn tại');
+            Session::flash('error', 'Category not found. It may have been deleted or modified by another user.');
+            return redirect()->route('category.index')->withInput();
         }
-
-        //Chuyển đến trang cập nhật
-        return view('categoryUpdate', ['category' => $category]);
+        return view('categoryUpdate', compact('category'));
     }
 
-    /**
-     * Cập nhật danh mục
-     */
-    public function update(Request $request, $slug)
+    // Cập nhật danh mục
+    public function update(UpdateCategoryRequest $request, $slug)
     {
-        $validator = $request->validate([
-            'category_name' => ['required', 'string', 'max:50', new SingleSpaceOnly, new NoSpecialCharacters], 
-            'image' => 'nullable|mimes:jpeg,jpg,png,gif|max:5120', 
-        ], [
-            'category_name.required' => 'Vui lòng nhập tên danh mục',
-            'category_name.max' => 'Tên danh mục không được quá 50 ký tự',
-            'image.mimes' => 'Vui lòng chọn hình ảnh có đuôi hợp lệ như .png, .jpeg. .jpg',
-            'image.max' => 'Kích thước tối đa của hình là 5MB',
-        ]);
-
-        $category = Category::where('slug', $slug)->first();    
-
-        // Check if a new image is uploaded
-        if ($request->hasFile('image')) {
-            $file = $request->file('image');
-            $filename = time() . '_' . $file->getClientOriginalName();
-            $file->move(public_path('img/category'), $filename);
-
-            // Delete old image if exists
-            if ($category->image && file_exists(public_path('img/category/' . $category->image))) {
-                unlink(public_path('img/category/' . $category->image));
+        try {
+            // Tìm category theo slug
+            $category = $this->categoryService->getCategoryBySlug($slug);
+            // Kiểm tra nếu category không tồn tại
+            if (!$category) {
+                Session::flash('error', 'Category not found. It may have been deleted or modified by another user.');
+                return redirect()->route('categoryAdmin.index')->withInput();
             }
-
-            // Update with new image
-            $category->image = $filename;
+    
+            // Lưu dữ liệu đã validated
+            $validatedData = $request->validated();
+    
+            // Gọi service để cập nhật category
+            $this->categoryService->updateCategory($category, $validatedData);
+            
+            // Thông báo thành công
+            Session::flash('success', 'Category updated successfully.');
+            return redirect()->route('category.index')->with('success', 'Category updated successfully.');
+        } catch (\Exception $e) {
+            // Thông báo lỗi
+            Session::flash('error', $e->getMessage());
+            return redirect()->route('category.edit', ['slug' => $slug])->withInput(); // Chuyển hướng về trang cập nhật
         }
-
-        // Update other fields
-        $category->category_name = $request->input('category_name');
-        // Tạo slug từ tên danh mục mới
-        $category->slug = $this->slugService->slugify($request->input('category_name')); // Sử dụng hàm slugify để tạo slug
-        $category->updated_at = now();
-        $category->save();
-
-        return redirect()->route('category.index')->with('success', 'Category updated successfully');
+        
     }
 
-    /**
-     * Xóa 1 danh mục khỏi database
-     */
+    // Xóa danh mục
     public function destroy($slug)
     {
-        // Kiểm tra xem danh mục có tồn tại không
-        $category = Category::where('slug', $slug)->first();
-        if (!$category) {
-            return redirect()->route('category.index')->with('error', 'Danh mục không tồn tại.');
-        }
-        // Delete image if exists
-        if ($category->image && file_exists(public_path('img/category/' . $category->image))) {
-            unlink(public_path('img/category/' . $category->image));
-        }
-        // Thực hiện xóa nhà sản xuất
         try {
-            $category->delete();
-            return redirect()->route('category.index')->with('success', 'Danh mục đã được xóa thành công.');
+            // Gọi service để xóa category
+            $this->categoryService->deleteCategory($slug);
+            
+            // Thông báo thành công
+            return redirect()->route('category.index')->with('success', 'Category deleted successfully.');
         } catch (\Exception $e) {
-            // Xử lý lỗi khi xóa không thành công
-            return redirect()->route('category.index')->with('error', 'Xóa danh mục không thành công.');
+            // Thông báo lỗi
+            Session::flash('error', $e->getMessage());
+            return redirect()->route('category.index')->withInput(); 
         }
-    }
-    // Sắp xếp theo tên, ngày cập nhật
-    public function sortCategories(Request $request)
-    {
-        $query = Category::query();
-
-        // Sắp xếp theo yêu cầu
-        if ($request->has('sort_by')) {
-            switch ($request->sort_by) {
-                case 'name_asc':
-                    $query->orderBy('category_name', 'asc');
-                    break;
-                case 'name_desc':
-                    $query->orderBy('category_name', 'desc');
-                    break;
-                case 'updated_at_asc':
-                    $query->orderBy('updated_at', 'asc');
-                    break;
-                case 'updated_at_desc':
-                    $query->orderBy('updated_at', 'desc');
-                    break;
-                default:
-                    // Mặc định không sắp xếp
-                    break;
-            }
-        }
-
-        $categories = $query->paginate(5); // Phân trang
-
-        return view('categoryAdmin', compact('categories'));
-    }
-    // Tìm kiếm danh mục theo tên
-    public function searchCategories(Request $request)
-    {
-        $query = $request->input('query');
-
-        // Tìm kiếm thông thường bằng tên danh mục
-        $categories = Category::where('category_name', 'like', '%' . $query . '%')->paginate(5);
-
-        return view('categoryAdmin', compact('categories'));
+        
     }
     
     
