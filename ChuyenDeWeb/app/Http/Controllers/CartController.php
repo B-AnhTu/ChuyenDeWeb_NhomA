@@ -14,6 +14,7 @@ class CartController extends Controller
 {
     public function addToCart(Request $request)
     {
+        // Kiểm tra người dùng đã đăng nhập chưa
         if (!Auth::check()) {
             return response()->json(['status' => 'error', 'message' => 'Vui lòng đăng nhập để thực hiện chức năng này']);
         }
@@ -25,20 +26,11 @@ class CartController extends Controller
             return response()->json(['status' => 'error', 'message' => 'Sản phẩm không tồn tại']);
         }
 
-        // Lấy giỏ hàng của người dùng hiện tại
-        $cart = Cart::firstOrCreate(['user_id' => Auth::id()]);
+        // Lấy hoặc tạo mới giỏ hàng cho người dùng
+        $cart = Cart::getOrCreateCart();
 
-        // Thêm sản phẩm vào giỏ hàng (nếu đã có thì tăng số lượng)
-        $cartProduct = CartProduct::where('cart_id', $cart->cart_id)->where('product_id', $productId)->first();
-        if ($cartProduct) {
-            $cartProduct->quantity += 1;
-            $cartProduct->save();
-        } else {
-            $cart->cartProducts()->create([
-                'product_id' => $productId,
-                'quantity' => 1
-            ]);
-        }
+        // Thêm sản phẩm vào giỏ hàng hoặc tăng số lượng
+        $cart->addProductToCart($productId);
 
         return response()->json(['status' => 'success', 'message' => 'Thêm sản phẩm vào giỏ hàng thành công']);
     }

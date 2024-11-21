@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
 
 class Cart extends Model
 {
@@ -15,6 +16,36 @@ class Cart extends Model
     protected $fillable = [
         'user_id',
     ];
+
+    /**
+     * Thêm sản phẩm vào giỏ hàng hoặc tăng số lượng nếu sản phẩm đã tồn tại.
+     */
+    public function addProductToCart($productId)
+    {
+        // Kiểm tra xem sản phẩm đã có trong giỏ chưa
+        $cartProduct = $this->cartProducts()->where('product_id', $productId)->first();
+
+        if ($cartProduct) {
+            // Nếu có rồi, tăng số lượng sản phẩm
+            $cartProduct->quantity += 1;
+            $cartProduct->save();
+        } else {
+            // Nếu chưa có, tạo mới sản phẩm trong giỏ hàng
+            $this->cartProducts()->create([
+                'product_id' => $productId,
+                'quantity' => 1
+            ]);
+        }
+    }
+
+    /**
+     * Lấy giỏ hàng của người dùng hiện tại (nếu chưa có thì tạo mới)
+     */
+    public static function getOrCreateCart()
+    {
+        return self::firstOrCreate(['user_id' => Auth::id()]);
+    }
+
 
     // Quan hệ với bảng CartProduct
     public function cartProducts()
