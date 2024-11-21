@@ -27,4 +27,24 @@ class Cart extends Model
     {
         return $this->belongsTo(User::class, 'user_id');
     }
+
+    public static function getUserCartWithProducts($userId)
+    {
+        return self::where('user_id', $userId)
+            ->with('cartProducts.product')
+            ->first();
+    }
+
+    public function calculateTotal()
+    {
+        return $this->cartProducts->sum(function ($item) {
+            return optional($item->product)->price * $item->quantity;
+        });
+    }
+
+    public function clearCart()
+    {
+        $this->cartProducts()->delete();
+        $this->delete();
+    }
 }

@@ -132,4 +132,24 @@ class Order extends Model
             ->limit(10)
             ->get();
     }
+    /**
+     * tạo đơn đặt hàng
+     */
+    public static function createNewOrder($userId, $validatedData, $total)
+    {
+        $orderId = 'ORD-' . strtoupper(uniqid());
+        return self::create([
+            'order_id' => $orderId,
+            'user_id' => $userId,
+            'total_amount' => $total,
+            'shipping_name' => $validatedData['shipping_name'],
+            'shipping_email' => $validatedData['shipping_email'],
+            'shipping_phone' => $validatedData['shipping_phone'],
+            'shipping_address' => $validatedData['shipping_address'],
+            'payment_method' => $validatedData['payment_method'],
+            'note' => $validatedData['note'] ?? null,
+            'status' => 'pending',
+        ]);
+    }
+    
 }
