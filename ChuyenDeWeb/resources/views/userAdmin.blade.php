@@ -18,20 +18,24 @@
             <div class="col-md-12">
                 <div class="row mb-3 d-flex align-items-center">
                     <div class="col-md-3">
-                        <form action="{{ route('sortUsers') }}" method="get">
+                        <form action="{{ route('userAdmin.index') }}" method="get">
                             <select class="form-control me-2" name="sort_by" onchange="this.form.submit()">
                                 <option value="" disabled selected>Sắp xếp theo</option>
                                 <option value="name_asc" {{ request('sort_by') == 'name_asc' ? 'selected' : '' }}>Tên (Từ
                                     A - Z)</option>
                                 <option value="name_desc" {{ request('sort_by') == 'name_desc' ? 'selected' : '' }}>Tên
                                     (Từ Z - A)</option>
+                                    <option value="role_asc" {{ request('sort_by') == 'role_asc' ? 'selected' : '' }}>Quyền (Tăng dần)
+                                </option>
+                                <option value="role_desc" {{ request('sort_by') == 'role_desc' ? 'selected' : '' }}>Quyền (Giảm
+                                    dần)</option>
                                 <option value="created_at_asc" {{ request('sort_by') == 'created_at_asc' ? 'selected' : '' }}>Ngày tạo (Tăng dần)</option>
                                 <option value="created_at_desc" {{ request('sort_by') == 'created_at_desc' ? 'selected' : '' }}>Ngày tạo (Giảm dần)</option>
                             </select>
                         </form>
                     </div>
                     <div class="col-md-6 mx-auto">
-                        <form class="d-flex" action="{{ route('searchUsers') }}" method="GET">
+                        <form class="d-flex" action="{{ route('userAdmin.index') }}" method="GET">
                             @csrf
                             <input name="query" class="form-control me-2" type="text" placeholder="Search"
                                 aria-label="Search">
@@ -42,12 +46,7 @@
             </div>
             <div class="col-md-12">
                 <div class="row my-3 d-flex align-items-center">
-                    <!-- <div class="col-md-2">
-                        <div class="head-content text-center bg-white p-2">
-                            <p>Total Users: <span class="badge bg-primary">{{ $totalUsers }}</span></p>
-                        </div>
-                    </div> -->
-                    <div class="col-sm-3 col-md-3">
+                   <div class="col-sm-3 col-md-3">
                         <div class="card card-stats card-round">
                             <div class="card-body">
                                 <div class="row align-items-center">
