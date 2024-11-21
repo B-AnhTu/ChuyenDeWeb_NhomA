@@ -15,7 +15,7 @@
                 <a href="#" data-bs-toggle="modal" data-bs-target="#changeProfilePictureModal">
                     @if (auth()->user()->image)
                         <img id="previewImage" src="{{ asset('img/profile-picture/' . Auth::user()->image) }}"
-                            alt="Current Profile Picture" class="img-thumbnail rounded-circle">
+                            alt="{{Auth::user()->fullname}}" class="img-thumbnail rounded-circle">
                     @else
                         <img id="previewImage" src="{{ asset('img/profile-picture/user-default.jpg') }}" alt="user-default"
                             class="img-thumbnail rounded-circle">
