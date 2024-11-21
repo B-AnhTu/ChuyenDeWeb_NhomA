@@ -6,21 +6,50 @@ use App\Http\Controllers\Controller;
 use App\Rules\NoSpecialCharacters;
 use Illuminate\Http\Request;
 use App\Models\Manufacturer;
-use App\Rules\SingleSpaceOnly;
-use App\Services\SlugService;
+use Illuminate\Support\Facades\Session; 
+use App\Services\Manufacturer\ManufacturerService;
+use App\Services\Manufacturer\ManufacturerSortAndSearch;
+use App\Http\Requests\Manufacturer\StoreManufacturerRequest;
+use App\Http\Requests\Manufacturer\UpdateManufacturerRequest;use App\Services\SlugService;
 
 class ManufacturerController extends Controller
 {
-    protected $slugService; // Khai báo thuộc tính slugService
+    protected $manufacturerService, $manufacturerSortAndSearch;
 
-    public function __construct(SlugService $slugService) // Constructor
+    public function __construct(ManufacturerService $manufacturerService, ManufacturerSortAndSearch $manufacturerSortAndSearch)
     {
-        $this->slugService = $slugService; // Khởi tạo slugService
+        $this->manufacturerService = $manufacturerService;
+        $this->manufacturerSortAndSearch = $manufacturerSortAndSearch;
     }
-    public function index()
+    public function index(Request $request)
     {
-        $manufacturers = Manufacturer::paginate(5);
-        return view('manufacturerAdmin', ['manufacturers' => $manufacturers]);
+        // Lấy từ khóa tìm kiếm và lựa chọn sắp xếp từ request
+        $searchTerm = $request->input('query');
+        $sortBy = $request->input('sort_by');
+
+        // Khởi tạo truy vấn
+        $query = Manufacturer::query(); // Tạo một truy vấn mới
+
+        // Nếu có tìm kiếm, thực hiện tìm kiếm
+        if ($searchTerm) {
+            $query= $this->manufacturerSortAndSearch->searchManufacturer($searchTerm);
+        }
+
+        // Nếu có sắp xếp, thực hiện sắp xếp
+        if ($sortBy) {
+            $query = $this->manufacturerSortAndSearch->sortManufacturer($query, $sortBy); // Gọi phương thức sắp xếp từ service
+        }
+
+        // Phân trang danh mục
+        $manufacturers = $query->paginate(5);
+
+        return view('manufacturerAdmin', [
+            'manufacturers' => $manufacturers, // Phân trang
+            'filters' => [
+                'searchTerm' => $searchTerm,
+                'sort_by' => $sortBy,
+            ],
+        ]);
     }
 
     /**
@@ -35,40 +64,9 @@ class ManufacturerController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreManufacturerRequest $request)
     {
-        $validator = $request->validate([
-            'manufacturer_name' => ['required', 'string', 'max:50', new SingleSpaceOnly, new NoSpecialCharacters],
-            'image' => 'required|mimes:jpeg,jpg,png,gif|max:5120', 
-        ], [
-            'manufacturer_name.required' => 'Vui lòng nhập tên nhà sản xuất',
-            'manufacturer_name.max' => 'Tên nhà sản xuất không được quá 50 ký tự',
-            'image.required' => 'Vui lòng chọn hình ảnh để tải lên',
-            'image.mimes' => 'Vui lòng chọn hình ảnh có đuôi hợp lệ như .png, .jpeg. .jpg',
-            'image.max' => 'Kích thước tối đa của hình là 5MB',
-        ]);
-
-        $data = $request->all();
-
-        // Tạo slug từ tên nhà sản xuất
-        $data['slug'] = $this->slugService->slugify($data['manufacturer_name']); // Sử dụng hàm slugify để tạo slug
-
-        if ($request->hasFile('image')) {
-            $file = $request->file('image');
-            $filename = time() . '_' . $file->getClientOriginalName();
-            $file->move(public_path('img/manufacturer'), $filename);
-
-            // Cập nhật ảnh mới trong database
-            $data['image'] = $filename;
-        }
-
-        $manufacturer = Manufacturer::create([
-            'manufacturer_name' => $data['manufacturer_name'],
-            'image' => $data['image'],
-            'slug' => $data['slug'],
-        ]);
-        $manufacturer->save();
-
+        $this->manufacturerService->createManufacturer($request->validated());
         return redirect()->route('manufacturer.index')->with('success', 'Manufacturer created successfully');
     }
     
@@ -77,9 +75,10 @@ class ManufacturerController extends Controller
      */
     public function show($slug)
     {
-        $manufacturer = Manufacturer::where('slug', $slug)->first();
+        $manufacturer = $this->manufacturerService->getManufacturerBySlug($slug);
         if (!$manufacturer) {
-            return redirect()->route('manufacturer.index')->with('error', 'Nhà sản xuất không tồn tại');
+            Session::flash('error', 'Nhà sản xuất không tồn tại');
+            return redirect()->route('manufacturer.index')->withInput();
         }
         return view('manufacturerShow', compact('manufacturer'));
     }
@@ -89,13 +88,11 @@ class ManufacturerController extends Controller
      */
     public function edit($slug)
     {
-        //Tìm id của nhà sản xuất cần sửa
-        // $slug = $request->get('s$slug');
-        $manufacturer = Manufacturer::where('slug', $slug)->first();
+        $manufacturer = $this->manufacturerService->getManufacturerBySlug($slug);
         if (!$manufacturer) {
-            return redirect()->route('manufacturer.index')->with('error', 'Nhà sản xuất không tồn tại');
+            Session::flash('error', 'Nhà sản xuất không tồn tại');
+            return redirect()->route('manufacturer.index')->withInput();
         }
-
         //Chuyển đến trang cập nhật
         return view('manufacturerUpdate', ['manufacturer' => $manufacturer]);
     }
@@ -103,42 +100,31 @@ class ManufacturerController extends Controller
     /**
      * Cập nhật nhà sản xuất
      */
-    public function update(Request $request, $slug)
+    public function update(UpdateManufacturerRequest $request, $slug)
     {
-        $validator = $request->validate([
-            'manufacturer_name' => ['required', 'string', 'max:50', new SingleSpaceOnly, new NoSpecialCharacters],
-            'image' => 'nullable|mimes:jpeg,jpg,png,gif|max:5120', 
-        ], [
-            'manufacturer_name.required' => 'Vui lòng nhập tên nhà sản xuất',
-            'manufacturer_name.max' => 'Tên nhà sản xuất không được quá 50 ký tự',
-            'image.mimes' => 'Vui lòng chọn hình ảnh có đuôi hợp lệ như .png, .jpeg. .jpg',
-            'image.max' => 'Kích thước tối đa của hình là 5MB',
-        ]);
-
-        $manufacturer = Manufacturer::where('slug', $slug)->first();
-
-        // Check if a new image is uploaded
-        if ($request->hasFile('image')) {
-            $file = $request->file('image');
-            $filename = time() . '_' . $file->getClientOriginalName();
-            $file->move(public_path('img/manufacturer'), $filename);
-
-            // Delete old image if exists
-            if ($manufacturer->image && file_exists(public_path('img/manufacturer/' . $manufacturer->image))) {
-                unlink(public_path('img/manufacturer/' . $manufacturer->image));
+        try {
+            // Tìm manufacturer theo slug
+            $manufacturer = $this->manufacturerService->getManufacturerBySlug($slug);
+            // Kiểm tra nếu category không tồn tại
+            if (!$manufacturer) {
+                Session::flash('error', 'Nhà sản xuất không tồn tại');
+                return redirect()->route('manufacturerAdmin.index')->withInput();
             }
-
-            // Update with new image
-            $manufacturer->image = $filename;
+    
+            // Lưu dữ liệu đã validated
+            $validatedData = $request->validated();
+    
+            // Gọi service để cập nhật manufacturer
+            $this->manufacturerService->updateManufacturer($manufacturer, $validatedData);
+            
+            // Thông báo thành công
+            Session::flash('success', 'Cập nhật nhà sản xuất thành công');
+            return redirect()->route('manufacturer.index')->with('success', 'Cập nhật nhà sản xuất thành công');
+        } catch (\Exception $e) {
+            // Thông báo lỗi
+            Session::flash('error', $e->getMessage());
+            return redirect()->route('category.edit', ['slug' => $slug])->withInput(); // Chuyển hướng về trang cập nhật
         }
-
-        // Update other fields
-        $manufacturer->manufacturer_name = $request->input('manufacturer_name');
-        // Tạo slug từ nhà sản xuất mới
-        $manufacturer->slug = $this->slugService->slugify($request->input('manufacturer_name')); // Sử dụng hàm slugify để tạo slug
-        $manufacturer->save();
-
-        return redirect()->route('manufacturer.index')->with('success', 'Manufacturer updated successfully');
     }
 
     /**
@@ -146,61 +132,25 @@ class ManufacturerController extends Controller
      */
     public function destroy($slug)
     {
-        $manufacturer = Manufacturer::where('slug', $slug)->first();
-        // Kiểm tra xem nhà sản xuất có tồn tại không
+        // Tìm manufacturer theo slug
+        $manufacturer = $this->manufacturerService->getManufacturerBySlug($slug);
+        // Kiểm tra nếu manufacturer không tồn tại
         if (!$manufacturer) {
-            return redirect()->route('manufacturer.index')->with('error', 'Nhà sản xuất không tồn tại.');
+            Session::flash('error', 'Nhà sản xuất không tồn tại');
+            return redirect()->route('manufacturer.index')->withInput();
         }
-        // Delete image if exists
-        if ($manufacturer->image && file_exists(public_path('img/manufacturer/' . $manufacturer->image))) {
-            unlink(public_path('img/manufacturer/' . $manufacturer->image));
-        }
-        // Thực hiện xóa nhà sản xuất
         try {
-            $manufacturer->delete();
-            return redirect()->route('manufacturer.index')->with('success', 'Nhà sản xuất đã được xóa thành công.');
+            // Gọi service để xóa manufacturer
+            $this->manufacturerService->deleteManufacturer($slug);
+            
+            // Thông báo thành công
+            return redirect()->route('manufacturer.index')->with('success', 'Xóa nhà sản xuất thành công.');
         } catch (\Exception $e) {
-            // Xử lý lỗi khi xóa không thành công
-            return redirect()->route('manufacturer.index')->with('error', 'Xóa nhà sản xuất không thành công.');
+            // Thông báo lỗi
+            Session::flash('error', $e->getMessage());
+            return redirect()->route('manufacturer.index')->withInput(); 
         }
     }
-    // Sắp xếp theo tên, ngày cập nhật
-    public function sortManufacturers(Request $request)
-    {
-        $query = Manufacturer::query();
-
-        // Sắp xếp theo yêu cầu
-        if ($request->has('sort_by')) {
-            switch ($request->sort_by) {
-                case 'name_asc':
-                    $query->orderBy('manufacturer_name', 'asc');
-                    break;
-                case 'name_desc':
-                    $query->orderBy('manufacturer_name', 'desc');
-                    break;
-                case 'updated_at_asc':
-                    $query->orderBy('updated_at', 'asc');
-                    break;
-                case 'updated_at_desc':
-                    $query->orderBy('updated_at', 'desc');
-                    break;
-                default:
-                    // Mặc định không sắp xếp
-                    break;
-            }
-        }
-
-        $manufacturers = $query->paginate(5); // Phân trang
-
-        return view('manufacturerAdmin', compact('manufacturers'));
-    }
-    // Tìm kiếm nhà sản xuất theo tên
-    public function searchManufacturers(Request $request){
-        $query = $request->input('query');
-
-        $manufacturers = Manufacturer::where('manufacturer_name', 'like', '%' . $query . '%')->paginate(5);
-
-        return view('manufacturerAdmin', compact('manufacturers'));
-    }
+    
     
 }
