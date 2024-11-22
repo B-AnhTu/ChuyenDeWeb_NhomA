@@ -27,41 +27,23 @@ class ProductReviewController extends Controller
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Lưu bình luận của người dùng.
      */
     public function store(Request $request)
     {
-        if (!Auth::check()) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Vui lòng đăng nhập để bình luận'
-            ], 401);
-        }
+        // Gọi phương thức createReview từ model ProductReview
+        $response = ProductReview::createReview($request->all());
 
-        $review = ProductReview::create([
-            'user_id' => Auth::id(),
-            'product_id' => $request->product_id,
-            'comment' => $request->comment,
-            'status' => 0 // Mặc định là chờ duyệt
-        ]);
-
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Bình luận của bạn đã được gửi và đang chờ duyệt'
-        ]);
+        return response()->json($response);
     }
 
     /**
-     * Display the specified resource.
+     * Hiển thị thông tin sản phẩm và các bình luận đã duyệt.
      */
     public function show($slug)
     {
-        $product = Product::where('slug', $slug)
-            ->with(['reviews' => function ($query) {
-                $query->where('status', 1) // Chỉ lấy bình luận đã duyệt
-                    ->orderBy('created_at', 'desc'); // Sắp xếp bình luận mới nhất ở đầu
-            }, 'reviews.user'])
-            ->firstOrFail();
+        // Gọi phương thức trong model để lấy sản phẩm và bình luận
+        $product = Product::getProductWithReviews($slug);
 
         return view('productDetail', compact('product'));
     }
@@ -82,28 +64,21 @@ class ProductReviewController extends Controller
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Xóa bình luận.
      */
     public function destroy($id)
     {
-        ProductReview::findOrFail($id)->delete();
+        ProductReview::deleteReview($id);
+
         return redirect()->back()->with('success', 'Bình luận đã được xóa');
     }
 
+    /**
+     * Lấy bình luận đã duyệt của sản phẩm.
+     */
     public function getReviews($productId)
     {
-        $reviews = ProductReview::with('user')
-            ->where('product_id', $productId)
-            ->where('status', 1) // Chỉ lấy các bình luận đã được duyệt
-            ->orderBy('created_at', 'desc')
-            ->get()
-            ->map(function ($review) {
-                return [
-                    'user_name' => $review->user->fullname,
-                    'comment' => $review->comment,
-                    'created_at' => $review->created_at->format('d/m/Y H:i')
-                ];
-            });
+        $reviews = ProductReview::getApprovedReviews($productId);
 
         return response()->json([
             'status' => 'success',
@@ -111,42 +86,43 @@ class ProductReviewController extends Controller
         ]);
     }
 
-
+    /**
+     * Hiển thị các bình luận chờ duyệt.
+     */
     public function pendingReviews()
     {
-        $reviews = ProductReview::with(['user', 'product'])
-            ->where('status', 0)
-            ->orderBy('created_at', 'desc')
-            ->paginate(10);
-
+        $reviews = ProductReview::getPendingReviews();
         return view('reviews.pending', compact('reviews'));
     }
 
+    /**
+     * Hiển thị các bình luận đã duyệt.
+     */
     public function approvedReviews()
     {
-        $reviews = ProductReview::with(['user', 'product'])
-            ->where('status', 1)
-            ->orderBy('created_at', 'desc')
-            ->paginate(10);
-
+        $reviews = ProductReview::getApprovedReview();
         return view('reviews.approved', compact('reviews'));
     }
 
+    /**
+     * Duyệt bình luận.
+     */
     public function approve($id)
     {
-        $review = ProductReview::findOrFail($id);
-        $review->status = 1;
-        $review->save();
-
-        return redirect()->back()->with('success', 'Bình luận đã được duyệt');
+        if (ProductReview::approveReview($id)) {
+            return redirect()->back()->with('success', 'Bình luận đã được duyệt');
+        }
+        return redirect()->back()->with('error', 'Có lỗi xảy ra khi duyệt bình luận');
     }
 
+    /**
+     * Từ chối bình luận.
+     */
     public function reject($id)
     {
-        $review = ProductReview::findOrFail($id);
-        $review->status = 2;
-        $review->save();
-
-        return redirect()->back()->with('success', 'Bình luận đã bị từ chối');
+        if (ProductReview::rejectReview($id)) {
+            return redirect()->back()->with('success', 'Bình luận đã bị từ chối');
+        }
+        return redirect()->back()->with('error', 'Có lỗi xảy ra khi từ chối bình luận');
     }
 }

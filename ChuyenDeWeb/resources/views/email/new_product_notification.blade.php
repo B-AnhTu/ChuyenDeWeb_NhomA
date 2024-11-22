@@ -57,7 +57,7 @@
         <p><strong>Giá:</strong> {{ $product->price }}</p>
         <p><strong>Mô tả:</strong> {{ $product->description }}</p>
 
-        <a href="{{ url('/productDetail/' . $product->slug) }}" class="button">Xem sản phẩm</a>
+        <a href="{{ url('/productDetail/' . \App\Models\Product::generateUniqueSlug($product->slug, $product->product_id)) }}" class="button">Xem sản phẩm</a>
 
         <p class="footer">Cảm ơn bạn đã quan tâm đến cửa hàng của chúng tôi!</p>
     </div>
