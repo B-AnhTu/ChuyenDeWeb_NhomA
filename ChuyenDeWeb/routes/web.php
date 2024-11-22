@@ -184,13 +184,13 @@ Route::group(['middleware' => 'role:admin,editor'], function () {
 
     // Route for admin
     Route::get('/adminPage', [UserController::class, 'listAdmin'])->name('admin.index');
-    Route::put('/userAdmin/update-permissions/{slug}', [UserController::class, 'updatePermissions'])->name('userAdmin.updatePermissions');
+    Route::put('/userAdmin/update-permissions/{id}', [AdminDashboardController::class, 'updatePermissions'])->name('userAdmin.updatePermissions');
 
     //route user
     Route::get('/userAdmin', [UserController::class, 'index'])->name('userAdmin.index');
     //Route::get('/userAdmin', [UserController::class, 'index']);
 
-    Route::get('/userAdmin/{slug}', [UserController::class, 'show'])->name('userAdmin.show');
+    Route::get('/userAdmin/{slug}', action: [UserController::class, 'show'])->name('userAdmin.show');
 
     Route::get('/userCreate', [UserController::class, 'create'])->name('userAdmin.create');
     Route::post('/userCreate', [UserController::class, 'store'])->name('userAdmin.store');

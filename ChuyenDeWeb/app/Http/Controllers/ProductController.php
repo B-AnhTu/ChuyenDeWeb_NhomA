@@ -132,6 +132,11 @@ class ProductController extends Controller
             $query = $this->productSortAndSearch->sortProducts($query, $sortBy); // Gọi phương thức sắp xếp từ service
         }
 
+        else {
+            // Nếu không có sắp xếp, sắp xếp theo ngày tạo mới
+            $query = $query->orderBy('created_at', 'desc');
+        }
+
         // Phân trang danh mục
         $products = $query->paginate(5);
 
