@@ -18,7 +18,7 @@ class AdminDashboardController extends Controller
         return view('adminPage');
     }
     // Cập nhật quyền hạn user
-    public function updatePermissions(Request $request, $id)
+    public function updatePermissions(Request $request)
     {
         $roleHierarchy = [
             'user' => 1,
@@ -34,15 +34,15 @@ class AdminDashboardController extends Controller
 
         $request->validate([
             'role' => 'required|in:user,editor,admin',
-        ],[
+            'user_id' => 'required|exists:users,user_id', // Kiểm tra ID người dùng
+        ], [
             'role.required' => 'Vui lòng chọn vai trò người dùng',
             'role.in' => 'Vai trò không hợp lệ',
+            'user_id.required' => 'ID người dùng là bắt buộc',
+            'user_id.exists' => 'Người dùng không tồn tại',
         ]);
 
-        $user = User::findOrFail($id);
-        if (!$user) {
-            return response()->json(['success' => false, 'message' => 'Người dùng không tồn tại']);
-        }
+        $user = User::findOrFail($request->input('user_id')); // Lấy người dùng theo ID
 
         $currentUserRole = Auth::user()->role;
         $currentUserRoleLevel = $roleHierarchy[$currentUserRole];
@@ -55,21 +55,21 @@ class AdminDashboardController extends Controller
         } elseif ($currentUserRole == 'editor') {
             // Kiểm tra xem nếu người dùng tự đổi quyền của bản thân là admin
             if ($user->role == 'admin') {
-                return response()->json(['success' => false, 'message' => 'Bạn không thể thay đổi quyền của quản trị viên.']);
+                return redirect()->route('admin.index')->with('error', 'Bạn không thể thay đổi quyền của quản trị viên.');
             }
             // Kiểm tra xem vai trò mới của người dùng có hợp lệ không
             if ($newRoleLevel <= $targetUserRoleLevel + 1 && $newRoleLevel <= $currentUserRoleLevel) {
                 $user->role = $request->input('role');
                 $user->permission = $defaultPermissions[$user->role];
             } else {
-                return response()->json(['success' => false, 'message' => 'Bạn không thể thay đổi vai trò của người dùng có quyền cao hơn bản thân.']);
+                return redirect()->route('admin.index')->with('error', 'Bạn không thể thay đổi vai trò của người dùng với quyền cao hơn bản thân.');
             }
         } else {
-            return response()->json(['success' => false, 'message' => 'Bạn không có quyền cập nhật quyền hạn của người dùng.']);
+            return redirect()->route('admin.index')->with('error', 'Bạn không có quyền cập nhật quyền hạn của người dùng.');
         }
 
         $user->save();
 
-        return response()->json(['success' => true, 'message' => 'Cập nhật quyền người dùng thành công']);
+        return redirect()->route('admin.index')->with('success', 'Cập nhật quyền người dùng thành công');
     }
 }
