@@ -78,10 +78,10 @@
                         @endif
                     </td>
                     <td>
-                        <form action="{{ route('userAdmin.updatePermissions', $user->slug) }}" method="POST"
-                            class="d-flex align-items-center">
+                        <form action="{{ route('userAdmin.updatePermissions', $user->user_id) }}" method="POST" class="d-flex align-items-center">
                             @csrf
                             @method('PUT')
+                            <input type="hidden" name="user_id" value="{{ $user->user_id }}"> <!-- Thêm input ẩn để gửi ID -->
                             <div class="input-group">
                                 <select class="form-control role-select mr-2" name="role">
                                     <option value="admin" {{ $user->role == 'admin' ? 'selected' : '' }}>Admin</option>
@@ -89,8 +89,7 @@
                                     <option value="user" {{ $user->role == 'user' ? 'selected' : '' }}>User</option>
                                 </select>
                             </div>
-                            <button onclick="return confirm('Bạn có chắc chắn muốn cập nhật quyền hạn cho người dùng này?')"
-                                type="submit" class="btn btn-primary update-permissions">Update</button>
+                            <button onclick="return confirm('Bạn có chắc chắn muốn cập nhật quyền hạn cho người dùng này?')" type="submit" class="btn btn-primary update-permissions">Update</button>
                         </form>
                     </td>
                 </tr>
@@ -105,11 +104,11 @@
     document.addEventListener('DOMContentLoaded', function () {
         document.querySelectorAll('.role-select').forEach(select => {
             select.addEventListener('change', function () {
-                const userSlug = this.dataset.userId; // Lấy slug từ data attribute
+                const userSlug = this.closest('form').action.split('/').pop(); // Lấy slug từ URL
                 const role = this.value; // Lấy giá trị của role
 
                 // Gửi yêu cầu cập nhật quyền
-                fetch(`/userAdmin/updatePermissions/${userSlug}`, {
+                fetch(`/userAdmin/update-permissions/${userSlug}`, {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
@@ -117,8 +116,14 @@
                     },
                     body: JSON.stringify({ role })
                 })
-                .then(response => response.json())
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
                 .then(data => {
+                    // Hiển thị thông báo theo định dạng mặc định của Laravel
                     const alertContainer = document.getElementById('alert-container');
                     alertContainer.innerHTML = ''; // Xóa các thông báo trước đó
 
