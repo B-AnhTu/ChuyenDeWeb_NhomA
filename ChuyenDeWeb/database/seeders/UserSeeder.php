@@ -23,15 +23,38 @@ class UserSeeder extends Seeder
             'password' => bcrypt('admin12345'),
             'address' => '123 Street',
             'phone' => '0123456789',
-            'image' => 'null',
+            'image' => null,
             'role' => 'admin',
             'permission' => 'admin',
             'is_online' => false,
         ]);
-
+        
         // Tạo slug cho quản trị viên với ID mã hóa
         $adminUser->slug = $this->generateUniqueSlug($adminFullname, $adminUser->user_id);
         $adminUser->save();
+
+        // Tạo người dùng editor
+        for ($i = 1; $i <= 5; $i++) {
+            $letter = chr(96 + $i);
+            $fullname = 'Editor ' . ucfirst($letter);
+
+            // Chèn người dùng vào cơ sở dữ liệu và lưu lại
+            $user = User::create([
+                'fullname' => $fullname,
+                'email' => 'editor' . $i . '@gmail.com',
+                'password' => bcrypt('editor123' . $i),
+                'address' => '123 Street',
+                'phone' => '0123456789',
+                'image' => null,
+                'role' => 'editor',
+                'permission' => 'editor',
+                'is_online' => false,
+            ]);
+
+            // Tạo slug cho người dùng thường với ID mã hóa
+            $user->slug = $this->generateUniqueSlug($fullname, $user->user_id);
+            $user->save();
+        }
 
         // Tạo người dùng thường
         for ($i = 1; $i < 20; $i++) {
@@ -45,7 +68,7 @@ class UserSeeder extends Seeder
                 'password' => bcrypt('user123' . $i),
                 'address' => '123 Street',
                 'phone' => '0123456789',
-                'image' => 'null',
+                'image' => null,
                 'role' => 'user',
                 'permission' => 'viewer',
                 'is_online' => false,

@@ -70,8 +70,12 @@
                     <td>{{ $user->fullname }}</td>
                     <td>{{ $user->email }}</td>
                     <td>
-                        <img src="{{ asset('img/profile-picture/' . $user->image) }}" alt="User Image" class="img-fluid"
-                            style="width: 100px; height: 100px;">
+                        @if (!empty($user->image))
+                            <img src="{{ asset('img/profile-picture/' . $user->image) }}" alt="{{ $user->fullname }}"
+                                width="100">
+                        @else
+                            <img src="{{ asset('img/profile-picture/user-default.jpg') }}" alt="Default Image" width="100">
+                        @endif
                     </td>
                     <td>
                         <form action="{{ route('userAdmin.updatePermissions', $user->slug) }}" method="POST"
@@ -86,8 +90,7 @@
                                 </select>
                             </div>
                             <button onclick="return confirm('Bạn có chắc chắn muốn cập nhật quyền hạn cho người dùng này?')"
-                                type="submit" class="btn btn-primary update-permissions"
-                                >Update</button>
+                                type="submit" class="btn btn-primary update-permissions">Update</button>
                         </form>
                     </td>
                 </tr>
