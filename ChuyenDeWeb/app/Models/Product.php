@@ -57,7 +57,7 @@ class Product extends Model
         $encodedId = base64_encode($productId); // Mã hóa ID người dùng
 
         // Tạo slug duy nhất bằng cách thêm ID đã mã hóa vào cuối slug
-        $uniqueSlug = $slug . '_' . $encodedId;
+        $uniqueSlug = $slug . (strpos($slug, '_') === false ? '_' : '') . $encodedId;
 
         return $uniqueSlug; // Trả về slug duy nhất
     }
@@ -91,7 +91,8 @@ class Product extends Model
     }
 
     // Lấy sản phẩm theo id 
-    public static function getProductById($productId){
+    public static function getProductById($productId)
+    {
         return self::find($productId);
     }
     // lọc sản phẩm theo danh mục trang index
@@ -129,7 +130,7 @@ class Product extends Model
     //Tìm kiếm sản phẩm trang index
     public static function searchProducts($keyword = null, $manufacturerId = null, $perPage = 8)
     {
-        
+
         $query = self::query();
 
         if ($keyword) {
@@ -253,7 +254,7 @@ class Product extends Model
     //Kiểm tra sản phẩm tồn kho có đủ hay ko
     public function isStockAvailable($quantity)
     {
-        return $this->stock_quantity >= $quantity;  
+        return $this->stock_quantity >= $quantity;
     }
 
     public function adjustStock($quantity)
@@ -311,7 +312,8 @@ class Product extends Model
     /**
      * Lấy sản phẩm dựa trên slug
      */
-    public static function getProductBySlug($slug){
+    public static function getProductBySlug($slug)
+    {
         $product = self::where('slug', $slug)->first();
         if ($product) {
             return $product;
@@ -322,7 +324,8 @@ class Product extends Model
     /**
      * Thêm sản phẩm
      */
-    public static function createProduct(array $data){
+    public static function createProduct(array $data)
+    {
         // Tạo sản phẩm mới
         $product = self::create($data);
 
@@ -371,13 +374,15 @@ class Product extends Model
             return $this; // Trả về sản phẩm đã cập nhật
         });
     }
-    public static function getDeletedProducts(){
+    public static function getDeletedProducts()
+    {
         return self::onlyTrashed()->paginate(5);
     }
     /**
      * Xóa sản phẩm (tạm thời)
      */
-    public static function deleteProductBySlug($slug){
+    public static function deleteProductBySlug($slug)
+    {
         $product_id = self::decodeSlug($slug);
         $product = self::getProductById($product_id);
         if ($product) {
@@ -388,21 +393,23 @@ class Product extends Model
     /**
      * Khôi phục sản phẩm
      */
-    public static function restoreProduct($slug){
+    public static function restoreProduct($slug)
+    {
         // Giải mã slug để lấy sản phẩm ID
         $productId = self::decodeSlug($slug);
         // Tìm sản phẩm đã xóa theo ID
         $product = self::onlyTrashed()->find($productId);
         if ($product) {
             $product->restore(); // Khôi phục sản phẩm
-            return true; 
+            return true;
         }
-        return false; 
+        return false;
     }
     /**
      * Xóa vĩnh viễn sản phẩm
      */
-    public static function forceDeleteProduct($slug){
+    public static function forceDeleteProduct($slug)
+    {
         // Giải mã slug để lấy sản phẩm ID
         $productId = self::decodeSlug($slug);
         // Tìm sản phẩm đã xóa theo ID
@@ -443,50 +450,66 @@ class Product extends Model
     /**
      * Sắp xếp 
      */
-    public static function sort($query, $sortBy){
+    public static function sort($query, $sortBy)
+    {
         // Sắp xếp theo yêu cầu
-            switch ($sortBy) {
-                case 'name_asc':
-                    $query->orderBy('product_name', 'asc');
-                    break;
-                case 'name_desc':
-                    $query->orderBy('product_name', 'desc');
-                    break;
-                case 'price_asc':
-                    $query->orderBy('price', 'asc');
-                    break;
-                case 'price_desc':
-                    $query->orderBy('price', 'desc');
-                    break;
-                case 'views_asc':
-                    $query->orderBy('product_view', 'asc');
-                    break;
-                case 'views_desc':
-                    $query->orderBy('product_view', 'desc');
-                    break;
-                case 'purchases_asc':
-                    $query->orderBy('sold_quantity', 'asc');
-                    break;
-                case 'purchases_desc':
-                    $query->orderBy('sold_quantity', 'desc');
-                    break;
-                case 'stock_asc':
-                    $query->orderBy('stock_quantity', 'asc');
-                    break;
-                case 'stock_desc':
-                    $query->orderBy('stock_quantity', 'desc');
-                    break;
-                case 'created_at_asc':
-                    $query->orderBy('created_at', 'asc');
-                    break;
-                case 'created_at_desc':
-                    $query->orderBy('created_at', 'desc');
-                    break;
-                default:
-                    $query->orderBy('created_at', 'desc'); // Sắp xếp mặc định
-                    break;
-            }
+        switch ($sortBy) {
+            case 'name_asc':
+                $query->orderBy('product_name', 'asc');
+                break;
+            case 'name_desc':
+                $query->orderBy('product_name', 'desc');
+                break;
+            case 'price_asc':
+                $query->orderBy('price', 'asc');
+                break;
+            case 'price_desc':
+                $query->orderBy('price', 'desc');
+                break;
+            case 'views_asc':
+                $query->orderBy('product_view', 'asc');
+                break;
+            case 'views_desc':
+                $query->orderBy('product_view', 'desc');
+                break;
+            case 'purchases_asc':
+                $query->orderBy('sold_quantity', 'asc');
+                break;
+            case 'purchases_desc':
+                $query->orderBy('sold_quantity', 'desc');
+                break;
+            case 'stock_asc':
+                $query->orderBy('stock_quantity', 'asc');
+                break;
+            case 'stock_desc':
+                $query->orderBy('stock_quantity', 'desc');
+                break;
+            case 'created_at_asc':
+                $query->orderBy('created_at', 'asc');
+                break;
+            case 'created_at_desc':
+                $query->orderBy('created_at', 'desc');
+                break;
+            default:
+                $query->orderBy('created_at', 'desc'); // Sắp xếp mặc định
+                break;
+        }
         return $query;
     }
 
+    /**
+     * Lấy sản phẩm và bình luận đã duyệt.
+     *
+     * @param string $slug
+     * @return Product
+     */
+    public static function getProductWithReviews($slug)
+    {
+        return self::where('slug', $slug)
+            ->with(['reviews' => function ($query) {
+                $query->where('status', 1) // Chỉ lấy bình luận đã duyệt
+                    ->orderBy('created_at', 'desc'); // Sắp xếp bình luận mới nhất ở đầu
+            }, 'reviews.user'])
+            ->firstOrFail();
+    }
 }

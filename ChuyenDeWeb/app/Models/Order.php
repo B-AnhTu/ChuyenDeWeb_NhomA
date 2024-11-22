@@ -151,5 +151,103 @@ class Order extends Model
             'status' => 'pending',
         ]);
     }
-    
+    /**
+     * Lấy đơn hàng của người dùng.
+     *
+     * @param int $userId
+     * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
+     */
+    public static function getUserOrders($userId)
+    {
+        return self::where('user_id', $userId)
+            ->orderBy('created_at', 'desc')
+            ->paginate(10);
+    }
+
+    /**
+     * Lấy chi tiết đơn hàng của người dùng.
+     *
+     * @param int $orderId
+     * @param int $userId
+     * @return \App\Models\Order
+     */
+    public static function getOrderDetail($orderId, $userId)
+    {
+        return self::with(['orderDetails.product'])
+            ->where('order_id', $orderId)
+            ->where('user_id', $userId)
+            ->firstOrFail();
+    }
+
+    /**
+     * Tìm đơn hàng theo mã đơn và email.
+     *
+     * @param string $orderId
+     * @param string $email
+     * @return \App\Models\Order|null
+     */
+    public static function trackOrderByCodeAndEmail($orderId, $email)
+    {
+        return self::with(['orderDetails.product'])
+            ->where('order_id', $orderId)
+            ->where('shipping_email', $email)
+            ->first();
+    }
+    /**
+     * Hủy đơn hàng và hoàn lại số lượng sản phẩm vào kho.
+     *
+     * @return bool
+     */
+    public function cancelOrder()
+    {
+        if ($this->status !== 'pending') {
+            return false; // Chỉ có thể hủy đơn hàng đang chờ
+        }
+
+        DB::beginTransaction();
+
+        try {
+            // Cập nhật trạng thái đơn hàng
+            $this->status = 'cancelled';
+            $this->save();
+
+            // Hoàn lại số lượng tồn kho
+            foreach ($this->orderDetails as $detail) {
+                $product = $detail->product;
+                $product->increment('stock_quantity', $detail->quantity);
+                $product->decrement('sold_quantity', $detail->quantity);
+            }
+
+            DB::commit();
+            return true;
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return false;
+        }
+    }
+
+    /**
+     * Xác nhận nhận hàng và thay đổi trạng thái đơn hàng.
+     *
+     * @return bool
+     */
+    public function confirmReceived()
+    {
+        if ($this->status !== 'shipping') {
+            return false; // Chỉ có thể xác nhận đơn hàng đang giao
+        }
+
+        // Cập nhật trạng thái đơn hàng thành 'completed'
+        $this->status = 'completed';
+        $this->save();
+
+        return true;
+    }
+    public static function findByIdAndUser($id, $userId, $status)
+    {
+        return self::where('id', $id)
+            ->where('user_id', $userId)
+            ->where('status', $status)
+            ->first();
+    }
 }
