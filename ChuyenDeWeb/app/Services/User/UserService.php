@@ -69,7 +69,7 @@ class UserService
 
         // Nếu fullname đã thay đổi, tạo lại slug
         if ($user->fullname !== $validatedData['fullname']) {
-            $user->slug = User::generateUniqueSlug($validatedData['fullname'], $validatedData['user_id']); // Sử dụng fullname mới từ validatedData
+            $validatedData['slug'] = User::generateUniqueSlug($validatedData['fullname'], $validatedData['user_id']); // Sử dụng fullname mới từ validatedData
         }
 
         $user->save();

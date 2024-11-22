@@ -81,7 +81,7 @@
                             <tr>
                                 <td>{{ $loop->iteration + ($products->currentPage() - 1) * $products->perPage() }}</td>
                                 <!-- Sequential number -->
-                                <td>{{ $product->product_name }}</td>
+                                <td>{{ Str::limit($product->product_name, 30) }}</td>
                                 <td>{{ $product->price }}</td>
                                 <td>{{ $product->stock_quantity }}</td>
                                 <td>{{ $product->product_view }}</td>
