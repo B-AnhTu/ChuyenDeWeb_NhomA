@@ -26,20 +26,15 @@ class ProductLikeController extends Controller
         }
 
         // Kiểm tra xem sản phẩm đã được thích bởi người dùng chưa
-        $existingLike = ProductLike::where('user_id', $userId)
-            ->where('product_id', $productId)
-            ->first();
+        $existingLike = ProductLike::isLikedByUser($userId, $productId);
 
         if ($existingLike) {
             // Nếu đã thích, xóa khỏi bảng yêu thích
-            $existingLike->delete();
+            ProductLike::removeLike($existingLike);
             return response()->json(['message' => 'Đã bỏ yêu thích sản phẩm']);
         } else {
             // Nếu chưa thích, thêm vào bảng yêu thích
-            ProductLike::create([
-                'user_id' => $userId,
-                'product_id' => $productId,
-            ]);
+            ProductLike::addLike($userId, $productId);
             return response()->json(['message' => 'Đã thêm sản phẩm vào yêu thích']);
         }
     }
@@ -53,9 +48,7 @@ class ProductLikeController extends Controller
         $userId = Auth::id();
 
         // Lấy danh sách sản phẩm yêu thích của người dùng
-        $likedProducts = ProductLike::where('user_id', $userId)
-            ->with('product')
-            ->get();
+        $likedProducts = ProductLike::getUserLikedProducts($userId);
 
         return view('wishlist', compact('likedProducts'));
     }

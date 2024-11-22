@@ -10,27 +10,27 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use App\Services\SlugService;
 
-
-class RegisterController extends Controller
+class RegisterController extends Controller 
 {
-    protected $slugService; // Khai báo thuộc tính slugService
+    protected $slugService;
 
-    public function __construct(SlugService $slugService) // Constructor
+    public function __construct(SlugService $slugService)
     {
-        $this->slugService = $slugService; // Khởi tạo slugService
+        $this->slugService = $slugService;
     }
+
     public function showRegistrationForm()
     {
         return view('register');
     }
-    
+
     public function register(Request $request)
     {
         $validator = Validator::make($request->all(), [
             'email' => 'required|email|max:50|unique:users,email',
             'password' => 'required|min:8|max:20',
-            'fullname' => 'required|regex:/^[\pL\s]+$/u|max:50',
-            'phone' => 'required|digits:10|regex:/^0[0-9]{9}$/',
+            'fullname' => ['required', 'max:50', 'regex:/^[\pL\s]+$/u'],
+            'phone' => ['required', 'regex:/^0[3|5|7|8|9][0-9]{8}$/'],
         ], [
             'email.required' => 'Vui lòng nhập email',
             'email.email' => 'Sai định dạng email',
@@ -43,8 +43,7 @@ class RegisterController extends Controller
             'fullname.regex' => 'Họ và tên không có số, ký tự đặc biệt',
             'fullname.max' => 'Họ và tên không được quá 50 ký tự',
             'phone.required' => 'Vui lòng nhập số điện thoại',
-            'phone.digits' => 'Số điện thoại phải bắt đầu bằng số 0 và có 10 số',
-            'phone.regex' => 'Số điện thoại phải bắt đầu bằng số 0 và có 10 số',
+            'phone.regex' => 'Số điện thoại phải là số hợp lệ tại Việt Nam',
         ]);
 
         if ($validator->fails()) {
@@ -53,9 +52,9 @@ class RegisterController extends Controller
 
         // Đăng ký thành công, lưu user vào database thông qua model
         User::registerUser(
-            $request->email, 
-            $request->password, 
-            $request->fullname, 
+            $request->email,
+            $request->password,
+            $request->fullname,
             $request->phone
         );
 

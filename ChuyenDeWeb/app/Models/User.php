@@ -41,6 +41,32 @@ class User extends Authenticatable
 
     protected $table = 'users';
 
+
+    // Cập nhật thông tin người dùng
+    public function updateProfileInfo($data)
+    {
+        $this->update([
+            'fullname' => $data['fullname'],
+            'email' => $data['email'],
+            'phone' => $data['phone'],
+            'slug' => Str::slug($data['fullname']),
+            'address' => $data['address'],
+        ]);
+    }
+
+    // Cập nhật ảnh đại diện
+    public function updateProfileImage($imagePath)
+    {
+        // Xóa ảnh cũ nếu có
+        if ($this->image && file_exists(public_path('img/profile-picture/' . $this->image))) {
+            unlink(public_path('img/profile-picture/' . $this->image));
+        }
+
+        // Lưu ảnh mới
+        $this->update(['image' => $imagePath]);
+    }
+
+    
     // Kiểm tra đăng nhập
     public static function attemptLogin($email, $password)
     {

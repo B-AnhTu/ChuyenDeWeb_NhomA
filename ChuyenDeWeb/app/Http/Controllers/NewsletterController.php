@@ -41,15 +41,11 @@ class NewsletterController extends Controller
             }
 
             // Lưu subscriber vào database
-            $subscriber = NewsletterSubscriber::create([
-                'name' => $request->name,
-                'email' => $request->email,
-                'is_active' => true
-            ]);
+            $subscriber = NewsletterSubscriber::createSubscriber($request->only(['name', 'email']));
 
             Log::info('Subscriber created successfully', ['id' => $subscriber->id]);
 
-            // Gửi email trong try-catch riêng
+            // Gửi email
             try {
                 Log::info('Attempting to send welcome email', [
                     'to' => $request->email,
