@@ -2,21 +2,18 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
-use App\Models\User;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Str;
-use App\Services\SlugService;
+use App\Services\User\UserService;
 
-class RegisterController extends Controller 
+class RegisterController extends Controller
 {
-    protected $slugService;
+    protected $userService;
 
-    public function __construct(SlugService $slugService)
+    public function __construct(UserService $userService)
     {
-        $this->slugService = $slugService;
+        $this->userService = $userService; // Inject UserService
     }
 
     public function showRegistrationForm()
@@ -26,6 +23,7 @@ class RegisterController extends Controller
 
     public function register(Request $request)
     {
+        // Validation input
         $validator = Validator::make($request->all(), [
             'email' => 'required|email|max:50|unique:users,email',
             'password' => 'required|min:8|max:20',
@@ -50,18 +48,21 @@ class RegisterController extends Controller
             return redirect()->back()->withErrors($validator)->withInput();
         }
 
-        // Đăng ký thành công, lưu user vào database thông qua model
-        User::registerUser(
-            $request->email,
-            $request->password,
-            $request->fullname,
-            $request->phone
-        );
+        // Chuẩn bị dữ liệu đã xác thực
+        $validatedData = [
+            'fullname' => $request->fullname,
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
+            'phone' => $request->phone,
+        ];
 
-        // Thêm thông báo thành công vào session
+        // Tạo người dùng thông qua UserService
+        $user = $this->userService->createUser($validatedData);
+
+        // Thêm thông báo thành công
         session()->flash('success', 'Đăng ký thành công! Vui lòng đăng nhập.');
 
-        // Chuyển hướng đến trang đăng nhập
+        // Chuyển hướng về trang đăng nhập
         return redirect('/login');
     }
 }
