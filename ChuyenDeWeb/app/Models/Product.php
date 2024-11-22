@@ -57,7 +57,7 @@ class Product extends Model
         $encodedId = base64_encode($productId); // Mã hóa ID người dùng
 
         // Tạo slug duy nhất bằng cách thêm ID đã mã hóa vào cuối slug
-        $uniqueSlug = $slug . '_' . $encodedId;
+        $uniqueSlug = $slug . (strpos($slug, '_') === false ? '_' : '') . $encodedId;
 
         return $uniqueSlug; // Trả về slug duy nhất
     }
