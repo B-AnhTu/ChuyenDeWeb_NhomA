@@ -25,8 +25,21 @@ class CheckoutController extends Controller
 
         if (!$cart || $cart->cartProducts->isEmpty()) {
             return redirect()->route('cart.view')
-                ->with('error', 'Giỏ hàng của bạn đang trống');
+                ->with('error', 'Giỏ hàng của bạn có sản phẩm không hợp lệ!');
         }
+
+        // Kiểm tra và loại bỏ các sản phẩm không tồn tại
+        foreach ($cart->cartProducts as $cartItem) {
+            if (!$cartItem->product) {
+                $cartItem->delete(); // Xóa sản phẩm không hợp lệ khỏi giỏ hàng
+            }
+        }
+
+        // Kiểm tra lại giỏ hàng sau khi loại bỏ sản phẩm
+        if (!$cart || $cart->cartProducts->isEmpty()) {
+            return redirect()->route('cart.view')->with('error', 'Giỏ hàng của bạn không hợp lệ hoặc trống.');
+        }
+
 
         // Tính tổng tiền
         $total = $cart->cartProducts->sum(function ($item) {
@@ -39,12 +52,12 @@ class CheckoutController extends Controller
         return view('checkout', compact('cart', 'total', 'user'));
     }
 
+
     /**
      * Quá trình thanh toán
      */
     public function processCheckout(Request $request)
     {
-        // Validate đầu vào
         $validated = $request->validate([
             'shipping_name' => 'required|string|max:255',
             'shipping_email' => 'required|email',
@@ -57,16 +70,31 @@ class CheckoutController extends Controller
         try {
             DB::beginTransaction();
 
-            // Lấy giỏ hàng
             $cart = Cart::getUserCartWithProducts(Auth::id());
 
             if (!$cart || $cart->cartProducts->isEmpty()) {
                 throw new \Exception('Giỏ hàng trống');
             }
 
-            // Tính tổng tiền
+            // Loại bỏ các mục không hợp lệ
+            $cart->cartProducts->each(function ($item) {
+                if (!$item->product) {
+                    $item->delete(); // Xóa mục không hợp lệ
+                }
+            });
+
+            if (!$cart || $cart->cartProducts->isEmpty()) {
+                return redirect()->route('cart.view')->with('error', 'Giỏ hàng trống. Vui lòng kiểm tra lại!');
+            }
+
+            foreach ($cart->cartProducts as $cartProduct) {
+                if (!$cartProduct->product) {
+                    return redirect()->route('cart.view')->with('error', 'Một số sản phẩm trong giỏ hàng không tồn tại. Vui lòng kiểm tra lại!');
+                }
+            }
+
             $total = $cart->calculateTotal();
-            // Tạo đơn hàng mới
+
             $order = Order::createNewOrder(Auth::id(), $validated, $total);
 
             foreach ($cart->cartProducts as $item) {
@@ -78,7 +106,6 @@ class CheckoutController extends Controller
                 $item->product->adjustStock($item->quantity);
             }
 
-            // Xóa giỏ hàng
             $cart->clearCart();
 
             DB::commit();
@@ -89,6 +116,7 @@ class CheckoutController extends Controller
             return back()->with('error', 'Có lỗi xảy ra: ' . $e->getMessage());
         }
     }
+
 
     /**
      * Hiển thị form theo dõi đơn hàng
