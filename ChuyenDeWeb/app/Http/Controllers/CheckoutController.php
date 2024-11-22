@@ -103,10 +103,7 @@ class CheckoutController extends Controller
      */
     public function myOrders()
     {
-        $orders = Order::where('user_id', Auth::id())
-            ->orderBy('created_at', 'desc')
-            ->paginate(10);
-
+        $orders = Order::getUserOrders(Auth::id());
         return view('order.my-orders', compact('orders'));
     }
 
@@ -115,10 +112,7 @@ class CheckoutController extends Controller
      */
     public function orderDetail($id)
     {
-        $order = Order::with(['orderDetails.product'])
-            ->where('order_id', $id)
-            ->where('user_id', Auth::id())
-            ->firstOrFail();
+        $order = Order::getOrderDetail($id, Auth::id());
 
         return view('order.detail', compact('order'));
     }
@@ -133,10 +127,7 @@ class CheckoutController extends Controller
             'email' => 'required|email'
         ]);
 
-        $order = Order::with(['orderDetails.product'])
-            ->where('order_id', $validated['order_id'])
-            ->where('shipping_email', $validated['email'])
-            ->first();
+        $order = Order::trackOrderByCodeAndEmail($validated['order_id'], $validated['email']);
 
         if (!$order) {
             return back()->with('error', 'Không tìm thấy đơn hàng với thông tin đã nhập');
@@ -155,24 +146,11 @@ class CheckoutController extends Controller
             ->where('status', 'pending')
             ->firstOrFail();
 
-        try {
-            DB::beginTransaction();
+        $isCancelled = $order->cancelOrder();
 
-            // Cập nhật trạng thái đơn hàng
-            $order->status = 'cancelled';
-            $order->save();
-
-            // Hoàn lại số lượng tồn kho
-            foreach ($order->orderDetails as $detail) {
-                $product = $detail->product;
-                $product->increment('stock_quantity', $detail->quantity);
-                $product->decrement('sold_quantity', $detail->quantity);
-            }
-
-            DB::commit();
+        if ($isCancelled) {
             return back()->with('success', 'Đơn hàng đã được hủy thành công');
-        } catch (\Exception $e) {
-            DB::rollBack();
+        } else {
             return back()->with('error', 'Có lỗi xảy ra khi hủy đơn hàng');
         }
     }
@@ -182,14 +160,18 @@ class CheckoutController extends Controller
      */
     public function confirmReceived($id)
     {
-        $order = Order::where('id', $id)
-            ->where('user_id', Auth::id())
-            ->where('status', 'shipping')
-            ->firstOrFail();
+        $order = Order::findByIdAndUser($id, Auth::id(), 'shipping');
 
-        $order->status = 'completed';
-        $order->save();
+        if (!$order) {
+            return back()->with('error', 'Không tìm thấy đơn hàng');
+        }
 
-        return back()->with('success', 'Cảm ơn bạn đã xác nhận nhận hàng');
+        $isConfirmed = $order->confirmReceived();
+
+        if ($isConfirmed) {
+            return back()->with('success', 'Cảm ơn bạn đã xác nhận nhận hàng');
+        } else {
+            return back()->with('error', 'Có lỗi xảy ra khi xác nhận nhận hàng');
+        }
     }
 }
