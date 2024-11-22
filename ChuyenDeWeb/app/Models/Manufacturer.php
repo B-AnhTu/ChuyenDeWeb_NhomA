@@ -131,7 +131,8 @@ class Manufacturer extends Model
      */
     public static function deletemanufacturerBySlug($slug)
     {
-        $manufacturer = manufacturer::getManufacturerBySlug($slug);
+        $manufacturer_id = self::decodeSlug($slug);
+        $manufacturer = self::getManufacturerById($manufacturer_id);
         if ($manufacturer) {
             // Kiểm tra và xóa hình ảnh nếu có
             if ($manufacturer->image && file_exists(public_path('img/manufacturer/' . $manufacturer->image))) {

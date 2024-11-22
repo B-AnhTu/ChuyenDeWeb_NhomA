@@ -325,45 +325,5 @@ class User extends Authenticatable
         }
         return $query;
     }
-    /**
-     * Cập nhật quyền cho người dùng
-     */
-    public function updatePermissions($newRole)
-    {
-        $roleHierarchy = [
-            'user' => 1,
-            'editor' => 2,
-            'admin' => 3,
-        ];
 
-        $currentUserRole = Auth::user()->role; // Lấy vai trò của người dùng hiện tại
-        $currentUserRoleLevel = $roleHierarchy[$currentUserRole];
-        $targetUserRoleLevel = $roleHierarchy[$this->role];
-        $newRoleLevel = $roleHierarchy[$newRole];
-
-        // Nếu người dùng hiện tại là admin, cho phép cập nhật quyền của người khác
-        if ($currentUserRole == 'admin') {
-            $this->role = $newRole;
-            $this->save();
-            return true; // Trả về true nếu cập nhật thành công
-        } elseif ($currentUserRole == 'editor') {
-            // Kiểm tra xem có phải tự thay đổi quyền thành admin không
-            if ($this->role == 'admin') {
-                throw new \Exception('Bạn không thể thay đổi quyền của quản trị viên.');
-            }
-            // Kiểm tra xem có thể thay đổi lên quyền cao hơn hay không
-            if ($newRoleLevel <= $targetUserRoleLevel + 1 && $newRoleLevel <= $currentUserRoleLevel) {
-                $this->role = $newRole;
-                $this->save();
-                return true;
-            } else {
-                throw new \Exception('Bạn không thể thay đổi vai trò của người dùng có quyền cao hơn bản thân.');
-            }
-        } else {
-            throw new \Exception('Bạn không có quyền cập nhật quyền hạn của người dùng.');
-        }
-    }
-
-    
-    
 }

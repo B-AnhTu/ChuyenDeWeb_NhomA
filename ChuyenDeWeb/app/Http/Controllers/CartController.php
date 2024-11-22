@@ -50,6 +50,15 @@ class CartController extends Controller
         // Nếu giỏ hàng rỗng, gửi thông báo
         $cartItems = $cart ? $cart->cartProducts : collect();
 
+        // Kiểm tra sản phẩm trong giỏ hàng
+        foreach ($cartItems as $cartItem) {
+            $product = Product::getProductById($cartItem->product_id);
+            if (!$product) {
+                // Nếu sản phẩm không tồn tại, xóa sản phẩm khỏi giỏ hàng
+                $cartItem->delete();
+            }
+        }
+
         return view('cart', compact('cartItems'));
     }
 
@@ -82,6 +91,15 @@ class CartController extends Controller
         $cartProduct = CartProduct::where('cart_id', $cart->cart_id)
             ->where('product_id', $request->product_id)
             ->first();
+
+        // Kiểm tra xem sản phẩm có tồn tại không
+        $product = Product::getProductById($request->product_id);
+        if (!$product) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Sản phẩm không tồn tại'
+            ], 404);
+        }
 
         if ($cartProduct) {
             $cartProduct->update(['quantity' => $request->quantity]);

@@ -42,6 +42,11 @@ class CategoryController extends Controller
             $query = $this->categorySortAndSearch->sortCategories($query, $sortBy); // Gọi phương thức sắp xếp từ service
         }
 
+        else {
+            // Nếu không có sắp xếp, sắp xếp theo ngày tạo mới
+            $query = $query->orderBy('created_at', 'desc');
+        }
+
         // Phân trang danh mục
         $categories = $query->paginate(5);
 
