@@ -18,7 +18,7 @@ class Blog extends Model
     protected $table = 'blog';
 
     protected $primaryKey = 'blog_id';
-    
+
     protected $fillable = ['title', 'slug', 'short_description', 'image', 'content', 'user_id', 'created_at', 'updated_at'];
 
     public static function getAllBlogsQuery()
@@ -74,7 +74,7 @@ class Blog extends Model
 
         if ($searchTerm) {
             $query->where('title', 'LIKE', "%{$searchTerm}%")
-                  ->orWhere('content', 'LIKE', "%{$searchTerm}%");
+                ->orWhere('content', 'LIKE', "%{$searchTerm}%");
         }
 
         return $query->orderBy('created_at', 'desc')->paginate($perPage);
@@ -84,7 +84,7 @@ class Blog extends Model
     {
         return self::find($id);
     }
-    
+
 
     /**
      * Tạo blog mới
@@ -277,4 +277,19 @@ class Blog extends Model
 
         return $decodedId; // Trả về ID người dùng
     }
+
+    public static function getBlogWithComments($slug)
+    {
+        // Lấy bài viết theo slug
+        $blog = self::where('slug', $slug)->firstOrFail();
+
+        // Lấy bình luận đã duyệt cho bài viết
+        $comments = BlogComment::where('blog_id', $blog->blog_id)
+            ->where('status', 1) // Bình luận đã duyệt
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        // Trả về bài viết cùng với bình luận
+        return compact('blog', 'comments');
+    }   
 }
