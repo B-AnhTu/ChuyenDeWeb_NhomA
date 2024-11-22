@@ -31,7 +31,7 @@
                             <tr>
                                 <td>{{ $product->product_id }}</td>
                                 <td>{{ $product->product_name }}</td>
-                                <td><img src="{{ asset('img/products/' . $product->image) }}"></td>
+                                <td><img src="{{ asset('img/products/' . $product->image) }}" width="200"></td>
                                 <td>
                                     <!-- Tùy chọn khôi phục hoặc xóa vĩnh viễn -->
                                     <div class="row">

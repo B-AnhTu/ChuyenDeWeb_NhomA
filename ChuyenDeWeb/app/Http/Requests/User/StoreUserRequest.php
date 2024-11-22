@@ -32,7 +32,7 @@ class StoreUserRequest extends FormRequest
             'image' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:5120',
             'email' => ['required', 'email', 'max:50', 'unique:users,email', new GmailOnly, new NoSpace],
             'password' => ['required', 'min:8', 'max:20', new NoSpace],
-            'phone' => ['required', 'digits:10', 'regex:/^0[0-9]{9}$/', new NoSpecialCharacters, new NoSpace],
+            'phone' => ['required', 'digits:10', 'regex:/^(\+84|0)([3|5|7|8|9])+([0-9]{8})$/', new NoSpecialCharacters, new NoSpace],
             'address' => ['required', 'string', 'max:255', new NoSpecialCharacters, new SingleSpaceOnly],
         ];
     }

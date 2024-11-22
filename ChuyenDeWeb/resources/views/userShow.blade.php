@@ -9,7 +9,13 @@
         </div>
         <div class="row">
             <div class="col-md-6">
-                <img src="{{ asset('img/profile-picture/' . $user->image) }}" alt="{{ $user->fullname }}" width="100%">
+                @if (!empty($user->image))
+                    <img src="{{ asset('img/profile-picture/' . $user->image) }}"
+                        alt="{{ $user->fullname }}" width="100%">
+                @else
+                    <img src="{{ asset('img/profile-picture/user-default.jpg') }}" alt="Default Image"
+                    width="100%">
+                @endif
             </div>
             <div class="col-md-6">
                 <p>Tên người dùng: {{ $user->fullname }}</p>
