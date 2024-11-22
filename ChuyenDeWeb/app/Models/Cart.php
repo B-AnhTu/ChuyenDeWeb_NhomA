@@ -62,7 +62,9 @@ class Cart extends Model
     public static function getUserCartWithProducts($userId)
     {
         return self::where('user_id', $userId)
-            ->with('cartProducts.product')
+            ->with(['cartProducts' => function ($query) {
+                $query->whereHas('product');
+            }])
             ->first();
     }
 
