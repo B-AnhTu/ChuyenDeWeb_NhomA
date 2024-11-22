@@ -254,8 +254,12 @@ class Product extends Model
     //Kiểm tra sản phẩm tồn kho có đủ hay ko
     public function isStockAvailable($quantity)
     {
+        if (!$this) {
+            return false;
+        }
         return $this->stock_quantity >= $quantity;
     }
+
 
     public function adjustStock($quantity)
     {
