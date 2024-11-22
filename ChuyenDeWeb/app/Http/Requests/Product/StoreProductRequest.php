@@ -27,14 +27,15 @@ class StoreProductRequest extends FormRequest
     {
         return [
             'product_name' => ['required', 'string', 'max:50', new NoSpecialCharacters, new SingleSpaceOnly],
-            'price' => 'required|numeric|min:0',
+            'price' => 'required|numeric|min:0|regex:/^(0|[1-9][0-9]*)(000)*$/', // Chia hết cho 1000
             'image' => 'required|mimes:jpeg,jpg,png,gif|max:5120',
             'description' => ['required', new NoSpecialCharacters, new SingleSpaceOnly],
-            'stock_quantity' => 'required|integer|min:0',
+            'stock_quantity' => 'required|integer|min:0|max:1000', 
             'manufacturer_id' => 'required',
             'category_id' => 'required',
         ];
     }
+
     public function messages()
     {
         return [
@@ -43,6 +44,7 @@ class StoreProductRequest extends FormRequest
             'price.required' => 'Giá sản phẩm không được để trống',
             'price.numeric' => 'Giá sản phẩm bắt buộc phải là số',
             'price.min' => 'Giá sản phẩm phải lớn hơn 0',
+            'price.regex' => 'Giá sản phẩm phải là giá trị chia hết cho 1000',
             'image.required' => 'Hình ảnh không được để trống',
             'image.mimes' => 'Hình ảnh phải có đuôi .jpeg, .jpg, .png, .gif',
             'image.max' => 'Kích thước tối đa của hình là 5MB',
@@ -50,6 +52,7 @@ class StoreProductRequest extends FormRequest
             'stock_quantity.required' => 'Số lượng hàng tồn kho không được để trống',
             'stock_quantity.integer' => 'Số lượng hàng tồn kho phải là số nguyên',
             'stock_quantity.min' => 'Số lượng hàng tồn kho phải lớn hơn 0',
+            'stock_quantity.max' => 'Số lượng hàng tồn kho không được vượt quá 1000',
             'manufacturer_id.required' => 'Nhà sản xuất không được để trống',
             'manufacturer_id.exists' => 'Nhà sản xuất không tồn tại',
             'category_id.required' => 'Danh mục không được để trống',

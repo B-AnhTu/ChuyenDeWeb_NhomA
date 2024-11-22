@@ -50,6 +50,11 @@ class UserController extends Controller
             $query = $this->userSortAndSearch->sortUsers($query, $sortBy); // Gọi phương thức sắp xếp từ service
         }
 
+        else {
+            // Nếu không có sắp xếp, sắp xếp theo ngày tạo mới
+            $query = $query->orderBy('created_at', 'desc');
+        }
+
         $totalUsers = $this->userService->getTotalUsers();
         $onlineUsers = $this->userService->getOnlineUsers(); 
 

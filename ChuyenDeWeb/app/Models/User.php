@@ -320,10 +320,10 @@ class User extends Authenticatable
                 $query->orderBy('created_at', 'desc');
                 break;
             default:
-                $query->orderBy('created_at', 'asc');
+                $query->orderBy('created_at', 'desc');
                 break;
         }
         return $query;
     }
-    
+
 }
