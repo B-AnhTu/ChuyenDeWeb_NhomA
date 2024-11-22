@@ -15,7 +15,7 @@ class BlogCommentController extends Controller
      */
     public function index()
     {
-        $comments = BlogComment::with('user')->where('status', 1)->orderBy('created_at', 'desc')->get();
+        $comments = BlogComment::getApprovedComments(); // Gọi phương thức trong model
         return view('blog', compact('comments'));
     }
 
@@ -28,40 +28,34 @@ class BlogCommentController extends Controller
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Lưu bình luận mới cho bài viết.
      */
     public function store(Request $request)
     {
+        // Validate dữ liệu đầu vào
         $request->validate([
             'blog_id' => 'required|exists:blog,blog_id',
             'comment' => 'required|string'
         ]);
 
-        // Lấy thông tin người dùng đang đăng nhập
-        $user = Auth::user();
-
-        BlogComment::create([
+        // Gọi phương thức tạo bình luận trong model BlogComment
+        BlogComment::createComment([
             'blog_id' => $request->input('blog_id'),
-            'user_id' => $user->user_id, // Lưu id của người dùng
-            'content' => $request->input('comment'),
-            'name' => $user->fullname, // Lưu tên của người dùng
-            'email' => $user->email, // Lưu email của người dùng
-            'status' => 0 // Trạng thái mặc định là chưa phê duyệt
+            'comment' => $request->input('comment')
         ]);
 
         return response()->json(['message' => 'Bình luận thành công! Vui lòng chờ duyệt!']);
     }
     /**
-     * Display the specified resource.
+     * Hiển thị chi tiết bài viết.
      */
     public function show($slug)
     {
-        $blog = Blog::where('slug', $slug)->firstOrFail();
-        $comments = BlogComment::where('blog_id', $blog->blog_id)
-            ->where('status', 1)
-            ->orderBy('created_at', 'desc') // Thêm dòng này
-            ->get();
-        return view('detail_blog', compact('blog', 'comments'));
+        // Gọi phương thức từ model Blog để lấy bài viết và bình luận
+        $data = Blog::getBlogWithComments($slug);
+
+        // Trả về view với dữ liệu bài viết và bình luận
+        return view('detail_blog', $data);
     }
 
 
@@ -82,47 +76,52 @@ class BlogCommentController extends Controller
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Xóa bình luận.
      */
     public function destroy($id)
     {
-        $comment = BlogComment::findOrFail($id);
-        $comment->delete();
+        BlogComment::deleteComment($id);
 
         return redirect()->back()->with('message', 'Xóa bình luận thành công!');
     }
 
+    /**
+     * Duyệt bình luận.
+     */
     public function approve($id)
     {
-        $comment = BlogComment::findOrFail($id);
-        $comment->status = 1; // Cập nhật trạng thái bình luận thành đã phê duyệt
-        $comment->save();
+        BlogComment::approveComment($id);
 
         return redirect()->back()->with('message', 'Duyệt bình luận thành công!');
     }
 
+    /**
+     * Từ chối bình luận.
+     */
     public function disapprove($id)
     {
-        $comment = BlogComment::findOrFail($id);
-        $comment->status = 0;
-        $comment->save();
+        BlogComment::disapproveComment($id);
 
         return redirect()->back()->with('message', 'Bình luận đã bị từ chối!');
     }
 
+    /**
+     * Quản lý bình luận đã phê duyệt.
+     */
     public function manageComments()
     {
-        $comments = BlogComment::with('user')->where('status', 1)
-            ->orderBy('created_at', 'desc') // Thêm dòng này
-            ->paginate(10);
+        $comments = BlogComment::getApprovedComment();
+
         return view('comments.manageBlogComment', compact('comments'));
     }
 
+    /**
+     * Quản lý bình luận chưa phê duyệt.
+     */
     public function unapprovedComments()
     {
-        $comments = BlogComment::with('user')->where('status', 0)
-            ->orderBy('created_at', 'desc') // Thêm dòng này
-            ->paginate(10);
+        $comments = BlogComment::getUnapprovedComments();
+
         return view('comments.unapprovedBlogComment', compact('comments'));
     }
-}    
+}
