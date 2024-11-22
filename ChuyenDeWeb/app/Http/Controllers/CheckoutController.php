@@ -13,6 +13,9 @@ use Illuminate\Support\Facades\Auth;
 
 class CheckoutController extends Controller
 {
+    /**
+     * Hiển thị form thanh toán
+     */
     public function showCheckoutForm()
     {
         // Lấy giỏ hàng của người dùng
@@ -36,7 +39,9 @@ class CheckoutController extends Controller
         return view('checkout', compact('cart', 'total', 'user'));
     }
 
-
+    /**
+     * Quá trình thanh toán
+     */
     public function processCheckout(Request $request)
     {
         // Validate đầu vào
@@ -53,74 +58,49 @@ class CheckoutController extends Controller
             DB::beginTransaction();
 
             // Lấy giỏ hàng
-            $cart = Cart::where('user_id', Auth::id())
-                ->with('cartProducts.product')
-                ->first();
+            $cart = Cart::getUserCartWithProducts(Auth::id());
 
             if (!$cart || $cart->cartProducts->isEmpty()) {
                 throw new \Exception('Giỏ hàng trống');
             }
 
             // Tính tổng tiền
-            $total = $cart->cartProducts->sum(function ($item) {
-                return optional($item->product)->price * $item->quantity;
-            });
-
-            // Tạo mã đơn hàng ngẫu nhiên dựa trên thời gian và số ngẫu nhiên
-            $orderId = 'ORD-' . strtoupper(uniqid());
-
+            $total = $cart->calculateTotal();
             // Tạo đơn hàng mới
-            $order = Order::create([
-                'order_id' => $orderId, // Mã đơn hàng ngẫu nhiên dạng số
-                'user_id' => Auth::id(),
-                'total_amount' => $total,
-                'shipping_name' => $validated['shipping_name'],
-                'shipping_email' => $validated['shipping_email'],
-                'shipping_phone' => $validated['shipping_phone'],
-                'shipping_address' => $validated['shipping_address'],
-                'payment_method' => $validated['payment_method'],
-                'note' => $validated['note'] ?? null,
-                'status' => 'pending'
-            ]);
+            $order = Order::createNewOrder(Auth::id(), $validated, $total);
 
             foreach ($cart->cartProducts as $item) {
-                // Kiểm tra số lượng tồn kho
-                $product = $item->product;
-                if ($product->stock_quantity < $item->quantity) {
-                    return back()->with('error', 'Số lượng trong kho không đủ cho sản phẩm: ' . $product->product_name);
+                if (!$item->product->isStockAvailable($item->quantity)) {
+                    return back()->with('danger', 'Số lượng trong kho không đủ cho sản phẩm: ' . $item->product->product_name);
                 }
 
-                // Tạo chi tiết đơn hàng
-                OrderDetail::create([
-                    'order_id' => $order->id, // Cập nhật theo ID của đơn hàng mới tạo
-                    'product_id' => $item->product->product_id,
-                    'quantity' => $item->quantity,
-                    'price' => $item->product->price
-                ]);
-
-                // Giảm số lượng tồn kho và tăng số lượng đã bán
-                $product->decrement('stock_quantity', $item->quantity);
-                $product->increment('sold_quantity', $item->quantity);
+                OrderDetail::addOrderDetail($order->id, $item);
+                $item->product->adjustStock($item->quantity);
             }
 
             // Xóa giỏ hàng
-            $cart->cartProducts()->delete(); // Xóa các sản phẩm trong giỏ hàng
-            $cart->delete(); // Xóa giỏ hàng
+            $cart->clearCart();
 
             DB::commit();
 
-            return redirect()->route('cart.view')->with('success', 'Đặt hàng thành công! Mã đơn hàng của bạn là: ' . $orderId);
+            return redirect()->route('cart.view')->with('success', 'Đặt hàng thành công! Mã đơn hàng của bạn là: ' . $order->order_id);
         } catch (\Exception $e) {
             DB::rollBack();
             return back()->with('error', 'Có lỗi xảy ra: ' . $e->getMessage());
         }
     }
 
+    /**
+     * Hiển thị form theo dõi đơn hàng
+     */
     public function showTrackingForm()
     {
         return view('order.tracking-form');
     }
 
+    /**
+     * Đơn hàng của tôi
+     */
     public function myOrders()
     {
         $orders = Order::where('user_id', Auth::id())
@@ -130,7 +110,9 @@ class CheckoutController extends Controller
         return view('order.my-orders', compact('orders'));
     }
 
-    // Xem chi tiết đơn hàng
+    /**
+     * Xem chi tiết đơn hàng
+     */
     public function orderDetail($id)
     {
         $order = Order::with(['orderDetails.product'])
@@ -141,7 +123,9 @@ class CheckoutController extends Controller
         return view('order.detail', compact('order'));
     }
 
-    // Tra cứu đơn hàng bằng mã đơn và email
+    /**
+     * Tra cứu đơn hàng bằng mã đơn và email
+     */
     public function trackOrder(Request $request)
     {
         $validated = $request->validate([
@@ -161,7 +145,9 @@ class CheckoutController extends Controller
         return view('order.tracking-result', compact('order'));
     }
 
-    // Hủy đơn hàng
+    /**
+     * Hủy đơn hàng.
+     */
     public function cancelOrder(Request $request, $id)
     {
         $order = Order::where('id', $id)
@@ -191,7 +177,9 @@ class CheckoutController extends Controller
         }
     }
 
-    // Xác nhận đã nhận hàng
+    /**
+     * Xác nhận đơn hàng.
+     */
     public function confirmReceived($id)
     {
         $order = Order::where('id', $id)

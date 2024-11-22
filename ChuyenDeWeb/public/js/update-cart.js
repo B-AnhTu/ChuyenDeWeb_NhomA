@@ -106,12 +106,19 @@ document.addEventListener("DOMContentLoaded", function () {
                             const cartTotal =
                                 document.querySelector(".cart-total");
                             if (cartTotal) {
-                                cartTotal.textContent =
-                                    new Intl.NumberFormat("vi-VN").format(
-                                        data.cartTotal
-                                    ) + " vnđ";
+                                const updatedCartTotal = data.cartTotal; // Lấy tổng tiền mới từ response
+                                if (!isNaN(updatedCartTotal)) {
+                                    cartTotal.textContent =
+                                        new Intl.NumberFormat("vi-VN").format(
+                                            updatedCartTotal
+                                        ) + " vnđ";
+                                } else {
+                                    console.error(
+                                        "Tổng tiền giỏ hàng không hợp lệ."
+                                    );
+                                }
+                                updateCartTotal(data.cartTotal);
                             }
-
                             // Nếu giỏ hàng trống, reload trang
                             if (data.cartTotal === 0) {
                                 window.location.reload();
@@ -124,6 +131,22 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         });
     });
+    // Hàm cập nhật tổng tiền giỏ hàng
+    function updateCartTotal(cartTotal) {
+        const cartTotalElement = document.querySelector(".cart-total");
+        if (cartTotalElement) {
+            cartTotalElement.textContent =
+                new Intl.NumberFormat("vi-VN").format(cartTotal) + " vnđ";
+        }
+
+        const subtotalElement = document.querySelector(
+            ".shoping__checkout li:first-child span"
+        );
+        if (subtotalElement) {
+            subtotalElement.textContent =
+                new Intl.NumberFormat("vi-VN").format(cartTotal) + " vnđ";
+        }
+    }
     //Xử lý thanh toán
     const checkoutButton = document.querySelector(
         ".shoping__checkout .primary-btn .thanh-toan"
@@ -162,8 +185,8 @@ document.addEventListener("DOMContentLoaded", function () {
                                 <input type="text" class="form-control" id="cardName" required>
                             </div>
                             <p>Tổng thanh toán: <strong>${formatCurrency(
-            total
-        )}</strong></p>
+                                total
+                            )}</strong></p>
                         </div>
                         <div class="modal-footer">
                             <button type="submit" class="primary-btn">Thanh toán</button>

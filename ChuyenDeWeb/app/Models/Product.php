@@ -129,6 +129,7 @@ class Product extends Model
     //Tìm kiếm sản phẩm trang index
     public static function searchProducts($keyword = null, $manufacturerId = null, $perPage = 8)
     {
+        
         $query = self::query();
 
         if ($keyword) {
@@ -249,6 +250,17 @@ class Product extends Model
         $this->attributes['slug'] = Str::slug($value);
     }
 
+    //Kiểm tra sản phẩm tồn kho có đủ hay ko
+    public function isStockAvailable($quantity)
+    {
+        return $this->stock_quantity >= $quantity;  
+    }
+
+    public function adjustStock($quantity)
+    {
+        $this->decrement('stock_quantity', $quantity);
+        $this->increment('sold_quantity', $quantity);
+    }
 
     // Quan hệ với bảng Category
     public function category()

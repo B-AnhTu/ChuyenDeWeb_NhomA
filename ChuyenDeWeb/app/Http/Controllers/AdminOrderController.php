@@ -14,36 +14,16 @@ class AdminOrderController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Order::with(['user', 'orderDetails.product'])
-            ->orderBy('created_at', 'desc');
+        $filters = $request->only(['status', 'search', 'date_from', 'date_to']);
 
-        // Lọc theo trạng thái
-        if ($request->has('status') && $request->status != '') {
-            $query->where('status', $request->status);
-        }
-
-        // Tìm kiếm theo mã đơn hàng hoặc email
-        if ($request->has('search')) {
-            $search = $request->search;
-            $query->where(function ($q) use ($search) {
-                $q->where('order_id', 'like', "%{$search}%")
-                    ->orWhere('shipping_email', 'like', "%{$search}%")
-                    ->orWhere('shipping_phone', 'like', "%{$search}%");
-            });
-        }
-
-        // Lọc theo khoảng thời gian
-        if ($request->has('date_from')) {
-            $query->whereDate('created_at', '>=', $request->date_from);
-        }
-        if ($request->has('date_to')) {
-            $query->whereDate('created_at', '<=', $request->date_to);
-        }
-
-        $orders = $query->paginate(10);
+        $orders = Order::with(['user', 'orderDetails.product'])
+            ->filterOrders($filters)
+            ->orderBy('created_at', 'desc')
+            ->paginate(10);
 
         return view('orders.index', compact('orders'));
     }
+
 
 
 
@@ -145,17 +125,11 @@ class AdminOrderController extends Controller
         $dateFrom = $request->get('date_from', Carbon::now()->startOfMonth());
         $dateTo = $request->get('date_to', Carbon::now());
 
-        // Thống kê tổng quan
-        $overview = $this->getOrdersOverview($dateFrom, $dateTo);
-
-        // Thống kê theo trạng thái
-        $statusStats = $this->getOrdersByStatus($dateFrom, $dateTo);
-
-        // Thống kê theo ngày
-        $dailyStats = $this->getDailyOrderStats($dateFrom, $dateTo);
-
-        // Top sản phẩm bán chạy
-        $topProducts = $this->getTopSellingProducts($dateFrom, $dateTo);
+        // Gọi các phương thức trong model
+        $overview = Order::getOrdersOverview($dateFrom, $dateTo);
+        $statusStats = Order::getOrdersByStatus($dateFrom, $dateTo);
+        $dailyStats = Order::getDailyOrderStats($dateFrom, $dateTo);
+        $topProducts = Order::getTopSellingProducts($dateFrom, $dateTo);
 
         return view('orders.statistics', compact(
             'overview',
@@ -167,71 +141,4 @@ class AdminOrderController extends Controller
         ));
     }
 
-    /**
-     * Lấy thống kê tổng quan
-     */
-    private function getOrdersOverview($dateFrom, $dateTo)
-    {
-        return [
-            'total_orders' => Order::whereBetween('created_at', [$dateFrom, $dateTo])->count(),
-            'total_revenue' => Order::whereBetween('created_at', [$dateFrom, $dateTo])
-                ->where('status', 'completed')
-                ->sum('total_amount'),
-            'average_order_value' => Order::whereBetween('created_at', [$dateFrom, $dateTo])
-                ->where('status', 'completed')
-                ->avg('total_amount'),
-            'total_customers' => Order::whereBetween('created_at', [$dateFrom, $dateTo])
-                ->distinct('user_id')
-                ->count(),
-        ];
-    }
-
-    /**
-     * Lấy thống kê theo trạng thái đơn hàng
-     */
-    private function getOrdersByStatus($dateFrom, $dateTo)
-    {
-        return Order::whereBetween('created_at', [$dateFrom, $dateTo])
-            ->select('status', DB::raw('count(*) as total'), DB::raw('sum(total_amount) as revenue'))
-            ->groupBy('status')
-            ->get();
-    }
-
-    /**
-     * Lấy thống kê đơn hàng theo ngày
-     */
-    private function getDailyOrderStats($dateFrom, $dateTo)
-    {
-        return Order::whereBetween('created_at', [$dateFrom, $dateTo])
-            ->select(
-                DB::raw('DATE(created_at) as date'),
-                DB::raw('count(*) as total_orders'),
-                DB::raw('sum(total_amount) as daily_revenue')
-            )
-            ->groupBy('date')
-            ->orderBy('date')
-            ->get();
-    }
-
-    /**
-     * Lấy danh sách top sản phẩm bán chạy
-     */
-    private function getTopSellingProducts($dateFrom, $dateTo)
-    {
-        return DB::table('order_details')
-            ->join('orders', 'order_details.order_id', '=', 'orders.id')
-            ->join('product', 'order_details.product_id', '=', 'product.product_id')
-            ->whereBetween('orders.created_at', [$dateFrom, $dateTo])
-            ->where('orders.status', 'completed')
-            ->select(
-                'product.product_id',
-                'product.product_name',
-                DB::raw('sum(order_details.quantity) as total_quantity'),
-                DB::raw('sum(order_details.quantity * order_details.price) as total_revenue')
-            )
-            ->groupBy('product.product_id', 'product.product_name')
-            ->orderBy('total_quantity', 'desc')
-            ->limit(10)
-            ->get();
-    }
 }
