@@ -28,4 +28,35 @@ class ProductLike extends Model
     {
         return $this->belongsTo(Product::class, 'product_id');
     }
+
+    // Kiểm tra xem sản phẩm có được thích bởi người dùng
+    public static function isLikedByUser($userId, $productId)
+    {
+        return self::where('user_id', $userId)
+            ->where('product_id', $productId)
+            ->first();
+    }
+
+    // Thêm sản phẩm vào danh sách yêu thích
+    public static function addLike($userId, $productId)
+    {
+        return self::create([
+            'user_id' => $userId,
+            'product_id' => $productId,
+        ]);
+    }
+
+    // Xóa sản phẩm khỏi danh sách yêu thích
+    public static function removeLike($existingLike)
+    {
+        return $existingLike->delete();
+    }
+
+    // Lấy danh sách sản phẩm yêu thích của người dùng
+    public static function getUserLikedProducts($userId)
+    {
+        return self::where('user_id', $userId)
+            ->with('product')
+            ->get();
+    }
 }

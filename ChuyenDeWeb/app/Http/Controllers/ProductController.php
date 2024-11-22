@@ -75,7 +75,13 @@ class ProductController extends Controller
     // tìm kiếm sản phẩm theo nhà sản xuất
     public function search(Request $request)
     {
+        // Lấy danh sách manufacturers trước khi tìm kiếm
+        $manufacturers = Manufacturer::all();
+        $categories = Category::all();
         $products = Product::searchProductsViewProduct($request->keyword, $request->manufacturer_id);
+        $likedProductIds = Auth::check()
+            ? ProductLike::where('user_id', Auth::id())->pluck('product_id')->toArray()
+            : [];
 
         if ($request->ajax()) {
             return response()->json([
@@ -86,9 +92,8 @@ class ProductController extends Controller
             ]);
         }
 
-        return view('index', compact('products', 'manufacturers'));
+        return view('product', compact('products', 'manufacturers', 'categories', 'likedProductIds'));
     }
-
 
     // sắp xếp
     public function sort(Request $request)
@@ -106,7 +111,7 @@ class ProductController extends Controller
 
         return view('product', compact('products', 'manufacturers', 'categories'));
     }
-    
+
     // Hiển thị danh sách sản phẩm trong admin
     public function list(Request $request)
     {
@@ -152,6 +157,7 @@ class ProductController extends Controller
         $this->productService->createProduct($request->validated());
         return redirect()->route('product.index')->with('success', 'Sản phẩm đã được tạo thành công');
     }
+
     // Hiển thị chi tiết sản phẩm
     public function show($slug)
     {
@@ -161,6 +167,9 @@ class ProductController extends Controller
         }
         return view('productShow', compact('product'));
     }
+
+
+
     // Hiển thị form cập nhật sản phẩm trong admin
     public function edit($slug)
     {
@@ -179,7 +188,7 @@ class ProductController extends Controller
         try {
             // Tìm product theo slug
             $product = $this->productService->getProductBySlug($slug);
-            
+
             // Kiểm tra nếu sản phẩm không tồn tại
             if (!$product) {
                 Session::flash('error', 'Sản phẩm không tồn tại');
@@ -211,7 +220,7 @@ class ProductController extends Controller
             return redirect()->route('product.index')->with('success', 'Xóa sản phẩm thành công');
         } catch (\Exception $e) {
             // Thông báo lỗi
-            Session::flash('error',$e->getMessage());
+            Session::flash('error', $e->getMessage());
             return redirect()->route('product.index')->withInput();
         }
     }
@@ -232,10 +241,9 @@ class ProductController extends Controller
             return redirect()->route('product.trashed')->with('success', 'Sản phẩm đã được khôi phục.');
         } catch (\Exception $e) {
             // Thông báo lỗi
-            Session::flash('error',$e->getMessage());
+            Session::flash('error', $e->getMessage());
             return redirect()->route('product.trashed')->withInput();
         }
-        
     }
 
     // Xóa vĩnh viễn sản phẩm
@@ -247,7 +255,7 @@ class ProductController extends Controller
             return redirect()->route('product.trashed')->with('success', 'Sản phẩm đã được xóa vĩnh viễn.');
         } catch (\Exception $e) {
             // Thông báo lỗi
-            Session::flash('error',$e->getMessage());
+            Session::flash('error', $e->getMessage());
             return redirect()->route('product.trashed')->withInput();
         }
     }
