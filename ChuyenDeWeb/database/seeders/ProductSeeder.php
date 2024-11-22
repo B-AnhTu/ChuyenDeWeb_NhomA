@@ -603,8 +603,8 @@ class ProductSeeder extends Seeder
         foreach ($products as $product) {
             // Tạo sản phẩm
             $newProduct = Product::create($product);
-            // Tạo slug từ category_name và ID của sản phẩm
-            $newProduct->slug = Product::generateUniqueSlug($newProduct->category_name, $newProduct->product_id);
+            // Tạo slug từ product_name và ID của sản phẩm
+            $newProduct->slug = Product::generateUniqueSlug($newProduct->product_name, $newProduct->product_id);
             $newProduct->save();
         }
     }

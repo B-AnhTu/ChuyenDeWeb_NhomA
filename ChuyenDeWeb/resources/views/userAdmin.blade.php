@@ -25,9 +25,11 @@
                                     A - Z)</option>
                                 <option value="name_desc" {{ request('sort_by') == 'name_desc' ? 'selected' : '' }}>Tên
                                     (Từ Z - A)</option>
-                                    <option value="role_asc" {{ request('sort_by') == 'role_asc' ? 'selected' : '' }}>Quyền (Tăng dần)
+                                <option value="role_asc" {{ request('sort_by') == 'role_asc' ? 'selected' : '' }}>Quyền
+                                    (Tăng dần)
                                 </option>
-                                <option value="role_desc" {{ request('sort_by') == 'role_desc' ? 'selected' : '' }}>Quyền (Giảm
+                                <option value="role_desc" {{ request('sort_by') == 'role_desc' ? 'selected' : '' }}>Quyền
+                                    (Giảm
                                     dần)</option>
                                 <option value="created_at_asc" {{ request('sort_by') == 'created_at_asc' ? 'selected' : '' }}>Ngày tạo (Tăng dần)</option>
                                 <option value="created_at_desc" {{ request('sort_by') == 'created_at_desc' ? 'selected' : '' }}>Ngày tạo (Giảm dần)</option>
@@ -46,7 +48,7 @@
             </div>
             <div class="col-md-12">
                 <div class="row my-3 d-flex align-items-center">
-                   <div class="col-sm-3 col-md-3">
+                    <div class="col-sm-3 col-md-3">
                         <div class="card card-stats card-round">
                             <div class="card-body">
                                 <div class="row align-items-center">
@@ -114,8 +116,15 @@
                                 <td>{{ $user->fullname }}</td>
                                 <td>{{ $user->email }}</td>
                                 <td>{{ $user->phone }}</td>
-                                <td><img src="{{ asset('img/profile-picture/' . $user->image) }}"
-                                        alt="{{ $user->fullname }}" width="100"></td>
+                                <td>
+                                @if (!empty($user->image))
+                                    <img src="{{ asset('img/profile-picture/' . $user->image) }}"
+                                        alt="{{ $user->fullname }}" width="100">
+                                @else
+                                    <img src="{{ asset('img/profile-picture/user-default.jpg') }}" alt="Default Image"
+                                        width="100">
+                                @endif
+                                </td>
                                 <td>
                                     <!-- Add action buttons here -->
                                     <a href="{{ route('userAdmin.show', $user->slug) }}" class="btn btn-primary"><i
