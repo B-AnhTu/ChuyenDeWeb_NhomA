@@ -27,7 +27,7 @@ class StoreProductRequest extends FormRequest
     {
         return [
             'product_name' => ['required', 'string', 'max:50', new NoSpecialCharacters, new SingleSpaceOnly],
-            'price' => 'required|numeric|min:0|regex:/^(0|[1-9][0-9]*)(000)*$/', // Chia hết cho 1000
+            'price' => ['required','numeric','min:0'],        
             'image' => 'required|mimes:jpeg,jpg,png,gif|max:5120',
             'description' => ['required', new NoSpecialCharacters, new SingleSpaceOnly],
             'stock_quantity' => 'required|integer|min:0|max:1000', 
@@ -44,7 +44,6 @@ class StoreProductRequest extends FormRequest
             'price.required' => 'Giá sản phẩm không được để trống',
             'price.numeric' => 'Giá sản phẩm bắt buộc phải là số',
             'price.min' => 'Giá sản phẩm phải lớn hơn 0',
-            'price.regex' => 'Giá sản phẩm phải là giá trị chia hết cho 1000',
             'image.required' => 'Hình ảnh không được để trống',
             'image.mimes' => 'Hình ảnh phải có đuôi .jpeg, .jpg, .png, .gif',
             'image.max' => 'Kích thước tối đa của hình là 5MB',
