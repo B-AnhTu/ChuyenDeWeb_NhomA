@@ -27,7 +27,7 @@ class RegisterController extends Controller
         $validator = Validator::make($request->all(), [
             'email' => 'required|email|max:50|unique:users,email',
             'password' => 'required|min:8|max:20',
-            'fullname' => ['required', 'max:50', 'regex:/^[\pL\s]+$/u'],
+            'fullname' => ['required', 'max:50', 'regex:/^[\pL]+(?: [\pL]+)*$/u'],
             'phone' => ['required', 'regex:/^0[3|5|7|8|9][0-9]{8}$/'],
         ], [
             'email.required' => 'Vui lòng nhập email',
@@ -38,7 +38,7 @@ class RegisterController extends Controller
             'password.min' => 'Mật khẩu phải có ít nhất 8 ký tự',
             'password.max' => 'Mật khẩu không quá 20 ký tự',
             'fullname.required' => 'Vui lòng nhập họ và tên',
-            'fullname.regex' => 'Họ và tên không có số, ký tự đặc biệt',
+            'fullname.regex' => 'Họ và tên không có số, ký tự đặc biệt, khoảng trắng kép',
             'fullname.max' => 'Họ và tên không được quá 50 ký tự',
             'phone.required' => 'Vui lòng nhập số điện thoại',
             'phone.regex' => 'Số điện thoại phải là số hợp lệ tại Việt Nam',

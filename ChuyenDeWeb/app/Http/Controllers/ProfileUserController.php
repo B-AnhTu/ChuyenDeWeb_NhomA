@@ -21,7 +21,8 @@ class ProfileUserController extends Controller
             'fullname' => 'required|string|max:50|regex:/^[^\d\W_]+( [^\d\W_]+)*$/u',
             'email' => 'required|email|max:50|unique:users,email,' . $user->user_id . ',user_id|regex:/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/',
             'phone' => ['required', 'regex:/^0[3|5|7|8|9][0-9]{8}$/'],
-            'address' => 'nullable|string|max:255|regex:/^[a-zA-Z0-9ÀÁÂÃÈÉÊÌÍÒÓÔÕÙÚĂĐĨŨƠàáâãèéêìíòóôõùúăđĩũơƯăâêôơăắặằẳẵẳẻểếềễệĩịụủứừữựỳỵỷỹ\s,]+$/u',
+            'address' => 'nullable|string|max:255|regex:/^(?!.*\s{2,})[a-zA-Z0-9ÀÁÂÃÈÉÊÌÍÒÓÔÕÙÚĂĐĨŨƠàáâãèéêìíòóôõùúăđĩũơƯăâêôơăắặằẳẵẳẻểếềễệĩịụủứừữựỳỵỷỹ\s,]+$/u',
+
         ], [
             'fullname.required' => 'Họ và tên là bắt buộc',
             'fullname.regex' => 'Không đúng định dạng họ và tên',
