@@ -16,7 +16,7 @@ class SingleSpaceOnly implements Rule
     public function passes($attribute, $value)
     {
         // Kiểm tra xem chuỗi chỉ chứa một khoảng trắng giữa các từ
-        return preg_match('/^(?:\S+ ?)+\S+$/u', trim($value));   
+        return preg_match('/^(?!.* {2})(?!\s)[\w\s]+(?<!\s)$/u', $value);
     }
 
     /**
