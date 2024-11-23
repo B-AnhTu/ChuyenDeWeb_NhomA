@@ -25,7 +25,7 @@ class CheckoutController extends Controller
 
         if (!$cart || $cart->cartProducts->isEmpty()) {
             return redirect()->route('cart.view')
-                ->with('error', 'Giỏ hàng của bạn có sản phẩm không hợp lệ!');
+                ->with('error', 'Một số sản phẩm trong giỏ hàng của bạn không còn khả dụng. Vui lòng kiểm tra lại!');
         }
 
         // Kiểm tra và loại bỏ các sản phẩm không tồn tại
